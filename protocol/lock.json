@@ -234,5 +234,130 @@
     "Product correctness tests, independent review and release evidence"
   ],
   "fundsWritingAuthorized": false,
-  "warning": "Behavior-only conditional implementation lock for tiny FSM transition logic. Not source-verified, audited or a live transaction quote. Refresh implementations, fees, balances and exact-call simulations before any authorized wallet interaction."
+  "warning": "Behavior-only conditional implementation lock for tiny FSM transition logic. Not source-verified, audited or a live transaction quote. Refresh implementations, fees, balances and exact-call simulations before any authorized wallet interaction.",
+  "gateC": {
+    "contractRoles": {
+      "factory": "0x1f09daefa827f02cbb40967cc91b259763760761",
+      "processorImplementation": "0x977f217887e085d298cb3819cdad5a0ee35f29b2",
+      "processorCallTargetRole": "processor proxy, not implementation, factory, transistor or beacon",
+      "tokenRole": "processor-linked ERC-1155; used only for transient balance overrides in Gate C"
+    },
+    "functions": [
+      {
+        "signature": "netlist(uint256)",
+        "selector": "0x3fc4be56",
+        "abi": {
+          "type": "function",
+          "name": "netlist",
+          "inputs": [{"name": "id", "type": "uint256"}],
+          "outputs": [{"name": "", "type": "bytes"}],
+          "stateMutability": "view"
+        },
+        "use": "eth_call"
+      },
+      {
+        "signature": "circuitInfo(uint256)",
+        "selector": "0x084d60f1",
+        "abi": {
+          "type": "function",
+          "name": "circuitInfo",
+          "inputs": [{"name": "id", "type": "uint256"}],
+          "outputs": [
+            {"name": "nIn", "type": "uint32"},
+            {"name": "nOut", "type": "uint32"},
+            {"name": "nState", "type": "uint32"},
+            {"name": "gateCount", "type": "uint32"}
+          ],
+          "stateMutability": "view"
+        },
+        "use": "eth_call"
+      },
+      {
+        "signature": "eval(uint256,bytes)",
+        "selector": "0x934d06ea",
+        "abi": {
+          "type": "function",
+          "name": "eval",
+          "inputs": [{"name": "id", "type": "uint256"}, {"name": "inputs", "type": "bytes"}],
+          "outputs": [{"name": "", "type": "bytes"}],
+          "stateMutability": "view"
+        },
+        "use": "eth_call"
+      },
+      {
+        "signature": "step(uint256,bytes,bytes)",
+        "selector": "0xe8281a1a",
+        "abi": {
+          "type": "function",
+          "name": "step",
+          "inputs": [
+            {"name": "id", "type": "uint256"},
+            {"name": "state", "type": "bytes"},
+            {"name": "inputs", "type": "bytes"}
+          ],
+          "outputs": [{"name": "newState", "type": "bytes"}, {"name": "outputs", "type": "bytes"}],
+          "stateMutability": "view"
+        },
+        "use": "eth_call"
+      },
+      {
+        "signature": "tapeout(bytes,uint32,uint32)",
+        "selector": "0x7bd3ac1d",
+        "abi": {
+          "type": "function",
+          "name": "tapeout",
+          "inputs": [
+            {"name": "nl", "type": "bytes"},
+            {"name": "nIn", "type": "uint32"},
+            {"name": "nOut", "type": "uint32"}
+          ],
+          "outputs": [{"name": "", "type": "uint256"}],
+          "stateMutability": "payable"
+        },
+        "use": "SIMULATION ONLY in Gate C; payable ABI does not authorize a transaction"
+      }
+    ],
+    "abiEncoding": {
+      "selector": "first four bytes of keccak256 of the canonical signature",
+      "staticArguments": "32-byte big-endian ABI words; uint32 and uint256 left padded",
+      "dynamicBytes": "head offset relative to the argument tuple; tail is uint256 byte length, bytes, and right zero padding to a 32-byte boundary",
+      "stepArguments": ["uint256 circuitId", "bytes currentState", "bytes inputs"],
+      "netlistReturn": "single dynamic bytes: offset word, length word, exact bytes",
+      "evalReturn": "single dynamic bytes: offset word, length word, exact bytes",
+      "stepReturn": "two dynamic bytes offsets at head words 0 and 1; decode nextState first and outputs second",
+      "circuitInfoReturn": "four static words in order nIn, nOut, nState, gateCount",
+      "tapeoutReturn": "single uint256 ABI word giving the simulated circuit ID"
+    },
+    "wireFormat": {
+      "header": false,
+      "padding": false,
+      "terminator": false,
+      "dimensions": "nIn and nOut supplied separately to tapeout; nState derived from records",
+      "signals": {"zero": 0, "one": 1, "inputStart": 2, "producedStart": "2+nIn; one new signal per NAND/LATCH record"},
+      "nand": {"opcode": 0, "bytes": 7, "fields": "a:u24 big-endian, b:u24 big-endian", "behavior": "NOT(a AND b)"},
+      "latch": {"opcode": 1, "bytes": 4, "fields": "d:u24 big-endian", "behavior": "old caller-supplied latch bit drives evaluation, then D is sampled", "forwardDAllowed": true},
+      "outputPlacement": "last nOut produced signals",
+      "vectorPacking": "LSB first within each byte; latch state bits in record order",
+      "scope": "bounded tested NAND/LATCH behavior; not universal TAP conformance"
+    },
+    "candidateSimulation": {
+      "label": "SIMULATION",
+      "name": "debug_traceCall prestateTracer diffMode manufacture, then eth_call with reconstructed post-state",
+      "steps": [
+        "eth_call tapeout(bytes,uint32,uint32) with the exact candidate raw record payload, separate dimensions, fixture value, block tag, and initial overrides",
+        "debug_traceCall with the same call object and block tag, tracer prestateTracer, tracerConfig diffMode true, and initial stateOverrides",
+        "deep-copy initial overrides; for every result.post account copy balance and code when present, merge storage into stateDiff, and do not copy nonce or replace storage wholesale",
+        "on both locked providers call circuitInfo and netlist with reconstructed overrides and verify dimensions and exact raw record bytes",
+        "on both locked providers call step with reconstructed overrides for every fixture case and decode nextState first, outputs second"
+      ],
+      "requiredRpc": ["eth_call", "debug_traceCall"],
+      "failurePolicy": "BLOCKED on missing RPC capability, revert, empty or malformed trace, missing post-state, wrong readback, provider disagreement, or mismatch",
+      "isolation": "Each RPC call is independent; reconstructed overrides carry simulated state; no signed or broadcast transaction and no authoritative workflow persistence"
+    },
+    "warnings": [
+      "Do not broadcast tapeout calldata. Gate C is read-only.",
+      "ABI fragments and successful calls establish behavior, not exact source/build provenance.",
+      "Historical provider capability must be rerun; this lock addition does not itself pass Gate C."
+    ]
+  }
 }
