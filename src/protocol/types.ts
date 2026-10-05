@@ -58,6 +58,7 @@ export interface ProtocolLock {
   fundsWritingAuthorized: boolean;
   warning: string;
   gateC: GateCProtocolConfig;
+  gateD?: GateDProtocolConfig;
   [key: string]: unknown;
 }
 
@@ -99,6 +100,29 @@ export interface GateCProtocolConfig {
     isolation: string;
   };
   warnings: string[];
+}
+
+export interface LockedEvent {
+  signature: string;
+  topic0: string;
+  fragment: string;
+  role: string;
+  decoding: Record<string, unknown>;
+}
+
+export interface GateDProtocolConfig {
+  status: string;
+  contractRoles: Record<string, string>;
+  functions: LockedFunction[];
+  events: LockedEvent[];
+  currentSnapshot: Record<string, unknown>;
+  creation: Record<string, unknown>;
+  acquisition: Record<string, unknown>;
+  tapeout: Record<string, unknown>;
+  duplicateSafety: Record<string, unknown>;
+  constraints: Record<string, unknown>;
+  warnings: string[];
+  [key: string]: unknown;
 }
 
 export interface IdentityTarget {

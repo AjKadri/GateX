@@ -15,6 +15,13 @@ export class GateCBlockedError extends Error {
   }
 }
 
+export class GateDBlockedError extends Error {
+  constructor(public readonly missing: MissingProtocolFact[]) {
+    super(missing.map((item) => `${item.key}: ${item.reason}`).join("\n"));
+    this.name = "GateDBlockedError";
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -92,4 +99,31 @@ export function missingGateCProtocolFacts(lock: ProtocolLock): MissingProtocolFa
 export function requireGateCProtocolFacts(lock: ProtocolLock): void {
   const missing = missingGateCProtocolFacts(lock);
   if (missing.length > 0) throw new GateCBlockedError(missing);
+}
+
+export function requireGateDProtocolFacts(lock: ProtocolLock): void {
+  const missing: MissingProtocolFact[] = [];
+  const gateD = lock.gateD;
+  if (gateD === undefined) {
+    missing.push({ key: "protocol/lock.json gateD", reason: "The recovered Gate D protocol surface has not been promoted" });
+  } else {
+    for (const signature of [
+      "createCPU(string,string,string,uint256,uint256)",
+      "deployFee()",
+      "mint(uint256,uint256)",
+      "mintPrice()",
+      "protocolFee()",
+      "supplyCap()",
+      "minted()",
+      "balanceOf(address,uint256)",
+      "tapeout(bytes,uint32,uint32)",
+      "TAPEOUT_FEE()"
+    ]) {
+      if (!gateD.functions.some((candidate) => candidate.signature === signature && /^0x[0-9a-fA-F]{8}$/.test(candidate.selector))) {
+        missing.push({ key: `protocol/lock.json gateD.functions.${signature}`, reason: "The recovered function signature or selector is missing" });
+      }
+    }
+    if (gateD.events.length < 5) missing.push({ key: "protocol/lock.json gateD.events", reason: "The recovered creation, mint and tapeout events are incomplete" });
+  }
+  if (missing.length > 0) throw new GateDBlockedError(missing);
 }

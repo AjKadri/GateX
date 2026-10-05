@@ -234,6 +234,121 @@
     "Product correctness tests, independent review and release evidence"
   ],
   "fundsWritingAuthorized": false,
+  "gateD": {
+    "status": "RECOVERED_SURFACE_EXACT_CALL_PREFLIGHT_PENDING",
+    "contractRoles": {
+      "factory": "0x1f09daefa827f02cbb40967cc91b259763760761",
+      "processor": "processor proxy returned by createCPU",
+      "transistors": "processor-linked ERC-1155 returned by createCPU",
+      "wirePayload": "headerless raw TapeOut payload"
+    },
+    "functions": [
+      { "role": "factory", "fragment": "function createCPU(string name, string symbol, string story, uint256 transistorSupply, uint256 mintPrice) payable returns (address transistors, address circuits)", "signature": "createCPU(string,string,string,uint256,uint256)", "selector": "0x47f9b5fd" },
+      { "role": "factory", "fragment": "function cpuCount() view returns (uint256)", "signature": "cpuCount()", "selector": "0xa94da8a7" },
+      { "role": "factory", "fragment": "function cpuAt(uint256 i) view returns (address)", "signature": "cpuAt(uint256)", "selector": "0x4bc7cbbd" },
+      { "role": "factory", "fragment": "function isCPU(address) view returns (bool)", "signature": "isCPU(address)", "selector": "0x5f5a364f" },
+      { "role": "factory", "fragment": "function deployFee() view returns (uint256)", "signature": "deployFee()", "selector": "0xeb2a5d2c" },
+      { "role": "factory", "fragment": "function protocolFee() view returns (uint256)", "signature": "protocolFee()", "selector": "0xb0e21e8a" },
+      { "role": "processor", "fragment": "function transistors() view returns (address)", "signature": "transistors()", "selector": "0x6fbd1719" },
+      { "role": "processor", "fragment": "function factory() view returns (address)", "signature": "factory()", "selector": "0xc45a0155" },
+      { "role": "processor", "fragment": "function name() view returns (string)", "signature": "name()", "selector": "0x06fdde03" },
+      { "role": "processor", "fragment": "function symbol() view returns (string)", "signature": "symbol()", "selector": "0x95d89b41" },
+      { "role": "processor", "fragment": "function nextId() view returns (uint256)", "signature": "nextId()", "selector": "0x61b8ce8c" },
+      { "role": "processor", "fragment": "function tapeout(bytes nl, uint32 nIn, uint32 nOut) payable returns (uint256)", "signature": "tapeout(bytes,uint32,uint32)", "selector": "0x7bd3ac1d" },
+      { "role": "processor", "fragment": "function TAPEOUT_FEE() view returns (uint256)", "signature": "TAPEOUT_FEE()", "selector": "0xadfb2b69" },
+      { "role": "processor", "fragment": "function ownerOf(uint256 id) view returns (address)", "signature": "ownerOf(uint256)", "selector": "0x6352211e" },
+      { "role": "processor", "fragment": "function netlist(uint256 id) view returns (bytes)", "signature": "netlist(uint256)", "selector": "0x3fc4be56" },
+      { "role": "processor", "fragment": "function circuitInfo(uint256 id) view returns (uint32 nIn, uint32 nOut, uint32 nState, uint32 gateCount)", "signature": "circuitInfo(uint256)", "selector": "0x084d60f1" },
+      { "role": "token", "fragment": "function mintPrice() view returns (uint256)", "signature": "mintPrice()", "selector": "0x6817c76c" },
+      { "role": "token", "fragment": "function protocolFee() view returns (uint256)", "signature": "protocolFee()", "selector": "0xb0e21e8a" },
+      { "role": "token", "fragment": "function supplyCap() view returns (uint256)", "signature": "supplyCap()", "selector": "0x8f770ad0" },
+      { "role": "token", "fragment": "function minted() view returns (uint256)", "signature": "minted()", "selector": "0x4f02c420" },
+      { "role": "token", "fragment": "function creator() view returns (address)", "signature": "creator()", "selector": "0x02d05d3f" },
+      { "role": "token", "fragment": "function circuits() view returns (address)", "signature": "circuits()", "selector": "0x5f48772d" },
+      { "role": "token", "fragment": "function cpuName() view returns (string)", "signature": "cpuName()", "selector": "0x700ed104" },
+      { "role": "token", "fragment": "function cpuSymbol() view returns (string)", "signature": "cpuSymbol()", "selector": "0x91254d67" },
+      { "role": "token", "fragment": "function story() view returns (string)", "signature": "story()", "selector": "0x46c922d1" },
+      { "role": "token", "fragment": "function balanceOf(address a, uint256 id) view returns (uint256)", "signature": "balanceOf(address,uint256)", "selector": "0x00fdd58e" },
+      { "role": "token", "fragment": "function isApprovedForAll(address account, address operator) view returns (bool)", "signature": "isApprovedForAll(address,address)", "selector": "0xe985e9c5" },
+      { "role": "token", "fragment": "function mint(uint256 id, uint256 amount) payable", "signature": "mint(uint256,uint256)", "selector": "0x1b2ef1ca" },
+      { "role": "token", "fragment": "function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes data)", "signature": "safeTransferFrom(address,address,uint256,uint256,bytes)", "selector": "0xf242432a" }
+    ],
+    "events": [
+      { "role": "factory", "fragment": "event CPUCreated(address indexed circuits, address indexed transistors, address indexed creator, string name, uint256 supply, uint256 mintPrice)", "signature": "CPUCreated(address,address,address,string,uint256,uint256)", "topic0": "0x2e8868f18a1eaf0222b5b09484fdf12163e9741393f8457cd79d2ae42b2d2290", "decoding": { "topics": ["signature", "processor address", "token address", "creator address"], "data": ["dynamic string name", "uint256 supply", "uint256 mintPrice"] } },
+      { "role": "token", "fragment": "event Minted(address indexed to, uint256 indexed id, uint256 amount, uint256 paid)", "signature": "Minted(address,uint256,uint256,uint256)", "topic0": "0x5a3358a3d27a5373c0df2604662088d37894d56b7cfd27f315770440f4e0d919", "decoding": { "topics": ["signature", "recipient address", "token ID"], "data": ["uint256 amount", "uint256 paid = msg.value including fixed fee"] } },
+      { "role": "token", "fragment": "event TransferSingle(address indexed op, address indexed from, address indexed to, uint256 id, uint256 value)", "signature": "TransferSingle(address,address,address,uint256,uint256)", "topic0": "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62", "decoding": { "topics": ["signature", "operator address", "from address", "to address"], "data": ["uint256 id", "uint256 amount"] } },
+      { "role": "processor", "fragment": "event TapedOut(uint256 indexed circuitId, address indexed author, uint32 gateCount, uint32 nState)", "signature": "TapedOut(uint256,address,uint32,uint32)", "topic0": "0xc11215e417669c143c8a07aeb778034c0a0a85ebdf305d64a629b19a7a9ce031", "decoding": { "topics": ["signature", "uint256 circuitId", "author address"], "data": ["uint32 gateCount in ABI word", "uint32 nState in ABI word"] } },
+      { "role": "processor", "fragment": "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)", "signature": "Transfer(address,address,uint256)", "topic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "decoding": { "topics": ["signature", "from address", "to address", "uint256 circuit ID"], "data": [], "mint": "from is zero address; to is author" } }
+    ],
+    "currentSnapshot": {
+      "blockNumber": 72439465,
+      "blockTag": "0x45156a9",
+      "blockHash": "0x4c11aa1d33743546e5686ed3efdd918a4535b9e107ac5946d7e3206e6b620214",
+      "checkedAtUTC": "2026-10-05T14:00:16Z",
+      "providers": ["https://rpc.xlayer.tech", "https://xlayer.drpc.org"],
+      "agreement": true,
+      "scope": "Read-only recovery snapshot. Refresh at a common current block before any authorization boundary.",
+      "feesWei": { "deploy": "6600000000000000", "factoryProtocol": "660000000000000", "sampleTapeout": "1300000000000000" }
+    },
+    "creation": {
+      "signature": "createCPU(string,string,string,uint256,uint256)",
+      "selector": "0x47f9b5fd",
+      "argumentOrder": ["UTF-8 name", "UTF-8 symbol", "UTF-8 story", "uint256 shared lifetime supply cap", "uint256 creator price per transistor in native wei"],
+      "payment": { "getter": "deployFee()", "rule": "msg.value must be at least deployFee(); plan sends exact refreshed getter value" },
+      "returnOrder": ["token/transistors", "processor/circuits"],
+      "receiptEvent": "CPUCreated",
+      "linkageChecks": ["factory.isCPU(processor)", "processor.factory()", "processor.transistors()", "token.circuits()", "token.creator()", "processor and token metadata", "token cap, price and protocol fee"],
+      "universalBounds": "UNRESOLVED. Exact proposed parameters must pass sender-specific eth_call and eth_estimateGas. Frontend thresholds are not contract bounds."
+    },
+    "acquisition": {
+      "interface": "processor-linked ERC-1155",
+      "nandId": 0,
+      "latchId": 1,
+      "mintSignature": "mint(uint256,uint256)",
+      "selector": "0x1b2ef1ca",
+      "recipient": "msg.sender",
+      "payment": "amount * token.mintPrice() + token.protocolFee() per nonzero mint call",
+      "capacity": "minted + amount <= supplyCap; one aggregate lifetime counter across IDs in the checked runtime",
+      "deficit": "max(0, required balance - balanceOf(sender,id))",
+      "skipZero": true,
+      "approvalRequired": false,
+      "scopeWarning": "Approval and burn behavior are scoped to the checked runtime and linkage, not a blanket rule for upgrades or other operators."
+    },
+    "tapeout": {
+      "signature": "tapeout(bytes,uint32,uint32)",
+      "selector": "0x7bd3ac1d",
+      "arguments": { "payload": "headerless raw TapeOut payload", "nIn": 3, "nOut": 1, "nState": "derived from two LATCH records" },
+      "payload": { "bytes": 631, "nand": 89, "latch": 2, "records": 91, "sha256": "7ec1ed9fe2e0c5f92a45b2ad49fe3da969c109f01522d8306fe127aba76cabac", "localHeaderIncluded": false },
+      "feeGetter": "TAPEOUT_FEE()",
+      "paymentRule": "msg.value must equal the refreshed tapeout fee exactly",
+      "receiptEvents": ["TapedOut(uint256,address,uint32,uint32)", "Transfer(address,address,uint256)"],
+      "readback": ["netlist(id) exact payload", "circuitInfo(id) = (3,1,2,91)", "ownerOf(id) = deployment account at receipt block", "all live transition cases"],
+      "burn": "89 NAND and 2 LATCH from the transaction sender"
+    },
+    "duplicateSafety": {
+      "classification": "Client workflow policy, not contract idempotency",
+      "processor": ["Inspect local journal and unresolved nonce/receipt state", "At one pinned block enumerate cpuCount/cpuAt", "Verify isCPU, factory linkage, token linkage, creator and all intended metadata", "Reuse exactly one matching processor; multiple matches require explicit selection", "Recheck before signing"],
+      "circuit": ["Inspect journal and unresolved nonce/receipt state", "Enumerate assigned IDs or complete author-indexed TapedOut logs", "Compare exact payload, dimensions and owner/author", "Reuse an exact match; predicted IDs or counts are insufficient"],
+      "creationLog": { "fromBlock": "0x43b4c67", "topic0": "0x2e8868f18a1eaf0222b5b09484fdf12163e9741393f8457cd79d2ae42b2d2290", "creatorTopic": 3 },
+      "manufactureLog": { "topic0": "0xc11215e417669c143c8a07aeb778034c0a0a85ebdf305d64a629b19a7a9ce031", "authorTopic": 2 }
+    },
+    "constraints": {
+      "sourceBuild": "UNRESOLVED behavior-only evidence",
+      "universalMinPrice": null,
+      "universalMaxPrice": null,
+      "universalCreationStringBounds": null,
+      "frontendQualityThresholds": { "chain": 196, "minSupplyCap": "10000", "minMintPriceWei": "0", "classification": "Not proven contract acceptance requirements" },
+      "integerArithmetic": "Use uint256-safe integer wei calculations",
+      "promotionScope": "Scoped recovered facts only. Research transaction examples and machine-specific paths remain outside this lock."
+    },
+    "warnings": [
+      "Behavior-only recovered ABI and runtime facts are not exact source/build verification or an audit.",
+      "The current fee values are snapshots and must be refreshed at a common block before authorization.",
+      "Universal price, string and privilege bounds remain unresolved. Do not invent them.",
+      "Duplicate prevention is client policy. Factory creation is not an idempotent create-or-get API.",
+      "No transaction, signature or wallet authorization is implied by these facts."
+    ]
+  },
   "warning": "Behavior-only conditional implementation lock for tiny FSM transition logic. Not source-verified, audited or a live transaction quote. Refresh implementations, fees, balances and exact-call simulations before any authorized wallet interaction.",
   "gateC": {
     "contractRoles": {

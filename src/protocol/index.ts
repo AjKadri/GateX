@@ -1,12 +1,14 @@
 export { compareCandidateSimulation, localCandidateEvaluator } from "./candidate.js";
 export { GateCAbiError, bytesFromHex, decodeBytesReturn, decodeCircuitInfo, decodeStep, decodeUint256, encodeCall, hexFromBytes } from "./abi.js";
 export { GateCIdentityError, runtimeKeccak256, verifyLockedProvider, verifyLockedProviders } from "./identity.js";
-export { GateCBlockedError, GateCConfigurationError, identityTargets, loadProtocolLock, missingGateCProtocolFacts, requireGateCProtocolFacts } from "./lock.js";
+export { GateCBlockedError, GateCConfigurationError, GateDBlockedError, identityTargets, loadProtocolLock, missingGateCProtocolFacts, requireGateCProtocolFacts, requireGateDProtocolFacts } from "./lock.js";
 export { parseFixtureDocument } from "./fixtures.js";
 export { reconstructPostState, stateOverridesEqual } from "./overrides.js";
 export { HttpReadOnlyRpcClient, providerClients } from "./rpc.js";
 export { extractTapeOutPayload } from "./wire.js";
 export { runGateCLive } from "./live.js";
+export { GateDAbiError, decodeCreateReturn, decodeGateDAddress, decodeGateDBool, decodeGateDString, decodeGateDUint256, encodeGateDCall, padTopicAddress, sha256Hex } from "./gate-d-abi.js";
+export { GATEX_CREATION, GATEX_DEPLOYMENT_ACCOUNT, TINY_APPROVAL_PAYLOAD, creationCall, creationLogFilter, expectedMintValue, mintCall, payloadHex, runGateD0Preflight, tapeoutCall, tapeoutLogFilter, transactionPlanDigest } from "./gate-d.js";
 export type * from "./types.js";
 export type * from "./fixtures.js";
 export type { DecodedCircuitInfo, DecodedStep } from "./abi.js";

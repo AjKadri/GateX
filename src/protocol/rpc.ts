@@ -1,6 +1,17 @@
 import type { ProtocolLock } from "./types.js";
 
-export type ReadOnlyRpcMethod = "eth_chainId" | "eth_getBlockByNumber" | "eth_getCode" | "eth_call" | "debug_traceCall";
+export type ReadOnlyRpcMethod =
+  | "eth_chainId"
+  | "eth_blockNumber"
+  | "eth_getBlockByNumber"
+  | "eth_getCode"
+  | "eth_getBalance"
+  | "eth_gasPrice"
+  | "eth_getTransactionCount"
+  | "eth_getLogs"
+  | "eth_call"
+  | "eth_estimateGas"
+  | "debug_traceCall";
 
 export interface ReadOnlyRpcClient {
   request(method: ReadOnlyRpcMethod, params: readonly unknown[]): Promise<unknown>;
@@ -13,12 +24,18 @@ export class HttpReadOnlyRpcClient implements ReadOnlyRpcClient {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await fetch(this.endpoint, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-        signal: controller.signal
-      });
+      let response: Response;
+      try {
+        response = await fetch(this.endpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+          signal: controller.signal
+        });
+      } catch (error) {
+        const cause = error instanceof Error && error.cause instanceof Error ? `: ${error.cause.message}` : "";
+        throw new Error(`RPC ${method} network failure at ${this.endpoint}${cause}`);
+      }
       if (!response.ok) throw new Error(`RPC HTTP ${response.status} from ${this.endpoint}`);
       const body: unknown = await response.json();
       if (!isRecord(body)) throw new Error(`RPC response from ${this.endpoint} is not an object`);

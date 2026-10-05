@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json && vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsc -p tsconfig.test.json && node --test .tmp-tests/tests/*.test.js",
-    "gatec:live": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-c-live.js"
+    "gatec:live": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-c-live.js",
+    "gated:preflight": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-d-preflight.js"
   },
   "devDependencies": {
     "@types/node": "^24.7.2",
