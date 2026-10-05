@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "noEmit": false,
+    "outDir": ".tmp-tests",
+    "rootDir": ".",
+    "sourceMap": true
+  },
+  "include": ["src", "tests"]
+}
