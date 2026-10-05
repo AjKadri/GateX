@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  CREATE_CPU_SIGNATURE,
   GATEX_CREATION,
   GATEX_DEPLOYMENT_ACCOUNT,
   GateDBlockedError,
   TINY_APPROVAL_PAYLOAD,
+  authorizeCanonicalCreateCpuTransaction,
+  buildCanonicalCreateCpuTransaction,
+  decodeCreateCpuCall,
   creationCall,
   creationLogFilter,
   decodeCreateReturn,
@@ -18,6 +23,7 @@ import {
   tapeoutLogFilter,
   transactionPlanDigest
 } from "../src/protocol/index.js";
+import type { CanonicalCreateCpuTransaction } from "../src/protocol/index.js";
 
 function word(data: string, index: number): bigint {
   return BigInt(`0x${data.slice(10 + index * 64, 10 + (index + 1) * 64)}`);
@@ -72,4 +78,58 @@ test("Gate D retains the exact TinyApproval artifact boundary", () => {
 test("createCPU return decoding treats simulation addresses as non-receipt data", () => {
   const decoded = decodeCreateReturn(`0x${"00".repeat(12)}1111111111111111111111111111111111111111${"00".repeat(12)}2222222222222222222222222222222222222222`);
   assert.deepEqual(decoded, { token: "0x1111111111111111111111111111111111111111", processor: "0x2222222222222222222222222222222222222222" });
+});
+
+test("canonical createCPU transaction owns request, decoded preview and calldata hash", () => {
+  const lock = loadProtocolLock();
+  const approval = {
+    sender: GATEX_DEPLOYMENT_ACCOUNT,
+    name: "GateX",
+    symbol: "GTX",
+    story: "Compiles application state machines into verified TapeOut NAND/LATCH circuits on X Layer.",
+    cap: GATEX_CREATION.cap,
+    priceWei: GATEX_CREATION.priceWei,
+    feeWei: 6_600_000_000_000_000n
+  };
+  const transaction = buildCanonicalCreateCpuTransaction(lock, approval);
+  assert.equal(transaction.method, CREATE_CPU_SIGNATURE);
+  assert.equal(transaction.request.to, lock.factory.proxy);
+  assert.equal(transaction.request.value, "0x1772aa3f848000");
+  assert.deepEqual(transaction.preview, { name: approval.name, symbol: approval.symbol, story: approval.story, cap: approval.cap, priceWei: approval.priceWei });
+  assert.equal(transaction.calldataSha256, "0x319feba0420ed68a30aa92dfcf4032293b26c8cf6e6e2d10836a1c2c29c7fbb9");
+  assert.equal(transaction.calldataSha256, sha256Hex(transaction.request.data));
+  assert.equal(Object.isFrozen(transaction), true);
+  assert.equal(Object.isFrozen(transaction.request), true);
+  assert.deepEqual(authorizeCanonicalCreateCpuTransaction(lock, transaction, approval), transaction.request);
+  assert.equal("eth_sendTransaction" in transaction.request, false);
+  assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, { ...transaction, request: { ...transaction.request, from: "0x1111111111111111111111111111111111111111" } }, approval), /sender mismatch/);
+  assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, { ...transaction, request: { ...transaction.request, to: "0x2222222222222222222222222222222222222222" } }, approval), /target mismatch/);
+  assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, { ...transaction, request: { ...transaction.request, value: "0x0" } }, approval), /value mismatch/);
+});
+
+test("D1R failed createCPU fixture proves the malformed metadata is rejected", () => {
+  const lock = loadProtocolLock();
+  const fixture = JSON.parse(readFileSync("tests/fixtures/gate-d1r-failed-create.json", "utf8")) as { transactionHash: string; calldataSha256: string; calldata: string };
+  assert.equal(fixture.transactionHash, "0x2a3447e3fd3067a2b4cee0ddba6547585dd024b478caacba60a1c336a646c198");
+  assert.equal(sha256Hex(fixture.calldata), fixture.calldataSha256);
+  const decoded = decodeCreateCpuCall(lock, fixture.calldata);
+  assert.deepEqual(decoded, { name: "GateX", symbol: "", story: "", cap: GATEX_CREATION.cap, priceWei: GATEX_CREATION.priceWei });
+
+  const approval = {
+    sender: GATEX_DEPLOYMENT_ACCOUNT,
+    name: "GateX",
+    symbol: "GTX",
+    story: "Compiles application state machines into verified TapeOut NAND/LATCH circuits on X Layer.",
+    cap: GATEX_CREATION.cap,
+    priceWei: GATEX_CREATION.priceWei,
+    feeWei: 6_600_000_000_000_000n
+  };
+  const failedRequest: CanonicalCreateCpuTransaction = {
+    method: CREATE_CPU_SIGNATURE,
+    request: { from: approval.sender, to: lock.factory.proxy, data: fixture.calldata, value: "0x1772aa3f848000" },
+    preview: decoded,
+    calldataSha256: fixture.calldataSha256
+  };
+  assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, failedRequest, approval), /symbol mismatch/);
+  assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, { ...failedRequest, calldataSha256: "0xdeadbeef" }, approval), /calldata hash mismatch/);
 });

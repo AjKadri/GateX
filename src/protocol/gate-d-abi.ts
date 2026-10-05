@@ -139,6 +139,14 @@ function readWord(value: string, index: number): bigint {
   return result;
 }
 
+function readWordFromBytes(bytes: Uint8Array, index: number): bigint {
+  const offset = index * 32;
+  if (offset + 32 > bytes.length) throw new GateDAbiError("ABI calldata word is truncated");
+  let result = 0n;
+  for (const byte of bytes.slice(offset, offset + 32)) result = (result << 8n) | BigInt(byte);
+  return result;
+}
+
 export function decodeGateDUint256(value: string): bigint {
   if (words(value).length !== 32) throw new GateDAbiError("Expected one uint256 ABI word");
   return readWord(value, 0);
@@ -170,6 +178,41 @@ export function decodeCreateReturn(value: string): { token: string; processor: s
   const bytes = words(value);
   if (bytes.length < 64) throw new GateDAbiError("createCPU return is truncated");
   return { token: decodeGateDAddress(value, 0), processor: decodeGateDAddress(value, 1) };
+}
+
+export interface DecodedCreateCpuArguments {
+  name: string;
+  symbol: string;
+  story: string;
+  cap: bigint;
+  priceWei: bigint;
+}
+
+function readDynamicString(bytes: Uint8Array, offset: number): string {
+  if (offset % 32 !== 0 || offset + 32 > bytes.length) throw new GateDAbiError("createCPU dynamic string offset is invalid");
+  const length = Number(readWordFromBytes(bytes, offset / 32));
+  if (!Number.isSafeInteger(length) || offset + 32 + length > bytes.length) throw new GateDAbiError("createCPU dynamic string is truncated");
+  return new TextDecoder().decode(bytes.slice(offset + 32, offset + 32 + length));
+}
+
+export function decodeCreateCpuCall(lock: ProtocolLock, value: string): DecodedCreateCpuArguments {
+  const expectedSelector = gateDFunction(lock, "createCPU(string,string,string,uint256,uint256)").selector.toLowerCase();
+  if (!/^0x[0-9a-fA-F]+$/.test(value) || value.slice(2, 10).toLowerCase() !== expectedSelector.slice(2)) {
+    throw new GateDAbiError("createCPU calldata selector is invalid");
+  }
+  const bytes = hexToBytes(`0x${value.slice(10)}`);
+  if (bytes.length < 5 * 32) throw new GateDAbiError("createCPU calldata head is truncated");
+  const nameOffset = Number(readWordFromBytes(bytes, 0));
+  const symbolOffset = Number(readWordFromBytes(bytes, 1));
+  const storyOffset = Number(readWordFromBytes(bytes, 2));
+  if (![nameOffset, symbolOffset, storyOffset].every(Number.isSafeInteger)) throw new GateDAbiError("createCPU string offset is unsafe");
+  return {
+    name: readDynamicString(bytes, nameOffset),
+    symbol: readDynamicString(bytes, symbolOffset),
+    story: readDynamicString(bytes, storyOffset),
+    cap: readWordFromBytes(bytes, 3),
+    priceWei: readWordFromBytes(bytes, 4)
+  };
 }
 
 export function sha256Hex(value: string): string {
