@@ -281,10 +281,10 @@
       { "role": "processor", "fragment": "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)", "signature": "Transfer(address,address,uint256)", "topic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "decoding": { "topics": ["signature", "from address", "to address", "uint256 circuit ID"], "data": [], "mint": "from is zero address; to is author" } }
     ],
     "currentSnapshot": {
-      "blockNumber": 72439465,
-      "blockTag": "0x45156a9",
-      "blockHash": "0x4c11aa1d33743546e5686ed3efdd918a4535b9e107ac5946d7e3206e6b620214",
-      "checkedAtUTC": "2026-10-05T14:00:16Z",
+      "blockNumber": 72441329,
+      "blockTag": "0x4515df1",
+      "blockHash": "0x0268925c49ca0ce7eba4afd13ec712f8848588a1f6f00b74222f1a6751707cf4",
+      "checkedAtUTC": "2026-10-05T14:31:34Z",
       "providers": ["https://rpc.xlayer.tech", "https://xlayer.drpc.org"],
       "agreement": true,
       "scope": "Read-only recovery snapshot. Refresh at a common current block before any authorization boundary.",
