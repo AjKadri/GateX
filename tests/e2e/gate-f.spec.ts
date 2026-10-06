@@ -75,7 +75,7 @@ test("landing, workspace examples, editable DSL, diagnostics, and evidence route
 
 test("read-only live comparison, stale quote, session restore, and source invalidation", async ({ page }) => {
   await openWorkspace(page);
-  await page.getByRole("button", { name: "Refresh locked quote" }).click();
+  await page.getByRole("button", { name: "Refresh quote" }).click();
   await expect(page.getByText(/Both locked providers agree on displayed fields|Provider disagreement: values below are provider-specific/)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("fixed mint fee / tx", { exact: true })).toBeVisible();
   await expect(page.getByText("wallet balance", { exact: true })).toBeVisible();
@@ -115,7 +115,7 @@ test("wallet UX uses the explicit OKX provider and invalidates on network/accoun
 
   await page.evaluate(() => (window as unknown as { __gatexE2eWallet: { setChain: (chain: string) => void } }).__gatexE2eWallet.setChain("0x1"));
   await expect(page.getByText("Wrong network", { exact: true })).toBeVisible();
-  await expect(page.getByText("Readiness was invalidated.", { exact: false })).toBeVisible();
+  await expect(page.getByText("Balance needs a refresh after a wallet or network change.", { exact: true })).toBeVisible();
 
   await page.evaluate(() => (window as unknown as { __gatexE2eWallet: { setChain: (chain: string) => void } }).__gatexE2eWallet.setChain("0xc4"));
   await expect(page.getByText("Wallet connected", { exact: true })).toBeVisible();
@@ -129,7 +129,7 @@ test("wallet UX uses the explicit OKX provider and invalidates on network/accoun
 
 test("fresh wallet-disconnected state, no fallback, keyboard labels, and responsive layout", async ({ page }) => {
   await openWorkspace(page);
-  await expect(page.getByText("Wallet disconnected", { exact: true })).toBeVisible();
+  await expect(page.getByText("OKX Wallet not detected in this browser.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Connect OKX Wallet" })).toBeDisabled();
   await expect(page.getByText("Fresh bound-circuit readback is required.", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "TinyApproval circuit 1" }).press("Enter");
