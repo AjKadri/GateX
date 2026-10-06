@@ -34,7 +34,7 @@ GateX compiles readable approval workflows into TapeOut NAND/LATCH circuits on X
 - Token: GateX (GTX), [`0x62f8409177a511b71ea888beef47b894be1221cb`](https://www.oklink.com/xlayer/address/0x62f8409177a511b71ea888beef47b894be1221cb)
 - Supply cap: 1,000,000 GTX
 - Unit price: 0.000001 OKB (1,000,000,000,000 wei)
-- Recorded in [`deployments/xlayer-mainnet.json`](../deployments/xlayer-mainnet.json) and [`public/evidence/release.json`](../public/evidence/release.json)
+- Recorded in [`deployments/xlayer-mainnet.json`](../deployments/xlayer-mainnet.json)
 
 ## Repository
 

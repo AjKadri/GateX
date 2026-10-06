@@ -64,7 +64,7 @@ npm run dev
 
 The browser workspace supports local compilation, deterministic artifact inspection, read-only quotes, fresh dual-provider circuit readback, and read-only live transition comparison. Wallet signing and state-changing protocol actions are outside the release product path.
 
-These commands read X Layer through the two providers listed in `protocol/lock.json` (`https://rpc.xlayer.tech` and `https://xlayer.drpc.org`). They need no environment variables.
+The live verification scripts read X Layer through the two providers listed in `protocol/lock.json` (`https://rpc.xlayer.tech` and `https://xlayer.drpc.org`). They need no environment variables:
 
 ```sh
 npm run gatec:live
