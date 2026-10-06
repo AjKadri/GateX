@@ -1,4 +1,5 @@
 import type { LatchRecord, NandRecord, NetlistArtifact, NetlistRecord } from "./types.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 const MAGIC = [0x47, 0x58, 0x31, 0x00];
 const HEADER_SIZE = 12;
@@ -90,6 +91,9 @@ export function deserializeArtifact(bytes: Uint8Array): NetlistArtifact {
 export async function artifactHash(bytes: Uint8Array): Promise<string> {
   const stableBytes = new Uint8Array(bytes.length);
   stableBytes.set(bytes);
-  const digest = await globalThis.crypto.subtle.digest("SHA-256", stableBytes.buffer);
-  return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
+  if (globalThis.crypto?.subtle !== undefined) {
+    const digest = await globalThis.crypto.subtle.digest("SHA-256", stableBytes.buffer);
+    return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
+  }
+  return Array.from(sha256(stableBytes), (value) => value.toString(16).padStart(2, "0")).join("");
 }
