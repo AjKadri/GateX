@@ -47,7 +47,7 @@ async function openWorkspace(page: Page): Promise<void> {
 
 test("landing, workspace examples, editable DSL, diagnostics, and evidence routes", async ({ page }) => {
   await page.goto("/#/");
-  await expect(page.getByText("GateX turns human-readable application state machines into verified TapeOut NAND/LATCH circuits on X Layer.")).toBeVisible();
+  await expect(page.getByText("Write an approval workflow as a state machine. GateX compiles it to a TapeOut circuit on X Layer and proves the circuit does what the source says.")).toBeVisible();
   await page.getByRole("link", { name: /Open workspace/ }).click();
   await openWorkspace(page);
 
