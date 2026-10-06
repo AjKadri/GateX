@@ -1,0 +1,19 @@
+gatex.ajkadri.dev {
+	root * /var/www/gatex/current
+	encode zstd gzip
+
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	@evidence path /evidence/*.json
+	header @evidence Cache-Control "public, max-age=300, must-revalidate"
+
+	@html {
+		path /
+		path *.html
+	}
+	header @html Cache-Control "no-store"
+
+	try_files {path} /index.html
+	file_server
+}

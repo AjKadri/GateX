@@ -23,8 +23,45 @@
   "budget": {
     "cumulativeProjectSpendBeforeD2Wei": "13227888521394426",
     "cumulativeProjectSpendBeforeGateEWei": "15953748322137416",
+    "finalCumulativeProjectSpendWei": "18687009842800492",
+    "finalRemainingProjectBudgetWei": "31312990157199508",
     "projectCeilingWei": "50000000000000000",
     "desiredPostMandatoryContingencyWei": "10000000000000000"
+  },
+  "circuits": {
+    "tinyApproval": {
+      "id": 1,
+      "status": "VERIFIED",
+      "manufactureTransaction": "0xda598818354c8020e72b433803720dcbed628e20fc4c9d7f84ab4ce509f176e4",
+      "manufactureBlock": 72522149,
+      "manufactureBlockHash": "0x81f92f224a54d16f134050dae1ebe2b98c7b90b24c5f7b1ed82e58900009c4b7",
+      "nand": 89,
+      "latch": 2,
+      "records": 91,
+      "localBytes": 643,
+      "payloadBytes": 631,
+      "payloadSha256": "0x7ec1ed9fe2e0c5f92a45b2ad49fe3da969c109f01522d8306fe127aba76cabac",
+      "dimensions": [3, 1, 2, 91],
+      "providerCases": 32,
+      "providerCount": 2,
+      "mismatches": 0
+    },
+    "agentApproval": {
+      "id": 2,
+      "status": "VERIFIED",
+      "manufactureTransaction": "0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be",
+      "nand": 98,
+      "latch": 2,
+      "records": 100,
+      "localBytes": 706,
+      "payloadBytes": 694,
+      "localSha256": "0xd68c9881fbe8bf0fbf7f86cfa92ad2889389e07e09bb0e7f0068f23eded50003",
+      "payloadSha256": "0x7e4b5f83032beaf32ce2e7c067f1ee24d08feea1e2db8c64ef7c4d7de231dc45",
+      "dimensions": [6, 1, 2, 100],
+      "providerCases": 256,
+      "providerCount": 2,
+      "mismatches": 0
+    }
   },
   "quarantine": {
     "status": "ACCIDENTAL_DEPLOYMENT_DO_NOT_USE",

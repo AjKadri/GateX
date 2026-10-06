@@ -1,0 +1,78 @@
+{
+  "product": "GateX",
+  "releaseRevision": "bd30d13b00e62deb08d6cb4e42eb0be397b5da35",
+  "chainId": 196,
+  "processor": "0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed",
+  "token": "0x62f8409177a511b71ea888beef47b894be1221cb",
+  "creator": "0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4",
+  "providerScope": {
+    "lockedProviders": 2,
+    "agreementRequired": true,
+    "verificationMode": "common-block dual-provider read-only checks"
+  },
+  "circuits": [
+    {
+      "id": 1,
+      "name": "TinyApproval",
+      "status": "VERIFIED",
+      "manufactureTransaction": "0xda598818354c8020e72b433803720dcbed628e20fc4c9d7f84ab4ce509f176e4",
+      "manufactureBlock": 72522149,
+      "manufactureBlockHash": "0x81f92f224a54d16f134050dae1ebe2b98c7b90b24c5f7b1ed82e58900009c4b7",
+      "nand": 89,
+      "latch": 2,
+      "records": 91,
+      "localBytes": 643,
+      "payloadBytes": 631,
+      "payloadSha256": "7ec1ed9fe2e0c5f92a45b2ad49fe3da969c109f01522d8306fe127aba76cabac",
+      "dimensions": [3, 1, 2, 91],
+      "casesPerProvider": 32,
+      "mismatches": 0
+    },
+    {
+      "id": 2,
+      "name": "AgentApproval",
+      "status": "VERIFIED",
+      "manufactureTransaction": "0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be",
+      "manufactureBlock": 72528952,
+      "manufactureBlockHash": "0x13356c8fcae06c6c27167ff6d51ea2a19c7d4516fb03bc05b0767d0fb6c3ab53",
+      "nand": 98,
+      "latch": 2,
+      "records": 100,
+      "localBytes": 706,
+      "localSha256": "d68c9881fbe8bf0fbf7f86cfa92ad2889389e07e09bb0e7f0068f23eded50003",
+      "payloadBytes": 694,
+      "payloadSha256": "7e4b5f83032beaf32ce2e7c067f1ee24d08feea1e2db8c64ef7c4d7de231dc45",
+      "dimensions": [6, 1, 2, 100],
+      "casesPerProvider": 256,
+      "mismatches": 0
+    }
+  ],
+  "verification": {
+    "tinyApprovalTotalCases": 64,
+    "agentApprovalTotalCases": 512,
+    "totalMismatches": 0,
+    "readback": "historical two-provider manufacture readback",
+    "liveTransition": "historical two-provider read-only comparison"
+  },
+  "budget": {
+    "finalCumulativeSpendWei": "18687009842800492",
+    "finalCumulativeSpendOkb": "0.018687009842800492",
+    "projectCeilingWei": "50000000000000000",
+    "remainingUnderCeilingWei": "31312990157199508"
+  },
+  "disclosures": {
+    "protocolSourceProvenance": "UNRESOLVED",
+    "claimScope": "behavior-verified for the locked protocol scope",
+    "stateOwnership": "caller-owned browser state",
+    "unsupportedClaims": [
+      "exact deployed-source verification",
+      "protocol immutability",
+      "authoritative workflow state",
+      "replay-proof approvals",
+      "identity-authenticated approvals",
+      "custody",
+      "agent execution",
+      "protocol contract audit"
+    ]
+  }
+}
