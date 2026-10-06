@@ -109,6 +109,8 @@ test("wallet UX uses the explicit OKX provider and invalidates on network/accoun
   await page.getByRole("button", { name: "Connect OKX Wallet" }).click();
   await expect(page.getByText("Wallet connected", { exact: true })).toBeVisible();
   await expect(page.getByText(/OKX Wallet · 0x1111…1111 · X Layer \/ 196/)).toBeVisible();
+  await expect(page.getByText("Both locked providers agree", { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("INSUFFICIENT OKB", { exact: true })).toBeVisible();
 
   await page.evaluate(() => (window as unknown as { __gatexE2eWallet: { setChain: (chain: string) => void } }).__gatexE2eWallet.setChain("0x1"));
   await expect(page.getByText("Wrong network", { exact: true })).toBeVisible();
