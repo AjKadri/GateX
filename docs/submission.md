@@ -1,4 +1,4 @@
-# GateX submission draft
+# GateX submission
 
 ## Project name
 
@@ -6,34 +6,35 @@ GateX
 
 ## One-liner
 
-GateX turns human-readable application state machines into verified TapeOut NAND/LATCH circuits on X Layer.
+Write an approval workflow as a readable state machine. GateX compiles it to a TapeOut circuit on X Layer and proves the circuit does what the source says.
 
-## Short description
+## Description
 
-GateX makes application lifecycle logic inspectable after it becomes circuit data. A bounded DSL names states, inputs, guards, resets, terminals, and transition outputs. GateX validates the machine, compiles it deterministically into NAND/LATCH records, proves the artifact with an independent AST interpreter and decoded-netlist simulator, manufactures the exact TapeOut payload, reads the real circuit back, and compares live read-only transitions on X Layer. AgentApproval is the flagship proof. The browser keeps workflow state caller-owned and exposes a clear boundary between local simulation, historical manufacture evidence, and fresh live evaluation.
+GateX compiles readable approval workflows into TapeOut NAND/LATCH circuits on X Layer and proves the manufactured circuit matches the source. A team writes a rule such as "a request must be approved before it is used" as a named state machine. GateX compiles it deterministically, checks every state and input combination against an independent interpreter and a netlist simulator, then reads the circuit back from X Layer through two RPC providers and compares live transitions with the local result. Two circuits are taped out on our processor: TinyApproval (89 NAND, 2 LATCH) and AgentApproval (98 NAND, 2 LATCH), both with zero mismatches. The transistor supply cap is 1,000,000 GTX at 0.000001 OKB per transistor, set at processor creation.
 
-## Problem
+## Processor contract address
 
-Human-readable approval and lifecycle rules are easy to discuss but difficult to connect to low-level manufactured circuit behavior. The proof is often split between source intent, generated logic, and deployed runtime behavior.
+[`0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed`](https://www.oklink.com/xlayer/address/0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed)
 
-## Solution
+## Deployment wallet
 
-DSL → validation → deterministic compile → NAND/LATCH → exhaustive local proof → TapeOut manufacture → readback → live transition comparison
+[`0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4`](https://www.oklink.com/xlayer/address/0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4)
 
-## Why TapeOut
+## Processor creation tx
 
-TapeOut is the deployed transition boundary being evaluated. It makes the compiled circuit a concrete, read-only X Layer artifact instead of a diagram or software-only simulation. GateX compares the manufactured result against the independent local proof without presenting `step()` as a state-changing workflow execution.
+[`0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48`](https://www.oklink.com/xlayer/tx/0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48)
 
-## Flagship proof
+## Circuits
 
-AgentApproval is circuit 2 with 98 NAND, 2 LATCH, and 100 records. It passed 256 unique local cases, 256 cases per locked provider, 512 live evaluations total, and zero mismatches.
+1. TinyApproval, 89 NAND and 2 LATCH. Manufacture tx [`0xda598818354c8020e72b433803720dcbed628e20fc4c9d7f84ab4ce509f176e4`](https://www.oklink.com/xlayer/tx/0xda598818354c8020e72b433803720dcbed628e20fc4c9d7f84ab4ce509f176e4)
+2. AgentApproval, 98 NAND and 2 LATCH. Manufacture tx [`0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be`](https://www.oklink.com/xlayer/tx/0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be)
 
-## X Layer deployment
+## Transistor terms
 
-- Chain: `196`
-- Processor: `0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed`
-- Token: `0x62f8409177a511b71ea888beef47b894be1221cb`
-- Evidence: [`public/evidence/release.json`](../public/evidence/release.json)
+- Token: GateX (GTX), [`0x62f8409177a511b71ea888beef47b894be1221cb`](https://www.oklink.com/xlayer/address/0x62f8409177a511b71ea888beef47b894be1221cb)
+- Supply cap: 1,000,000 GTX
+- Unit price: 0.000001 OKB (1,000,000,000,000 wei)
+- Recorded in [`deployments/xlayer-mainnet.json`](../deployments/xlayer-mainnet.json) and [`public/evidence/release.json`](../public/evidence/release.json)
 
 ## Repository
 
@@ -41,21 +42,19 @@ https://github.com/AjKadri/GateX
 
 ## Demo URL
 
-PENDING PRODUCTION DEPLOYMENT
+https://gatex.ajkadri.dev
 
 ## Demo video
 
-PENDING FINAL CAPTURE
+To be added before submission.
 
 ## Limitations
 
-- Workflow state is caller-owned by the browser.
-- GateX makes no replay-proof approval claim.
-- GateX makes no identity-authenticated approval claim.
-- GateX provides no custody.
+- Workflow state is owned by the caller in the browser.
+- GateX does not provide replay-proof approvals.
+- GateX does not provide identity-authenticated approvals.
+- GateX does not provide custody.
 - GateX does not execute an AI agent.
 - Protocol source and build provenance remain unresolved.
 
-## Run locally
-
-See [`README.md`](../README.md), [`docs/demo-script.md`](demo-script.md), and [`docs/protocol-limitations.md`](protocol-limitations.md).
+See [`README.md`](../README.md), [`demo.md`](demo.md) and [`protocol-limitations.md`](protocol-limitations.md) for more.
