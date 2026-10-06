@@ -188,6 +188,17 @@ export interface DecodedCreateCpuArguments {
   priceWei: bigint;
 }
 
+export interface DecodedMintArguments {
+  id: bigint;
+  amount: bigint;
+}
+
+export interface DecodedTapeoutArguments {
+  payload: Uint8Array;
+  nIn: number;
+  nOut: number;
+}
+
 function readDynamicString(bytes: Uint8Array, offset: number): string {
   if (offset % 32 !== 0 || offset + 32 > bytes.length) throw new GateDAbiError("createCPU dynamic string offset is invalid");
   const length = Number(readWordFromBytes(bytes, offset / 32));
@@ -213,6 +224,37 @@ export function decodeCreateCpuCall(lock: ProtocolLock, value: string): DecodedC
     cap: readWordFromBytes(bytes, 3),
     priceWei: readWordFromBytes(bytes, 4)
   };
+}
+
+function decodeStaticCall(lock: ProtocolLock, signature: string, value: string, wordsRequired: number): Uint8Array {
+  const expectedSelector = gateDFunction(lock, signature).selector.toLowerCase();
+  if (!/^0x[0-9a-fA-F]+$/.test(value) || value.slice(0, 10).toLowerCase() !== expectedSelector) throw new GateDAbiError(`${signature} calldata selector is invalid`);
+  const bytes = hexToBytes(`0x${value.slice(10)}`);
+  if (bytes.length !== wordsRequired * 32) throw new GateDAbiError(`${signature} calldata length is invalid`);
+  return bytes;
+}
+
+export function decodeMintCall(lock: ProtocolLock, value: string): DecodedMintArguments {
+  const bytes = decodeStaticCall(lock, "mint(uint256,uint256)", value, 2);
+  return { id: readWordFromBytes(bytes, 0), amount: readWordFromBytes(bytes, 1) };
+}
+
+export function decodeTapeoutCall(lock: ProtocolLock, value: string): DecodedTapeoutArguments {
+  const expectedSelector = gateDFunction(lock, "tapeout(bytes,uint32,uint32)").selector.toLowerCase();
+  if (!/^0x[0-9a-fA-F]+$/.test(value) || value.slice(0, 10).toLowerCase() !== expectedSelector) throw new GateDAbiError("tapeout calldata selector is invalid");
+  const bytes = hexToBytes(`0x${value.slice(10)}`);
+  if (bytes.length < 4 * 32) throw new GateDAbiError("tapeout calldata is truncated");
+  const payloadOffset = Number(readWordFromBytes(bytes, 0));
+  const nIn = Number(readWordFromBytes(bytes, 1));
+  const nOut = Number(readWordFromBytes(bytes, 2));
+  if (!Number.isSafeInteger(payloadOffset) || payloadOffset % 32 !== 0 || payloadOffset + 32 > bytes.length) throw new GateDAbiError("tapeout payload offset is invalid");
+  const length = Number(readWordFromBytes(bytes, payloadOffset / 32));
+  if (!Number.isSafeInteger(length) || payloadOffset + 32 + length > bytes.length) throw new GateDAbiError("tapeout payload is truncated");
+  const paddedEnd = payloadOffset + 32 + Math.ceil(length / 32) * 32;
+  if (paddedEnd !== bytes.length) throw new GateDAbiError("tapeout calldata has unexpected trailing bytes");
+  for (const byte of bytes.slice(payloadOffset + 32 + length, paddedEnd)) if (byte !== 0) throw new GateDAbiError("tapeout calldata padding is non-zero");
+  if (!Number.isSafeInteger(nIn) || !Number.isSafeInteger(nOut) || nIn > 0xffffffff || nOut > 0xffffffff) throw new GateDAbiError("tapeout dimensions are outside uint32");
+  return { payload: bytes.slice(payloadOffset + 32, payloadOffset + 32 + length), nIn, nOut };
 }
 
 export function sha256Hex(value: string): string {

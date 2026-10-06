@@ -1,0 +1,34 @@
+{
+  "chainId": 196,
+  "status": "FINAL_GATE_X_DEPLOYMENT",
+  "processor": "0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed",
+  "token": "0x62f8409177a511b71ea888beef47b894be1221cb",
+  "creator": "0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4",
+  "creationTransaction": "0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48",
+  "creationBlock": 72499082,
+  "creationBlockHash": "0x873fc445caa7636bef00a40e6f82749b13574679fe928b2cbaaee47cd47cef24",
+  "registryIndex": 280,
+  "approvedCreationCalldataSha256": "0x319feba0420ed68a30aa92dfcf4032293b26c8cf6e6e2d10836a1c2c29c7fbb9",
+  "runtimeKeccak256": {
+    "processor": "0x57aa306fd0be97087da3534e03398f5ff4efd533b5be4e45a405ce86fa6717d5",
+    "token": "0x393e8ae4a91482c3c172adb22b95a659007edd781d2125ed01bd0f0d701ed436"
+  },
+  "metadata": {
+    "name": "GateX",
+    "symbol": "GTX",
+    "story": "Compiles application state machines into verified TapeOut NAND/LATCH circuits on X Layer.",
+    "cap": "1000000",
+    "priceWei": "1000000000000"
+  },
+  "budget": {
+    "cumulativeProjectSpendBeforeD2Wei": "13227888521394426",
+    "projectCeilingWei": "50000000000000000",
+    "desiredPostMandatoryContingencyWei": "10000000000000000"
+  },
+  "quarantine": {
+    "status": "ACCIDENTAL_DEPLOYMENT_DO_NOT_USE",
+    "processor": "0xdcdbef5d18a5c588291d8a81fbe76b06c6788508",
+    "token": "0xe8231ebce6f97e55e97ee857891776bd0b02509a",
+    "creationTransaction": "0x2a3447e3fd3067a2b4cee0ddba6547585dd024b478caacba60a1c336a646c198"
+  }
+}

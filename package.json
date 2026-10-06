@@ -9,7 +9,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsc -p tsconfig.test.json && node --test .tmp-tests/tests/*.test.js",
     "gatec:live": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-c-live.js",
-    "gated:preflight": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-d-preflight.js"
+    "gated:preflight": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-d-preflight.js",
+    "gated2:preflight": "tsc -p tsconfig.test.json && node .tmp-tests/scripts/gate-d2-preflight.js"
   },
   "devDependencies": {
     "@types/node": "^24.7.2",

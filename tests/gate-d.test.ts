@@ -6,9 +6,16 @@ import {
   GATEX_CREATION,
   GATEX_DEPLOYMENT_ACCOUNT,
   GateDBlockedError,
+  MINT_SIGNATURE,
+  TAPEOUT_SIGNATURE,
   TINY_APPROVAL_PAYLOAD,
+  assertCanonicalDeploymentSelected,
   authorizeCanonicalCreateCpuTransaction,
+  authorizeCanonicalMintTransaction,
+  authorizeCanonicalTapeoutTransaction,
   buildCanonicalCreateCpuTransaction,
+  buildCanonicalMintTransaction,
+  buildCanonicalTapeoutTransaction,
   decodeCreateCpuCall,
   creationCall,
   creationLogFilter,
@@ -16,6 +23,7 @@ import {
   encodeGateDCall,
   expectedMintValue,
   loadProtocolLock,
+  loadCanonicalDeployment,
   mintCall,
   padTopicAddress,
   requireGateDProtocolFacts,
@@ -132,4 +140,39 @@ test("D1R failed createCPU fixture proves the malformed metadata is rejected", (
   };
   assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, failedRequest, approval), /symbol mismatch/);
   assert.throws(() => authorizeCanonicalCreateCpuTransaction(lock, { ...failedRequest, calldataSha256: "0xdeadbeef" }, approval), /calldata hash mismatch/);
+});
+
+test("canonical deployment loader rejects quarantined addresses", () => {
+  const deployment = loadCanonicalDeployment();
+  assert.equal(deployment.status, "FINAL_GATE_X_DEPLOYMENT");
+  assert.notEqual(deployment.processor, deployment.quarantine.processor);
+  assert.notEqual(deployment.token, deployment.quarantine.token);
+  assert.throws(() => assertCanonicalDeploymentSelected(deployment, deployment.quarantine.processor, deployment.token), /canonical manifest/);
+  assert.throws(() => assertCanonicalDeploymentSelected(deployment, deployment.processor, deployment.quarantine.token), /canonical manifest/);
+});
+
+test("canonical NAND/LATCH mint requests derive preview, value and hash from one frozen request", () => {
+  const lock = loadProtocolLock();
+  const deployment = loadCanonicalDeployment();
+  const transaction = buildCanonicalMintTransaction(lock, { sender: deployment.creator, token: deployment.token, id: 0n, amount: 89n, priceWei: 1_000_000_000_000n, protocolFeeWei: 660_000_000_000_000n });
+  assert.equal(transaction.method, MINT_SIGNATURE);
+  assert.deepEqual(transaction.preview, { id: 0n, amount: 89n });
+  assert.equal(transaction.request.value, "0x2a93626efd000");
+  assert.equal(transaction.calldataSha256, sha256Hex(transaction.request.data));
+  assert.equal(Object.isFrozen(transaction), true);
+  assert.deepEqual(authorizeCanonicalMintTransaction(lock, transaction, { sender: deployment.creator, token: deployment.token, id: 0n, amount: 89n, priceWei: 1_000_000_000_000n, protocolFeeWei: 660_000_000_000_000n }), transaction.request);
+  assert.throws(() => authorizeCanonicalMintTransaction(lock, { ...transaction, calldataSha256: "0xdeadbeef" }, { sender: deployment.creator, token: deployment.token, id: 0n, amount: 89n, priceWei: 1_000_000_000_000n, protocolFeeWei: 660_000_000_000_000n }), /hash mismatch/);
+});
+
+test("canonical TinyApproval tapeout request binds payload, dimensions, target and hash", () => {
+  const lock = loadProtocolLock();
+  const deployment = loadCanonicalDeployment();
+  const payload = new Uint8Array([0, 1, 2, 3]);
+  const transaction = buildCanonicalTapeoutTransaction(lock, { sender: deployment.creator, processor: deployment.processor, payload, nIn: 3, nOut: 1, feeWei: 1_300_000_000_000_000n });
+  assert.equal(transaction.method, TAPEOUT_SIGNATURE);
+  assert.deepEqual(transaction.preview, { payloadHex: "0x00010203", payloadBytes: 4, nIn: 3, nOut: 1 });
+  assert.equal(transaction.request.value, "0x49e57d6354000");
+  assert.equal(transaction.calldataSha256, sha256Hex(transaction.request.data));
+  assert.deepEqual(authorizeCanonicalTapeoutTransaction(lock, transaction, { sender: deployment.creator, processor: deployment.processor, payload, nIn: 3, nOut: 1, feeWei: 1_300_000_000_000_000n }), transaction.request);
+  assert.throws(() => authorizeCanonicalTapeoutTransaction(lock, { ...transaction, request: { ...transaction.request, to: deployment.quarantine.processor } }, { sender: deployment.creator, processor: deployment.processor, payload, nIn: 3, nOut: 1, feeWei: 1_300_000_000_000_000n }), /target mismatch/);
 });
