@@ -41,7 +41,7 @@ https://github.com/AjKadri/GateX
 
 ## Demo URL
 
-PENDING PRODUCTION DEPLOYMENT
+https://gatex.ajkadri.dev
 
 ## Demo video
 
