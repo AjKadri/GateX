@@ -38,3 +38,7 @@ AgentApproval has 98 NAND records, 2 LATCH records, 100 total records, a 706-byt
 ## Provenance boundary
 
 The protocol lock records behavior-verified facts and unresolved provenance warnings. These results do not establish exact deployed-source verification, protocol immutability, authoritative workflow state, replay-proof approvals, identity-authenticated approvals, custody, agent execution, or a protocol contract audit. Application state remains caller-owned by the browser.
+
+## Release revision
+
+`public/evidence/release.json` keeps `releaseRevision` at `6fb16e3`, the revision of the frozen application and release content, because later commits changed only documentation and metadata.

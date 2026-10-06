@@ -1,26 +1,56 @@
 # GateX
 
-GateX turns human-readable application state machines into verified TapeOut NAND/LATCH circuits on X Layer.
+**Write an approval workflow as a readable state machine. GateX compiles it to a TapeOut circuit on X Layer and proves the circuit does what the source says.**
 
-Application intent is easy to explain and difficult to audit once it becomes low-level circuit data. GateX keeps the named states and guards visible, compiles them deterministically, proves the result through an independent interpreter and decoded-netlist simulator, then compares the manufactured circuit through the read-only protocol boundary.
+[Live workspace](https://gatex.ajkadri.dev)
 
-The public product is a verification workspace. TapeOut is structurally part of the workflow because it is the deployed transition boundary being evaluated. Application state remains caller-owned in the browser, and TapeOut does not store an authoritative workflow state.
+## Why it exists
 
-## Verified release
+Teams that put an agent or an automation in front of something valuable need a gate: a small rule such as
+"a request has to be approved before it can be used". Written as source, that rule is easy to read.
+Compiled to NAND gates and latches, it is not. Anyone relying on the circuit has to trust that it still
+means what the source said.
 
-The canonical X Layer deployment is on chain 196:
+GateX removes that trust step. You keep the named states and guards, and GateX shows that the manufactured
+circuit behaves identically for every state and input.
 
-- Processor: `0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed`
-- Transistor token: `0x62f8409177a511b71ea888beef47b894be1221cb`
-- Creator: `0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4`
-- Project spend: `18687009842800492` wei (`0.018687009842800492` OKB)
-- Remaining under the `0.05` OKB ceiling: `31312990157199508` wei
+## What you can do in the workspace
 
-TinyApproval is circuit 1 with 89 NAND, 2 LATCH, 91 records, a 643-byte local container, and a 631-byte TapeOut payload. Its payload SHA-256 is `7ec1ed9fe2e0c5f92a45b2ad49fe3da969c109f01522d8306fe127aba76cabac`.
+- Edit a state machine and see its named-state diagram.
+- Compile it to a NAND/LATCH netlist. The same source always gives the same bytes and hashes.
+- Check the compiled circuit against the source for every state and input combination.
+- Read the manufactured circuit back from X Layer through two independent RPC providers and compare a live
+  transition with the local result, side by side.
 
-AgentApproval is circuit 2 with 98 NAND, 2 LATCH, 100 records, a 706-byte local container, and a 694-byte TapeOut payload. Its local SHA-256 is `d68c9881fbe8bf0fbf7f86cfa92ad2889389e07e09bb0e7f0068f23eded50003` and its payload SHA-256 is `7e4b5f83032beaf32ce2e7c067f1ee24d08feea1e2db8c64ef7c4d7de231dc45`.
+The flagship example, AgentApproval, moves through `IDLE → REQUESTED → APPROVED → USED`.
 
-The flagship artifact was compared through the independent AST interpreter, decoded local netlist simulator, and both locked providers for 256 cases per provider with zero mismatches. TinyApproval passed the same chain for 32 cases per provider. The manufacture records and current product readback are listed in [`public/evidence/release.json`](public/evidence/release.json).
+## On X Layer
+
+| | |
+| --- | --- |
+| Chain | X Layer (196) |
+| Processor | [`0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed`](https://www.oklink.com/xlayer/address/0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed) |
+| Transistor token | [`0x62f8409177a511b71ea888beef47b894be1221cb`](https://www.oklink.com/xlayer/address/0x62f8409177a511b71ea888beef47b894be1221cb) |
+| Deployment wallet | [`0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4`](https://www.oklink.com/xlayer/address/0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4) |
+| Processor deployment | [`0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48`](https://www.oklink.com/xlayer/tx/0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48) |
+| Transistor supply cap | 1,000,000 GTX |
+| Transistor unit price | 0.000001 OKB (1,000,000,000,000 wei) |
+
+Supply cap and unit price were set when the processor was created and are recorded in [`deployments/xlayer-mainnet.json`](deployments/xlayer-mainnet.json).
+
+| Circuit | Gates | Payload | Checked | Manufacture tx |
+| --- | --- | --- | --- | --- |
+| 1 TinyApproval | 89 NAND, 2 LATCH | 631 bytes | 32 cases per provider, 0 mismatches | [`0xda598818354c8020e72b433803720dcbed628e20fc4c9d7f84ab4ce509f176e4`](https://www.oklink.com/xlayer/tx/0xda598818354c8020e72b433803720dcbed628e20fc4c9d7f84ab4ce509f176e4) |
+| 2 AgentApproval | 98 NAND, 2 LATCH | 694 bytes | 256 cases per provider, 0 mismatches | [`0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be`](https://www.oklink.com/xlayer/tx/0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be) |
+
+Payload hashes and block references are in [`public/evidence/release.json`](public/evidence/release.json).
+
+## What GateX does not do
+
+GateX checks behaviour. The workflow state lives with the caller, in the browser, and TapeOut computes each
+transition without storing it. So GateX does not provide replay protection, identity checks, custody or agent
+execution, and it is not an audit of the TapeOut contracts. Details are in
+[`docs/protocol-limitations.md`](docs/protocol-limitations.md).
 
 ## Run locally
 
@@ -34,18 +64,14 @@ npm run dev
 
 The browser workspace supports local compilation, deterministic artifact inspection, read-only quotes, fresh dual-provider circuit readback, and read-only live transition comparison. Wallet signing and state-changing protocol actions are outside the release product path.
 
-For protocol verification from a configured environment:
+The live verification scripts read X Layer through the two providers listed in `protocol/lock.json` (`https://rpc.xlayer.tech` and `https://xlayer.drpc.org`). They need no environment variables:
 
 ```sh
 npm run gatec:live
 npm run gatee:final:live -- 0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be
 ```
 
-See [`docs/language.md`](docs/language.md), [`docs/verification.md`](docs/verification.md), [`docs/protocol-limitations.md`](docs/protocol-limitations.md), and [`docs/demo-script.md`](docs/demo-script.md) for the language, proof boundary, known limitations, and judge-facing demo sequence.
-
-## Claim boundary
-
-GateX demonstrates behavior-verified compilation and live circuit evaluation for the locked scope. It does not claim exact deployed-source verification, protocol immutability, authoritative workflow state, replay-proof approvals, identity-authenticated approvals, custody, agent execution, or a protocol contract audit.
+See [`docs/language.md`](docs/language.md) for the language, [`docs/verification.md`](docs/verification.md) for the proof model, [`docs/protocol-limitations.md`](docs/protocol-limitations.md) for known limitations, [`docs/demo.md`](docs/demo.md) for a walkthrough, and the evidence records [`docs/evidence-agentapproval-preflight.md`](docs/evidence-agentapproval-preflight.md), [`docs/evidence-agentapproval-manufacture.md`](docs/evidence-agentapproval-manufacture.md) and [`docs/evidence-browser-product-checks.md`](docs/evidence-browser-product-checks.md).
 
 ## License
 

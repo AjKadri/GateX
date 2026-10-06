@@ -1,6 +1,6 @@
-# Gate F evidence
+# Browser product checks evidence
 
-Gate F is the local/browser product-flow checkpoint after the accepted Gate E manufacture and live-proof milestone. This checkpoint does not create a processor, mint transistors, manufacture a circuit, request a wallet signature, or begin Gate G.
+These are the local/browser product-flow checks run after the AgentApproval manufacture and live verification. They did not create a processor, mint transistors, manufacture a circuit, or request a wallet signature.
 
 ## Product surface
 
@@ -8,7 +8,7 @@ Gate F is the local/browser product-flow checkpoint after the accepted Gate E ma
 - Workspace route: editable generic GateX DSL, parser/compiler diagnostics, state diagram, exact artifact binding, verification status ladder, read-only protocol quote, live transition playground, and browser-session disclosure.
 - Evidence route: canonical processor/token deployment, TinyApproval and AgentApproval artifact hashes, historical transaction/readback evidence, live comparison count, and protocol limitations.
 
-## Accepted artifacts
+## Artifacts
 
 AgentApproval is circuit `2` on processor `0x95aaacaa8aaecf6d215706d3e7fff255a35c59ed`.
 
@@ -45,7 +45,7 @@ The protocol source/build provenance warning remains unchanged. GateX does not c
 - `npm run test:e2e`: 7 passed, 0 failed, Playwright `1.63.0`
 - `npm run gatec:live`: passed. TinyApproval remained `SIMULATION`, with all locked fixtures and 32 candidate cases matching on both providers.
 - `npm run gatee:final:live -- 0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be`: passed. Circuit `2` readback matched `(6,1,2,100)`, and 256 cases matched on each provider, 512 live comparisons total.
-- `eth_sendTransaction`, signing, and network-add paths are absent. Network switching was exercised only manually in the OKX site-connection UI. `eth_requestAccounts` is user-triggered only. No Gate F state-changing transaction was sent.
+- `eth_sendTransaction`, signing, and network-add paths are absent. Network switching was exercised only manually in the OKX site-connection UI. `eth_requestAccounts` is user-triggered only. No state-changing transaction was sent.
 
 ## HISTORICAL CLEAN-WALLET CHECKS
 
@@ -68,16 +68,16 @@ The protocol source/build provenance warning remains unchanged. GateX does not c
 - The wallet extension is represented by a deterministic injected provider only in wallet-UX tests. The live comparison test uses the two real locked X Layer providers and no wallet mock for its protocol results.
 - The Playwright Chromium run uses a test-only browser CORS relaxation so the browser can call the locked public RPC endpoints. This does not change product runtime behavior.
 
-## HISTORICAL GATE D/E EVIDENCE
+## HISTORICAL PROCESSOR AND CIRCUIT EVIDENCE
 
 - AgentApproval artifact: circuit `2`, 98 NAND, 2 LATCH, 100 records, 706-byte local container, 694-byte TapeOut payload, local SHA-256 `d68c9881fbe8bf0fbf7f86cfa92ad2889389e07e09bb0e7f0068f23eded50003`, payload SHA-256 `7e4b5f83032beaf32ce2e7c067f1ee24d08feea1e2db8c64ef7c4d7de231dc45`.
 - Real circuit `2` readback at common block `72534360`, hash `0x9a0168fe9736b93d579818a6584fb0fb956c23c8b884c04858197154debceafc` matched the compiled payload and dimensions `(6,1,2,100)` on both locked providers.
 - Both providers returned 256 matching live cases for circuit `2`, with zero mismatches per provider and zero provider disagreement.
-- Gate C live regression passed after the remediation. TinyApproval stayed at 89 NAND, 2 LATCH, 91 records, 643-byte local container, 631-byte TapeOut payload, and its existing hashes.
+- The `npm run gatec:live` regression passed after the remediation. TinyApproval stayed at 89 NAND, 2 LATCH, 91 records, 643-byte local container, 631-byte TapeOut payload, and its existing hashes.
 
 ## CURRENT-SESSION EVIDENCE RULE
 
 - Current-session `LIVE X LAYER` requires the selected source to match the accepted source identity, deterministic local artifact, expected payload/hash/dimensions, bound processor, bound circuit ID, and a fresh readback from both locked providers.
 - A different valid source remains locally compilable and simulatable but is `STALE` and cannot call circuit `1` or `2` or persist live history.
 - Provider disagreement or local/live mismatch is `FAILED`. RPC or live-read failure is `UNAVAILABLE`. A valid edited source is `STALE`.
-- Gate F wallet behavior is mocked Playwright UX evidence. It is not wallet-signature or transaction evidence.
+- Wallet behavior in these checks is mocked Playwright UX evidence. It is not wallet-signature or transaction evidence.
