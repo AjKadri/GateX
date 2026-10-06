@@ -2,6 +2,7 @@ import { compileMachine } from "../compiler/compiler.js";
 import { interpretAst } from "../compiler/interpreter.js";
 import { packBits, encodeInputMask, encodeStateIndex } from "../compiler/encoding.js";
 import { extractTapeOutPayload } from "../protocol/wire.js";
+import { artifactHash } from "../compiler/serialization.js";
 import { browserLock } from "./protocol.js";
 import { AGENT_APPROVAL_SOURCE } from "../examples/agentApproval.js";
 import { TINY_APPROVAL_SOURCE } from "../examples/tinyApproval.js";
@@ -38,6 +39,7 @@ export interface CompiledExample {
   definition: ExampleDefinition;
   compiled: CompiledMachine;
   payload: Awaited<ReturnType<typeof extractTapeOutPayload>>;
+  sourceDigest: string;
   deterministic: boolean;
   artifactMatch: boolean;
 }
@@ -47,9 +49,10 @@ export async function compileExample(key: ExampleKey, source = EXAMPLES[key].sou
   const compiled = await compileMachine(source);
   const repeat = await compileMachine(source);
   const payload = await extractTapeOutPayload(browserLock, compiled.bytes);
+  const sourceDigest = await artifactHash(new TextEncoder().encode(source));
   const deterministic = compiled.hash === repeat.hash && bytesLabel(compiled.bytes) === bytesLabel(repeat.bytes);
   const artifactMatch = compiled.nandCount === definition.expected.nand && compiled.latchCount === definition.expected.latch && compiled.artifact.records.length === definition.expected.records && compiled.bytes.length === definition.expected.localBytes && compiled.hash === definition.expected.localSha && payload.payload.length === definition.expected.payloadBytes && payload.payloadHash === definition.expected.payloadSha;
-  return { definition, compiled, payload, deterministic, artifactMatch };
+  return { definition, compiled, payload, sourceDigest, deterministic, artifactMatch };
 }
 
 export function localStep(compiled: CompiledMachine, stateIndex: number, inputMask: number): AstStepResult {
