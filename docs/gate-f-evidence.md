@@ -25,7 +25,8 @@ TinyApproval remains circuit `1` with 89 NAND, 2 LATCH, 91 records, a 643-byte l
 - The local Vite preview rendered Overview, Workspace, and Evidence routes in the Codex in-app browser.
 - The Workspace compiled AgentApproval and TinyApproval through the generic parser/compiler path and displayed their exact accepted bytes and hashes.
 - A malformed source produced diagnostics and blocked manufacture readiness.
-- The clean-wallet view showed wallet disconnected, no signature path, and a disabled manufacture control.
+- The browser wallet surface showed wallet disconnected because no specifically identifiable OKX provider was available. It keeps manufacture disabled and does not expose a transaction path.
+- Wallet discovery is restricted to an identifiable EIP-6963 or legacy OKX provider (`com.okex.wallet` / `isOkxWallet`). Account access is available only from the explicit `Connect OKX Wallet` action. The wallet layer rereads the same provider after `eth_requestAccounts` and invalidates readiness on account or chain changes.
 - The live playground read AgentApproval circuit `2` from both locked providers at common block `72532439`, hash `0x3f966ffb...5572c8f1`, and matched the independent local AST result with zero mismatches.
 - The quote reader agreed on current locked protocol getters from both providers at block `72532504`, hash `0xe0fa9139...1d2945a3`.
 - The browser runtime had no Web Crypto global. The deterministic artifact hash helper therefore uses the already-declared Noble SHA-256 implementation as a byte-identical fallback. Existing hashes and tests remain unchanged.
@@ -38,8 +39,14 @@ The protocol source/build provenance warning remains unchanged. GateX does not c
 
 ## Checks
 
-- `npm test`: 39 passed, 0 failed
+- `npm test`: 43 passed, 0 failed
 - `npm run typecheck`: passed
 - `npm run build`: passed
 - `git diff --check`: passed
-- Wallet/signature/send selectors are absent from the Gate F product surface. No Gate F state-changing transaction was sent.
+- `eth_sendTransaction`, signing, network-switch, and network-add paths are absent. `eth_requestAccounts` is user-triggered only. No Gate F state-changing transaction was sent.
+
+## Clean-wallet boundary
+
+The Codex in-app browser did not expose a separate OKX wallet/account provider, and Chrome was unavailable for a second wallet-backed browser context. Therefore the clean-wallet account portion is BLOCKED and is not represented as a passing result. The remaining Gate F product checks were completed with the wallet disconnected. No signature, spend, processor creation, mint, manufacture, or retry occurred during this gate.
+
+Playwright is not installed in this workspace, so automated Playwright coverage is deferred. The route and interaction checks above were performed in the Codex in-app browser, with the wallet-specific sequencing covered by `tests/gate-f-wallet.test.ts`.

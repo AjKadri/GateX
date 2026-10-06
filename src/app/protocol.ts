@@ -33,6 +33,11 @@ export interface ReadOnlyQuote {
   protocolFeeWei: bigint;
   tapeoutFeeWei: bigint;
   gasPriceWei: bigint;
+  account?: string;
+  nativeBalanceWei?: bigint;
+  nonce?: bigint;
+  nandBalance?: bigint;
+  latchBalance?: bigint;
   agreement: boolean;
 }
 
@@ -70,17 +75,23 @@ async function commonBlock(): Promise<CommonReadBlock> {
   return { number, hash: blocks[0] as string, tag: quantity(number) };
 }
 
-async function callUint(client: ReadOnlyRpcClient, target: string, signature: string, block: string): Promise<bigint> {
-  const raw = await client.request("eth_call", [{ to: target, data: encodeGateDCall(browserLock, signature) }, block]);
+async function callUint(client: ReadOnlyRpcClient, target: string, signature: string, block: string, args: readonly (string | number | bigint)[] = []): Promise<bigint> {
+  const raw = await client.request("eth_call", [{ to: target, data: encodeGateDCall(browserLock, signature, args) }, block]);
   return decodeGateDUint256(asHex(raw, signature));
 }
 
-export async function readOnlyQuote(): Promise<ReadOnlyQuote> {
+export async function readOnlyQuote(account?: string): Promise<ReadOnlyQuote> {
   const block = await commonBlock();
   const values = await Promise.all(browserLock.snapshot.providers.map(async (provider) => {
     const client = browserClients.get(provider);
     if (client === undefined) throw new Error(`No locked client for ${provider}`);
     const chainId = Number(parseQuantity(await client.request("eth_chainId", []), `${provider} chain`));
+    const accountReads = account === undefined ? [] : await Promise.all([
+      callUint(client, browserDeployment.token, "balanceOf(address,uint256)", block.tag, [account, 0n]),
+      callUint(client, browserDeployment.token, "balanceOf(address,uint256)", block.tag, [account, 1n]),
+      client.request("eth_getBalance", [account, block.tag]).then((value) => parseQuantity(value, `${provider} balance`)),
+      client.request("eth_getTransactionCount", [account, block.tag]).then((value) => parseQuantity(value, `${provider} nonce`))
+    ]);
     const [minted, cap, mintPriceWei, protocolFeeWei, tapeoutFeeWei, gasPriceWei] = await Promise.all([
       callUint(client, browserDeployment.token, "minted()", block.tag),
       callUint(client, browserDeployment.token, "supplyCap()", block.tag),
@@ -89,11 +100,11 @@ export async function readOnlyQuote(): Promise<ReadOnlyQuote> {
       callUint(client, browserDeployment.processor, "TAPEOUT_FEE()", block.tag),
       client.request("eth_gasPrice", []).then((value) => parseQuantity(value, `${provider} gas price`))
     ]);
-    return { chainId, minted, cap, mintPriceWei, protocolFeeWei, tapeoutFeeWei, gasPriceWei };
+    return { chainId, minted, cap, mintPriceWei, protocolFeeWei, tapeoutFeeWei, gasPriceWei, account, nandBalance: accountReads[0], latchBalance: accountReads[1], nativeBalanceWei: accountReads[2], nonce: accountReads[3] };
   }));
   const first = values[0];
   if (first === undefined) throw new Error("No locked provider values returned");
-  const stable = (value: typeof first) => [value.chainId, value.minted.toString(), value.cap.toString(), value.mintPriceWei.toString(), value.protocolFeeWei.toString(), value.tapeoutFeeWei.toString()].join("|");
+  const stable = (value: typeof first) => [value.chainId, value.minted.toString(), value.cap.toString(), value.mintPriceWei.toString(), value.protocolFeeWei.toString(), value.tapeoutFeeWei.toString(), value.nandBalance?.toString() ?? "", value.latchBalance?.toString() ?? "", value.nativeBalanceWei?.toString() ?? "", value.nonce?.toString() ?? ""].join("|");
   const agreement = values.every((value) => stable(value) === stable(first));
   return { block, providers: browserLock.snapshot.providers, chainIds: values.map((value) => value.chainId), ...first, agreement };
 }
