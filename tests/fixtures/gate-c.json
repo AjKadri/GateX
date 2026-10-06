@@ -32,13 +32,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[24]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[85]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -56,13 +56,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[25]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[86]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -80,13 +80,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[26]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[87]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -104,13 +104,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[27]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[88]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -122,27 +122,27 @@
       ],
       "provenance": {
         "netlist": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+          "file": "work/protocol-probe-results.json",
           "locator": "$.results[23]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
         },
         "dimensions": [
           {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe.cjs",
+            "file": "work/protocol-probe.cjs",
             "locator": "line 27 loop [id,nIn,nStates]",
             "category": "research experiment",
             "fileSha256": "fc652946e8f6878125cd074076855c78d344253bd764cc47d5f014ac2ff0676d"
           },
           {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/primary-interlock-info-1.json",
+            "file": "work/primary-interlock-info-1.json",
             "locator": "$.result",
             "category": "deployed contract behavior; separate earlier metadata snapshot",
             "fileSha256": "1e5ba9feff8d096f61321e702c3efcdd87bfdc1300021cac62de49b8032410a6"
           }
         ],
         "vectors": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+          "file": "work/protocol-probe-results.json",
           "locator": "$.reports[0].checks[id=1] and matching $.results entries",
           "category": "deployed contract behavior",
           "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -179,13 +179,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[29]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[90]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -203,13 +203,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[30]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[91]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -227,13 +227,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[31]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[92]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -251,13 +251,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[32]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[93]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -275,13 +275,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[33]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[94]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -299,13 +299,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[34]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[95]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -323,13 +323,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[35]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[96]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -347,13 +347,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[36]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[97]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -371,13 +371,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[37]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[98]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -395,13 +395,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[38]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[99]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -419,13 +419,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[39]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[100]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -443,13 +443,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[40]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[101]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -467,13 +467,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[41]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[102]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -491,13 +491,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[42]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[103]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -515,13 +515,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[43]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[104]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -539,13 +539,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[44]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[105]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -563,13 +563,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[45]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[106]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -587,13 +587,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[46]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[107]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -611,13 +611,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[47]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[108]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -635,13 +635,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[48]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[109]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -659,13 +659,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[49]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[110]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -683,13 +683,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[50]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[111]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -707,13 +707,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[51]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[112]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -731,13 +731,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[52]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[113]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -755,13 +755,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[53]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[114]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -779,13 +779,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[54]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[115]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -803,13 +803,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[55]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[116]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -827,13 +827,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[56]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[117]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -851,13 +851,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[57]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[118]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -875,13 +875,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[58]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[119]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -899,13 +899,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[59]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[120]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -923,13 +923,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[60]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+              "file": "work/protocol-probe-results.json",
               "locator": "$.results[121]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -941,27 +941,27 @@
       ],
       "provenance": {
         "netlist": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+          "file": "work/protocol-probe-results.json",
           "locator": "$.results[28]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
         },
         "dimensions": [
           {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe.cjs",
+            "file": "work/protocol-probe.cjs",
             "locator": "line 27 loop [id,nIn,nStates]",
             "category": "research experiment",
             "fileSha256": "fc652946e8f6878125cd074076855c78d344253bd764cc47d5f014ac2ff0676d"
           },
           {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/primary-interlock-info-2.json",
+            "file": "work/primary-interlock-info-2.json",
             "locator": "$.result",
             "category": "deployed contract behavior; separate earlier metadata snapshot",
             "fileSha256": "4391594929f04e32ba0fb702a3a0295f5fc6f51f003c2cef559a8e3940e21ca9"
           }
         ],
         "vectors": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/protocol-probe-results.json",
+          "file": "work/protocol-probe-results.json",
           "locator": "$.reports[0].checks[id=2] and matching $.results entries",
           "category": "deployed contract behavior",
           "fileSha256": "766d0e3c2a571e391c220647922292d6bb25b1b52826175f261f631ac15ecf83"
@@ -996,7 +996,7 @@
             "gateCount": 10
           },
           "provenance": {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/real-ref-proof-results.json",
+            "file": "work/real-ref-proof-results.json",
             "locator": "$.graphs[0].circuits[1] and matching metadata/netlist $.results",
             "category": "deployed contract behavior",
             "fileSha256": "01e2c3b60c940e8076e474a1bf30f12a07b4cc3193b096b2d779045c3fc07e08"
@@ -1012,7 +1012,7 @@
           "calldata": "0xe8281a1a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/real-ref-proof-results.json",
+            "file": "work/real-ref-proof-results.json",
             "locator": "$.results[4]",
             "category": "deployed contract behavior via research experiment",
             "fileSha256": "01e2c3b60c940e8076e474a1bf30f12a07b4cc3193b096b2d779045c3fc07e08"
@@ -1028,7 +1028,7 @@
           "calldata": "0xe8281a1a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/real-ref-proof-results.json",
+            "file": "work/real-ref-proof-results.json",
             "locator": "$.results[5]",
             "category": "deployed contract behavior via research experiment",
             "fileSha256": "01e2c3b60c940e8076e474a1bf30f12a07b4cc3193b096b2d779045c3fc07e08"
@@ -1044,7 +1044,7 @@
           "calldata": "0xe8281a1a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000102000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/real-ref-proof-results.json",
+            "file": "work/real-ref-proof-results.json",
             "locator": "$.results[6]",
             "category": "deployed contract behavior via research experiment",
             "fileSha256": "01e2c3b60c940e8076e474a1bf30f12a07b4cc3193b096b2d779045c3fc07e08"
@@ -1060,7 +1060,7 @@
           "calldata": "0xe8281a1a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000103000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": {
-            "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/real-ref-proof-results.json",
+            "file": "work/real-ref-proof-results.json",
             "locator": "$.results[7]",
             "category": "deployed contract behavior via research experiment",
             "fileSha256": "01e2c3b60c940e8076e474a1bf30f12a07b4cc3193b096b2d779045c3fc07e08"
@@ -1070,7 +1070,7 @@
         }
       ],
       "provenance": {
-        "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/real-ref-proof-results.json",
+        "file": "work/real-ref-proof-results.json",
         "locator": "$.graphs, $.checks, $.results",
         "category": "deployed contract behavior and independent research model",
         "fileSha256": "01e2c3b60c940e8076e474a1bf30f12a07b4cc3193b096b2d779045c3fc07e08"
@@ -1234,13 +1234,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[7]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[13]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1260,13 +1260,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[8]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[14]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1286,13 +1286,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010200000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[9]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[15]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1312,13 +1312,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010300000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[10]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[16]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1330,25 +1330,25 @@
       ],
       "provenance": {
         "trace": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[4]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "netlist": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[6]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "dimensions": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[5]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "procedure": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics.cjs",
+          "file": "work/ephemeral-semantics.cjs",
           "locator": "lines 8, 14-20",
           "category": "research experiment",
           "fileSha256": "24ca1608b879b0d6a056a3a616133549e2dd94691e09f08ddd947020afb2d5b4"
@@ -1503,13 +1503,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[20]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[26]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1527,13 +1527,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[21]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[27]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1551,13 +1551,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[22]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[28]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1575,13 +1575,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[23]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[29]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1593,25 +1593,25 @@
       ],
       "provenance": {
         "trace": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[17]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "netlist": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[19]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "dimensions": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[18]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "procedure": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics.cjs",
+          "file": "work/ephemeral-semantics.cjs",
           "locator": "lines 8, 14-20",
           "category": "research experiment",
           "fileSha256": "24ca1608b879b0d6a056a3a616133549e2dd94691e09f08ddd947020afb2d5b4"
@@ -1766,13 +1766,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[33]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[99]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1790,13 +1790,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[35]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[101]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1814,13 +1814,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[37]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[103]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1838,13 +1838,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[39]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[105]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1862,13 +1862,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[41]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[107]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1886,13 +1886,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[43]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[109]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1910,13 +1910,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[45]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[111]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1934,13 +1934,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[47]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[113]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1958,13 +1958,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[49]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[115]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -1982,13 +1982,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[51]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[117]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2006,13 +2006,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[53]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[119]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2030,13 +2030,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[55]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[121]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2054,13 +2054,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[57]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[123]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2078,13 +2078,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[59]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[125]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2102,13 +2102,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[61]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[127]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2126,13 +2126,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[63]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[129]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2150,13 +2150,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[65]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[131]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2174,13 +2174,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[67]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[133]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2198,13 +2198,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[69]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[135]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2222,13 +2222,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[71]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[137]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2246,13 +2246,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[73]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[139]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2270,13 +2270,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[75]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[141]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2294,13 +2294,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[77]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[143]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2318,13 +2318,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[79]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[145]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2342,13 +2342,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[81]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[147]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2366,13 +2366,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[83]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[149]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2390,13 +2390,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[85]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[151]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2414,13 +2414,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[87]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[153]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2438,13 +2438,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[89]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[155]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2462,13 +2462,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[91]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[157]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2486,13 +2486,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[93]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[159]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2510,13 +2510,13 @@
           "rawReturn": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
           "provenance": [
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[95]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
             },
             {
-              "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+              "file": "work/ephemeral-semantics-results.json",
               "locator": "$.results[161]",
               "category": "deployed contract behavior via research experiment",
               "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
@@ -2528,25 +2528,25 @@
       ],
       "provenance": {
         "trace": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[30]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "netlist": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[32]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "dimensions": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics-results.json",
+          "file": "work/ephemeral-semantics-results.json",
           "locator": "$.results[31]",
           "category": "deployed contract behavior via research experiment",
           "fileSha256": "fb9b90e510371df52596d3f66e3129dae4c01829c05025c9efcae76731610185"
         },
         "procedure": {
-          "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/ephemeral-semantics.cjs",
+          "file": "work/ephemeral-semantics.cjs",
           "locator": "lines 8, 14-20",
           "category": "research experiment",
           "fileSha256": "24ca1608b879b0d6a056a3a616133549e2dd94691e09f08ddd947020afb2d5b4"
@@ -2612,13 +2612,13 @@
     },
     "provenance": [
       {
-        "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/manufacture-trace-results.json",
+        "file": "work/manufacture-trace-results.json",
         "locator": "$.results[8]",
         "category": "deployed contract behavior via research experiment",
         "fileSha256": "b6700bbb90e87359185ab33af7e3b7ab65f5a809c6de90f65da96df4395ef8a7"
       },
       {
-        "file": "/Users/admin/Documents/Codex/2026-10-04/referenced-chatgpt-conversation-this-is-an/work/manufacture-traces.cjs",
+        "file": "work/manufacture-traces.cjs",
         "locator": "lines 3-10",
         "category": "research experiment",
         "fileSha256": "c8f95a4f64d6bea3c0fb8a2fa9f85c5c334b0d712cae2104ecc8048aacbc5380"
@@ -2629,7 +2629,7 @@
   },
   "handoffCaveats": {
     "localArtifact": {
-      "file": "/Users/admin/Documents/Hackathons/GateX/src/compiler/serialization.ts",
+      "file": "./src/compiler/serialization.ts",
       "locator": "lines 3-4 and serializeArtifact: header followed by records",
       "category": "current implementation inspection, NOT protocol evidence",
       "headerBytes": 12,

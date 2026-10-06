@@ -46,3 +46,7 @@ See [`docs/language.md`](docs/language.md), [`docs/verification.md`](docs/verifi
 ## Claim boundary
 
 GateX demonstrates behavior-verified compilation and live circuit evaluation for the locked scope. It does not claim exact deployed-source verification, protocol immutability, authoritative workflow state, replay-proof approvals, identity-authenticated approvals, custody, agent execution, or a protocol contract audit.
+
+## License
+
+GateX is released under the [MIT License](LICENSE).

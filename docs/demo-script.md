@@ -13,3 +13,14 @@ Target duration: 90 to 150 seconds.
 9. Open Evidence and show the historical manufacture records, payload hashes, transaction references, and the current-session evidence boundary.
 
 Keep the demo read-only. Do not present it as an AI agent execution, wallet transaction flow, or custody product. If a fresh readback is unavailable, leave the result labeled `UNAVAILABLE` and use the recorded `HISTORICAL EVIDENCE` section rather than substituting local results.
+
+## Final capture checklist
+
+- Use a clean browser session on the correct production domain.
+- Keep developer tools closed unless they are needed to explain a read-only result.
+- Confirm AgentApproval is loaded and the named-state diagram is visible.
+- Confirm fresh circuit 2 readback succeeds before running the live transition.
+- Show one successful local/live transition match.
+- Open the Evidence route and confirm transaction links work.
+- Keep the caller-owned-state disclosure visible.
+- Do not show local development URLs, wallet signing, or deployment controls.
