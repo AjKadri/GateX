@@ -27,8 +27,8 @@ TinyApproval remains circuit `1` with 89 NAND, 2 LATCH, 91 records, a 643-byte l
 - A malformed source produced diagnostics and blocked manufacture readiness.
 - The browser wallet surface showed wallet disconnected because no specifically identifiable OKX provider was available. It keeps manufacture disabled and does not expose a transaction path.
 - Wallet discovery is restricted to an identifiable EIP-6963 or legacy OKX provider (`com.okex.wallet` / `isOkxWallet`). Account access is available only from the explicit `Connect OKX Wallet` action. The wallet layer rereads the same provider after `eth_requestAccounts` and invalidates readiness on account or chain changes.
-- The live playground read AgentApproval circuit `2` from both locked providers at common block `72532439`, hash `0x3f966ffb...5572c8f1`, and matched the independent local AST result with zero mismatches.
-- The quote reader agreed on current locked protocol getters from both providers at block `72532504`, hash `0xe0fa9139...1d2945a3`.
+- The live playground read AgentApproval circuit `2` from both locked providers at common block `72532848`, hash `0xd0866a5a...4a257597`, and matched the independent local AST result with zero mismatches.
+- The quote reader agreed on current locked protocol getters from both providers at block `72532859`, hash `0x8876af67...2c20504f`, with lifetime minted `191`, cap `1000000`, mint price `0.000001` OKB, and tapeout fee `0.0013` OKB.
 - The browser runtime had no Web Crypto global. The deterministic artifact hash helper therefore uses the already-declared Noble SHA-256 implementation as a byte-identical fallback. Existing hashes and tests remain unchanged.
 
 ## Session and claim boundaries
