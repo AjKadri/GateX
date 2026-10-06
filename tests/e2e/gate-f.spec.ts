@@ -76,7 +76,7 @@ test("landing, workspace examples, editable DSL, diagnostics, and evidence route
 test("read-only live comparison, stale quote, session restore, and source invalidation", async ({ page }) => {
   await openWorkspace(page);
   await page.getByRole("button", { name: "Refresh quote" }).click();
-  await expect(page.getByText(/Both locked providers agree on displayed fields|Provider disagreement: values below are provider-specific/)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/Both providers agree on displayed fields|Provider disagreement: values below are provider-specific/)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("fixed mint fee / tx", { exact: true })).toBeVisible();
   await expect(page.getByText("wallet balance", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "2. Compare live transition" }).click();
@@ -97,7 +97,7 @@ test("read-only live comparison, stale quote, session restore, and source invali
 
   const editor = page.getByRole("textbox", { name: "GateX DSL source" });
   await editor.fill(`${agentSource}\n// changed after binding`);
-  await expect(page.getByText("This source is valid but no longer bound to the accepted manufactured artifact.", { exact: true })).toBeVisible();
+  await expect(page.getByText("This source is valid but differs from the manufactured circuit.", { exact: true })).toBeVisible();
   await expect(page.getByText("LOCAL", { exact: true })).toHaveCount(0);
   await expect(page.getByText("No live result recorded", { exact: true })).toBeVisible();
 });
@@ -109,7 +109,7 @@ test("wallet UX uses the explicit OKX provider and invalidates on network/accoun
   await page.getByRole("button", { name: "Connect OKX Wallet" }).click();
   await expect(page.getByText("Wallet connected", { exact: true })).toBeVisible();
   await expect(page.getByText(/OKX Wallet · 0x1111…1111 · X Layer \/ 196/)).toBeVisible();
-  await expect(page.getByText(/Both locked providers agree on displayed fields|Provider disagreement: values below are provider-specific/)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/Both providers agree on displayed fields|Provider disagreement: values below are provider-specific/)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("GAS ESTIMATE UNAVAILABLE", { exact: true })).toBeVisible();
   await expect(page.getByText("PROTOCOL VALUE BEFORE GAS", { exact: true })).toHaveCount(1);
 
@@ -131,7 +131,7 @@ test("fresh wallet-disconnected state, no fallback, keyboard labels, and respons
   await openWorkspace(page);
   await expect(page.getByText("OKX Wallet not detected in this browser.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Connect OKX Wallet" })).toBeDisabled();
-  await expect(page.getByText("Fresh bound-circuit readback is required.", { exact: true })).toBeVisible();
+  await expect(page.getByText("A fresh circuit readback is required.", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "TinyApproval circuit 1" }).press("Enter");
   await expect(page.getByRole("heading", { name: "TinyApproval circuit 1" })).toBeVisible();
   await page.getByRole("button", { name: "AgentApproval circuit 2" }).press("Enter");
