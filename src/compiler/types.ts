@@ -26,6 +26,7 @@ export interface TransitionDeclaration {
   from: string;
   to: string;
   guard: Expr;
+  emits?: string[];
   span: SourceSpan;
 }
 
@@ -44,6 +45,7 @@ export interface MachineAst {
   resetInput: string;
   transitions: TransitionDeclaration[];
   emissions: OutputDeclaration[];
+  resetOn?: boolean;
   span: SourceSpan;
 }
 

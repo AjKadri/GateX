@@ -34,6 +34,59 @@ export function evaluateAstExpression(expression: Expr, environment: EvaluationE
   }
 }
 
+function and(left: Expr, right: Expr): Expr {
+  return { kind: "and", left, right, span: { start: left.span.start, end: right.span.end } };
+}
+
+function or(left: Expr, right: Expr): Expr {
+  return { kind: "or", left, right, span: { start: left.span.start, end: right.span.end } };
+}
+
+function not(expression: Expr): Expr {
+  return { kind: "not", expr: expression, span: { ...expression.span } };
+}
+
+function literal(value: boolean, span: { start: number; end: number }): Expr {
+  return { kind: "literal", value, span: { ...span } };
+}
+
+function symbol(name: string, span: { start: number; end: number }): Expr {
+  return { kind: "symbol", name, span: { ...span } };
+}
+
+function containsSymbol(expression: Expr, name: string): boolean {
+  switch (expression.kind) {
+    case "symbol": return expression.name === name;
+    case "not": return containsSymbol(expression.expr, name);
+    case "and":
+    case "or": return containsSymbol(expression.left, name) || containsSymbol(expression.right, name);
+    case "literal":
+    case "state-is": return false;
+  }
+}
+
+function materializeResetOn(machine: MachineAst): MachineAst {
+  if (!machine.resetOn) return machine;
+  const reset = symbol(machine.resetInput, machine.span);
+  const notReset = not(reset);
+  const transitions: MachineAst["transitions"] = [];
+  for (const state of machine.states) {
+    transitions.push({ from: state.name, to: machine.initialState, guard: reset, span: state.span });
+    const explicit = machine.transitions.filter((transition) => transition.from === state.name);
+    const explicitGuards = explicit.map((transition) => transition.guard);
+    const anyExplicit = explicitGuards.reduce((left, right) => left === undefined ? right : or(left, right), undefined as Expr | undefined);
+    for (const transition of explicit) {
+      transitions.push({
+        ...transition,
+        guard: and(transition.guard, notReset)
+      });
+    }
+    const fallbackGuard = anyExplicit === undefined ? notReset : and(notReset, not(anyExplicit));
+    transitions.push({ from: state.name, to: state.name, guard: fallbackGuard, span: state.span });
+  }
+  return { ...machine, transitions, resetOn: false };
+}
+
 function stateBitWidth(stateCount: number): number {
   return Math.max(1, Math.ceil(Math.log2(stateCount)));
 }
@@ -93,7 +146,19 @@ function inputAssignments(inputNames: string[]): ReadonlyMap<string, boolean>[] 
 }
 
 export function validateMachine(machine: MachineAst): ValidatedMachine {
-  const issues: string[] = [];
+  const hasGlobalReset = machine.resetOn === true;
+  const declaredTransitions = machine.transitions;
+  const declaredResetInput = machine.resetInput;
+  const resetGuardIssues: string[] = [];
+  if (hasGlobalReset) {
+    for (const transition of declaredTransitions) {
+      if (containsSymbol(transition.guard, declaredResetInput)) {
+        resetGuardIssues.push(`reset input ${declaredResetInput} cannot appear in ordinary transition guard`);
+      }
+    }
+  }
+  machine = materializeResetOn(machine);
+  const issues: string[] = [...resetGuardIssues];
   const stateNames = new Set(machine.states.map((state) => state.name));
   const inputNames = new Set(machine.inputs.map((input) => input.name));
   const outputNames = new Set(machine.outputs.map((output) => output.name));
@@ -126,6 +191,9 @@ export function validateMachine(machine: MachineAst): ValidatedMachine {
   }
 
   const transitionSources = new Set(machine.states.map((state) => state.name));
+  for (const state of machine.states) {
+    if (state.terminal && !stateNames.has(state.name)) issues.push(`unknown terminal state ${state.name}`);
+  }
   for (const transition of machine.transitions) {
     if (!stateNames.has(transition.from)) issues.push(`transition source ${transition.from} is not declared`);
     if (!stateNames.has(transition.to)) issues.push(`transition target ${transition.to} is not declared`);
@@ -168,11 +236,11 @@ export function validateMachine(machine: MachineAst): ValidatedMachine {
         evaluateAstExpression(transition.guard, { inputs, state: state.name })
       );
       if (matches.length === 0) {
-        issues.push(`state ${state.name} has no transition for input mask ${mask}`);
+        issues.push(`UNSATISFIABLE_TRANSITION state=${state.name} inputMask=${mask} inputs=${witness(machine.inputs.map((input) => input.name), mask)}`);
         return;
       }
       if (matches.length > 1) {
-        issues.push(`state ${state.name} has ambiguous transitions for input mask ${mask}`);
+        issues.push(`AMBIGUOUS_TRANSITION ambiguous state=${state.name} inputMask=${mask} inputs=${witness(machine.inputs.map((input) => input.name), mask)} targets=${matches.map((match) => match.to).join(",")}`);
         return;
       }
       const match = matches[0];
@@ -226,4 +294,8 @@ export function validateMachine(machine: MachineAst): ValidatedMachine {
     inputIndex,
     outputIndex
   };
+}
+
+function witness(inputNames: string[], mask: number): string {
+  return inputNames.map((name, index) => `${name}=${(mask & (1 << index)) !== 0 ? "1" : "0"}`).join(",");
 }

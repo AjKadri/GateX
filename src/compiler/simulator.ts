@@ -23,6 +23,15 @@ export function simulateDecodedNetlist(
     throw new Error(`Invalid input vector: ${error instanceof Error ? error.message : String(error)}`);
   }
 
+  if (!state.valid) {
+    return {
+      nextStateBytes: encodeStateIndex(artifact.initialState, artifact.stateBits),
+      outputBytes: packBits(new Array(artifact.outputCount).fill(false)),
+      outputs: new Array(artifact.outputCount).fill(false),
+      currentStateValid: false
+    };
+  }
+
   const signalCount = artifact.inputCount + artifact.records.length;
   const signals = new Array<boolean | undefined>(signalCount).fill(undefined);
   inputBits.forEach((bit, index) => (signals[index] = bit));
@@ -54,10 +63,6 @@ export function simulateDecodedNetlist(
     if (value === undefined) throw new Error(`LATCH references an unset data signal ${record.data}`);
     return value;
   });
-  if (!state.valid && state.bits.length === 0) {
-    nextStateBits.splice(0, nextStateBits.length, ...unpackCanonicalBits(encodeStateIndex(artifact.initialState, artifact.stateBits), artifact.stateBits));
-  }
-
   const firstOutputRecord = artifact.records.length - artifact.outputCount;
   if (firstOutputRecord < artifact.stateBits) throw new Error("Artifact has no room for its declared outputs");
   const outputs = artifact.records.slice(firstOutputRecord).map((_, index) => {

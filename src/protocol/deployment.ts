@@ -10,6 +10,7 @@ export interface DeploymentMetadata {
 
 export interface DeploymentBudget {
   cumulativeProjectSpendBeforeD2Wei: bigint;
+  cumulativeProjectSpendBeforeGateEWei: bigint;
   projectCeilingWei: bigint;
   desiredPostMandatoryContingencyWei: bigint;
 }
@@ -112,6 +113,7 @@ export function loadCanonicalDeployment(): CanonicalDeployment {
     },
     budget: {
       cumulativeProjectSpendBeforeD2Wei: uintField(budget, "cumulativeProjectSpendBeforeD2Wei"),
+      cumulativeProjectSpendBeforeGateEWei: uintField(budget, "cumulativeProjectSpendBeforeGateEWei"),
       projectCeilingWei: uintField(budget, "projectCeilingWei"),
       desiredPostMandatoryContingencyWei: uintField(budget, "desiredPostMandatoryContingencyWei")
     },
@@ -124,6 +126,8 @@ export function loadCanonicalDeployment(): CanonicalDeployment {
   };
   if (result.chainId !== 196) throw new DeploymentConfigurationError(`Deployment manifest chain ${result.chainId} is not X Layer 196`);
   if (result.budget.cumulativeProjectSpendBeforeD2Wei > result.budget.projectCeilingWei) throw new DeploymentConfigurationError("Recorded cumulative project spend exceeds ceiling");
+  if (result.budget.cumulativeProjectSpendBeforeGateEWei < result.budget.cumulativeProjectSpendBeforeD2Wei) throw new DeploymentConfigurationError("Gate E cumulative project spend precedes the D2 baseline");
+  if (result.budget.cumulativeProjectSpendBeforeGateEWei > result.budget.projectCeilingWei) throw new DeploymentConfigurationError("Recorded Gate E cumulative project spend exceeds ceiling");
   return result;
 }
 

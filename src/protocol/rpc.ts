@@ -8,6 +8,8 @@ export type ReadOnlyRpcMethod =
   | "eth_getBalance"
   | "eth_gasPrice"
   | "eth_getTransactionCount"
+  | "eth_getTransactionByHash"
+  | "eth_getTransactionReceipt"
   | "eth_getLogs"
   | "eth_call"
   | "eth_estimateGas"

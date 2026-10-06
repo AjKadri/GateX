@@ -7,5 +7,5 @@ export { artifactHash, deserializeArtifact, serializeArtifact } from "./compiler
 export { simulateDecodedNetlist } from "./compiler/simulator.js";
 export { validateMachine } from "./compiler/validation.js";
 export { TINY_APPROVAL_SOURCE } from "./examples/tinyApproval.js";
+export { AGENT_APPROVAL_SOURCE } from "./examples/agentApproval.js";
 export type * from "./compiler/types.js";
-

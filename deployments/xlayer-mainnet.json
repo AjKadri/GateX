@@ -22,6 +22,7 @@
   },
   "budget": {
     "cumulativeProjectSpendBeforeD2Wei": "13227888521394426",
+    "cumulativeProjectSpendBeforeGateEWei": "15953748322137416",
     "projectCeilingWei": "50000000000000000",
     "desiredPostMandatoryContingencyWei": "10000000000000000"
   },

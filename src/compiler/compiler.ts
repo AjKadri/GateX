@@ -164,12 +164,88 @@ function buildOutputRows(machine: ValidatedMachine, outputName: string): TruthRo
   return compileTruthFunction(machine, normalized);
 }
 
-export async function compileMachine(sourceOrAst: string | MachineAst): Promise<CompiledMachine> {
-  const machine = validateMachine(typeof sourceOrAst === "string" ? parseMachine(sourceOrAst) : sourceOrAst);
-  return compileValidatedMachine(machine);
+function negateNormalized(expression: NormalizedBool): NormalizedBool {
+  switch (expression.kind) {
+    case "const": return boolConst(!expression.value);
+    case "var": return boolNot(expression.name);
+    case "not": return boolVar(expression.expr.name);
+    case "and": return boolOr(expression.terms.map(negateNormalized));
+    case "or": return boolAnd(expression.terms.map(negateNormalized));
+  }
 }
 
-export async function compileValidatedMachine(machine: ValidatedMachine): Promise<CompiledMachine> {
+function stateEquality(machine: ValidatedMachine, stateName: string): NormalizedBool {
+  const stateValue = machine.stateIndex.get(stateName);
+  if (stateValue === undefined) return boolConst(false);
+  const terms = Array.from({ length: machine.stateBits }, (_, bit) => {
+    const name = `stateBit:${bit}`;
+    return (stateValue & (1 << bit)) === 0 ? boolNot(name) : boolVar(name);
+  });
+  return boolAnd(terms);
+}
+
+function normalizeStructuredExpression(
+  expression: ExprLike,
+  machine: ValidatedMachine,
+  negated = false
+): NormalizedBool {
+  switch (expression.kind) {
+    case "literal":
+      return boolConst(negated ? !expression.value : expression.value);
+    case "symbol": {
+      const variable = `input:${expression.name}`;
+      return negated ? boolNot(variable) : boolVar(variable);
+    }
+    case "state-is": {
+      const equality = stateEquality(machine, expression.state);
+      return negated ? negateNormalized(equality) : equality;
+    }
+    case "not":
+      return normalizeStructuredExpression(expression.expr, machine, !negated);
+    case "and":
+      return negated
+        ? boolOr([normalizeStructuredExpression(expression.left, machine, true), normalizeStructuredExpression(expression.right, machine, true)])
+        : boolAnd([normalizeStructuredExpression(expression.left, machine), normalizeStructuredExpression(expression.right, machine)]);
+    case "or":
+      return negated
+        ? boolAnd([normalizeStructuredExpression(expression.left, machine, true), normalizeStructuredExpression(expression.right, machine, true)])
+        : boolOr([normalizeStructuredExpression(expression.left, machine), normalizeStructuredExpression(expression.right, machine)]);
+  }
+}
+
+type ExprLike = ValidatedMachine["transitions"][number]["guard"];
+
+function validStateExpression(machine: ValidatedMachine): NormalizedBool {
+  return boolOr(machine.states.map((state) => stateEquality(machine, state.name)));
+}
+
+function buildStructuredTransitionExpression(machine: ValidatedMachine, bit: number): NormalizedBool {
+  const terms: NormalizedBool[] = [];
+  for (const transition of machine.transitions) {
+    const target = machine.stateIndex.get(transition.to);
+    if (target === undefined || (target & (1 << bit)) === 0) continue;
+    terms.push(boolAnd([
+      stateEquality(machine, transition.from),
+      normalizeStructuredExpression(transition.guard, machine)
+    ]));
+  }
+  const initialState = machine.stateIndex.get(machine.initialState) ?? 0;
+  if ((initialState & (1 << bit)) !== 0) {
+    terms.push(boolAnd([negateNormalized(validStateExpression(machine)), boolConst(true)]));
+  }
+  return boolOr(terms);
+}
+
+function buildStructuredOutputExpression(machine: ValidatedMachine, outputName: string): NormalizedBool {
+  const emission = machine.emissions.find((candidate) => candidate.name === outputName);
+  if (emission === undefined) throw new Error(`No emission for ${outputName}`);
+  return boolAnd([
+    validStateExpression(machine),
+    normalizeStructuredExpression(emission.expression, machine)
+  ]);
+}
+
+function buildArtifact(machine: ValidatedMachine, structured: boolean): NetlistArtifact {
   const variables = new Map<string, number>();
   machine.inputs.forEach((input, index) => variables.set(`input:${input.name}`, index));
   for (let bit = 0; bit < machine.stateBits; bit += 1) variables.set(`stateBit:${bit}`, machine.inputs.length + bit);
@@ -178,25 +254,27 @@ export async function compileValidatedMachine(machine: ValidatedMachine): Promis
   const builder = new NandBuilder(baseSignal);
   const nextSignals: number[] = [];
   for (let bit = 0; bit < machine.stateBits; bit += 1) {
-    const rows = buildTransitionRows(machine, bit);
-    const expression = dnfForRows(rows, [
-      ...machine.inputs.map((input) => `input:${input.name}`),
-      ...Array.from({ length: machine.stateBits }, (_, index) => `stateBit:${index}`)
-    ]);
+    const expression = structured
+      ? buildStructuredTransitionExpression(machine, bit)
+      : dnfForRows(buildTransitionRows(machine, bit), [
+        ...machine.inputs.map((input) => `input:${input.name}`),
+        ...Array.from({ length: machine.stateBits }, (_, index) => `stateBit:${index}`)
+      ]);
     nextSignals.push(builder.signalFor(expression, variables));
   }
 
   const outputSignals: number[] = [];
   for (const output of machine.outputs) {
-    const rows = buildOutputRows(machine, output.name);
-    const expression = dnfForRows(rows, [
-      ...machine.inputs.map((input) => `input:${input.name}`),
-      ...Array.from({ length: machine.stateBits }, (_, index) => `stateBit:${index}`)
-    ]);
+    const expression = structured
+      ? buildStructuredOutputExpression(machine, output.name)
+      : dnfForRows(buildOutputRows(machine, output.name), [
+        ...machine.inputs.map((input) => `input:${input.name}`),
+        ...Array.from({ length: machine.stateBits }, (_, index) => `stateBit:${index}`)
+      ]);
     outputSignals.push(builder.materialize(expression, variables));
   }
 
-  const artifact: NetlistArtifact = {
+  return {
     version: 1,
     inputCount: machine.inputs.length,
     stateBits: machine.stateBits,
@@ -208,7 +286,17 @@ export async function compileValidatedMachine(machine: ValidatedMachine): Promis
       ...builder.records
     ]
   };
-  if (artifact.records.length > 512) throw new Error(`Artifact exceeds the locked 512-record bound`);
+}
+
+export async function compileMachine(sourceOrAst: string | MachineAst): Promise<CompiledMachine> {
+  const machine = validateMachine(typeof sourceOrAst === "string" ? parseMachine(sourceOrAst) : sourceOrAst);
+  return compileValidatedMachine(machine);
+}
+
+export async function compileValidatedMachine(machine: ValidatedMachine): Promise<CompiledMachine> {
+  const initialArtifact = buildArtifact(machine, false);
+  const artifact = initialArtifact.records.length > 512 ? buildArtifact(machine, true) : initialArtifact;
+  if (artifact.records.length > 512) throw new Error(`Artifact exceeds the locked 512-record bound (${artifact.records.length} records)`);
   const bytes = serializeArtifact(artifact);
   const hash = await artifactHash(bytes);
   return {

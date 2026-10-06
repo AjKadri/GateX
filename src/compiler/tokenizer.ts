@@ -16,7 +16,7 @@ export class GateXSyntaxError extends Error {
 }
 
 const TWO_CHARACTER_SYMBOLS = new Set(["->", "&&", "||", "==", "!="]);
-const ONE_CHARACTER_SYMBOLS = new Set(["{", "}", ";", "(", ")", "=", "!", "."]);
+const ONE_CHARACTER_SYMBOLS = new Set(["{", "}", ";", ",", "(", ")", "=", "!", "."]);
 
 export function tokenize(source: string): Token[] {
   const tokens: Token[] = [];
@@ -73,4 +73,3 @@ export function tokenize(source: string): Token[] {
   tokens.push({ kind: "eof", value: "<eof>", span: { start: source.length, end: source.length } });
   return tokens;
 }
-

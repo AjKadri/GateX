@@ -1,4 +1,4 @@
-export { compareCandidateSimulation, localCandidateEvaluator } from "./candidate.js";
+export { compareCandidateSimulation, compareCandidateSimulationWithConcurrency, localCandidateEvaluator } from "./candidate.js";
 export { GateCAbiError, bytesFromHex, decodeBytesReturn, decodeCircuitInfo, decodeStep, decodeUint256, encodeCall, hexFromBytes } from "./abi.js";
 export { GateCIdentityError, runtimeKeccak256, verifyLockedProvider, verifyLockedProviders } from "./identity.js";
 export { GateCBlockedError, GateCConfigurationError, GateDBlockedError, identityTargets, loadProtocolLock, missingGateCProtocolFacts, requireGateCProtocolFacts, requireGateDProtocolFacts } from "./lock.js";
@@ -12,6 +12,10 @@ export { GATEX_CREATION, GATEX_DEPLOYMENT_ACCOUNT, TINY_APPROVAL_PAYLOAD, creati
 export { assertCanonicalDeploymentSelected, DeploymentConfigurationError, loadCanonicalDeployment } from "./deployment.js";
 export { CREATE_CPU_SIGNATURE, MINT_SIGNATURE, TAPEOUT_SIGNATURE, TransactionIntegrityError, authorizeCanonicalCreateCpuTransaction, authorizeCanonicalMintTransaction, authorizeCanonicalTapeoutTransaction, buildCanonicalCreateCpuTransaction, buildCanonicalMintTransaction, buildCanonicalTapeoutTransaction, validateCanonicalCreateCpuTransaction, validateCanonicalMintTransaction, validateCanonicalTapeoutTransaction } from "./transaction-integrity.js";
 export type { CanonicalCreateCpuTransaction, CanonicalMintTransaction, CanonicalTapeoutTransaction, CreateCpuApproval, MintApproval, TapeoutApproval } from "./transaction-integrity.js";
+export { verifyMintReceipt, verifyTapeoutReceipt } from "./receipts.js";
+export type { MintReceiptExpectation, MintReceiptVerification, RpcLog, RpcReceipt, RpcTransaction, TapeoutReceiptExpectation, TapeoutReceiptVerification } from "./receipts.js";
+export { gateEJson, runGateE0Preflight, runGateENandMintPreflight } from "./gate-e.js";
+export type { GateE0Result, GateENandMintPreflight, GateEProviderState, GateESimulation } from "./gate-e.js";
 export type * from "./types.js";
 export type * from "./fixtures.js";
 export type { DecodedCircuitInfo, DecodedStep } from "./abi.js";
