@@ -1,10 +1,10 @@
-# Gate E evidence
+# AgentApproval manufacture and live verification evidence
 
-Gate E passed after the exact AgentApproval artifact was compiled, acquired, manufactured, read back, and evaluated at the live X Layer boundary.
+AgentApproval manufacture and live verification passed after the exact AgentApproval artifact was compiled, acquired, manufactured, read back, and evaluated at the live X Layer boundary.
 
 ## Artifact
 
-- Source: the locked AgentApproval DSL through the generic GateX parser/compiler
+- Source: the AgentApproval source through the generic GateX parser/compiler
 - 98 NAND, 2 LATCH, 100 records
 - Local container: 706 bytes
 - Local SHA-256: `d68c9881fbe8bf0fbf7f86cfa92ad2889389e07e09bb0e7f0068f23eded50003`
@@ -16,7 +16,7 @@ TinyApproval regression remained exact at 89 NAND, 2 LATCH, 91 records, 643-byte
 
 ## State-changing transactions
 
-All transactions used the canonical processor/token deployment and the authorized creator `0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4`. Each was exposed one at a time after a fresh dual-provider simulation and approved manually in OKX Wallet.
+All transactions used the canonical processor/token deployment and the creator `0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4`. Each was exposed one at a time after a fresh dual-provider simulation and approved manually in OKX Wallet.
 
 ### NAND acquisition
 
@@ -63,7 +63,7 @@ Both locked providers passed at common block `72529601`, hash `0x4f2192bc6819e1e
 
 - 8 locked runtime identities per provider: matched
 - Canonical processor/token registry and reciprocal linkage: matched
-- Circuit owner: authorized creator
+- Circuit owner: creator
 - Readback: 694 bytes, `(6,1,2,100)`, exact payload bytes and hash
 - Independent AST interpreter to decoded local netlist to live `step()` comparison: 256 cases per provider, 512 total, zero mismatches
 - Post-manufacture inventory: NAND 0, LATCH 0, lifetime minted 191
@@ -83,9 +83,9 @@ npm run gatee:final:live -- 0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c
 
 ## Spend
 
-- Gate E actual spend: `2733261520663076` wei (`0.002733261520663076` OKB)
+- Actual spend for this manufacture: `2733261520663076` wei (`0.002733261520663076` OKB)
 - Cumulative project spend: `18687009842800492` wei (`0.018687009842800492` OKB)
 - Remaining under the `0.05` OKB ceiling: `31312990157199508` wei
 - Remaining balance above the requested `0.01` OKB contingency: `33312990157199508` wei
 
-The Gate E wallet handoff used the explicitly identified OKX legacy object because this Chrome origin did not announce EIP-6963. It never used the generic `window.ethereum` provider. One transient read-only transport failure from `https://rpc.xlayer.tech` was retried with bounded backoff and then passed. No Gate F work began.
+Wallet access used the explicitly identified OKX legacy object because this Chrome origin did not announce EIP-6963. It never used the generic `window.ethereum` provider. One transient read-only transport failure from `https://rpc.xlayer.tech` was retried with bounded backoff and then passed.

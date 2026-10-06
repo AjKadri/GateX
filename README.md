@@ -71,7 +71,7 @@ npm run gatec:live
 npm run gatee:final:live -- 0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be
 ```
 
-See [`docs/language.md`](docs/language.md) for the language, [`docs/verification.md`](docs/verification.md) for the proof model, [`docs/protocol-limitations.md`](docs/protocol-limitations.md) for known limitations, and [`docs/demo.md`](docs/demo-script.md) for a walkthrough.
+See [`docs/language.md`](docs/language.md) for the language, [`docs/verification.md`](docs/verification.md) for the proof model, [`docs/protocol-limitations.md`](docs/protocol-limitations.md) for known limitations, [`docs/demo.md`](docs/demo.md) for a walkthrough, and the evidence records [`docs/evidence-agentapproval-preflight.md`](docs/evidence-agentapproval-preflight.md), [`docs/evidence-agentapproval-manufacture.md`](docs/evidence-agentapproval-manufacture.md) and [`docs/evidence-browser-product-checks.md`](docs/evidence-browser-product-checks.md).
 
 ## License
 
