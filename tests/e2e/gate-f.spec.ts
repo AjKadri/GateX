@@ -79,13 +79,13 @@ test("read-only live comparison, stale quote, session restore, and source invali
   await expect(page.getByText(/Both locked providers agree on displayed fields|Provider disagreement: values below are provider-specific/)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("fixed mint fee / tx", { exact: true })).toBeVisible();
   await expect(page.getByText("wallet balance", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Run live read ↗" }).click();
+  await page.getByRole("button", { name: "2. Compare live transition" }).click();
   await expect(page.getByText("MATCH", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("Providers: https://rpc.xlayer.tech · https://xlayer.drpc.org", { exact: false })).toBeVisible();
   const staleQuote = page.getByText("Quote is stale. Refresh before relying on it.", { exact: true });
   if (!(await staleQuote.isVisible())) {
     await page.waitForTimeout(2500);
-    await page.getByRole("button", { name: "Run live read ↗" }).click();
+    await page.getByRole("button", { name: "2. Compare live transition" }).click();
     await expect(page.getByText("MATCH", { exact: true })).toBeVisible({ timeout: 30_000 });
   }
   await expect(staleQuote).toBeVisible({ timeout: 30_000 });
