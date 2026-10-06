@@ -84,7 +84,7 @@ npm run gatee:final:live -- 0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c
 ## Spend
 
 - Gate E actual spend: `2733261520663076` wei (`0.002733261520663076` OKB)
-- Cumulative project spend: `18687009842800492` wei (`0.018687009842800494` OKB)
+- Cumulative project spend: `18687009842800492` wei (`0.018687009842800492` OKB)
 - Remaining under the `0.05` OKB ceiling: `31312990157199508` wei
 - Remaining balance above the requested `0.01` OKB contingency: `33312990157199508` wei
 
