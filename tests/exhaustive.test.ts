@@ -79,3 +79,28 @@ test("tape-out gate: open only when the check for the current bytes passed every
   assert.equal(errored.open, false);
   assert.equal(errored.open === false && errored.kind, "failed");
 });
+
+test("all four templates compile within the language limits and pass the full check", async () => {
+  const { TEMPLATES } = await import("../src/examples/templates.js");
+  assert.equal(TEMPLATES.length, 4);
+  for (const template of TEMPLATES) {
+    const compiled = await compileMachine(template.source);
+    assert.equal(compiled.machine.name, template.name);
+    assert.ok(compiled.machine.states.length <= 8 && compiled.machine.inputs.length <= 8 && compiled.machine.outputs.length <= 4, template.name);
+    const result = await runExhaustiveCheck(compiled);
+    assert.equal(result.total, (1 << compiled.machine.stateBits) * (1 << compiled.machine.inputs.length), template.name);
+    assert.equal(result.matched, result.total, template.name);
+    assert.deepEqual(result.mismatches, []);
+  }
+});
+
+test("known compiler limitation: a rule with two outputs fails the full check, so it can never be offered for tape-out", async () => {
+  // The decoded-netlist simulator reads the last N records as the N outputs, but the compiler appends each output's logic in turn,
+  // so with two outputs the first output is read from the wrong record. The full check reports it. If the compiler is fixed,
+  // this test should be replaced by one that expects a pass.
+  const compiled = await compileMachine("machine TwoOut { states A, B; initial A; inputs go, cancel; outputs x, y; reset_on cancel; A -> B when go emit x; B -> A when go emit y; }");
+  assert.equal(compiled.machine.outputs.length, 2);
+  const result = await runExhaustiveCheck(compiled);
+  assert.ok(result.matched < result.total);
+  assert.equal(tapeoutGate({ hash: "h", status: "done", result }, "h").open, false);
+});
