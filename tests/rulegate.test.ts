@@ -407,6 +407,17 @@ test("an interrupted signature request blocks sending until the user discards it
   assert.equal((await client.stepSession(wallet, ACCOUNT, 1n, bytesOf(1))).ok, true);
 });
 
+test("only the signing phase can be discarded by the user, never a submitted one", async () => {
+  const { chain, client, wallet } = setup({ timeoutMs: 6_000 }); seed(chain);
+  assert.equal(client.discardInterruptedSigning(ACCOUNT), false, "nothing pending");
+  wallet.mined = false;
+  const sent = await client.stepSession(wallet, ACCOUNT, 1n, bytesOf(1));
+  assert.equal(sent.ok === false && sent.code, "timeout");
+  assert.equal(client.pending(ACCOUNT)?.phase, "submitted");
+  assert.equal(client.discardInterruptedSigning(ACCOUNT), false);
+  assert.equal(client.pending(ACCOUNT)?.phase, "submitted");
+});
+
 test("a dropped transaction is released only when both providers never saw it and the nonce moved", async () => {
   const { chain, client, wallet, storage } = setup({ timeoutMs: 6_000 }); seed(chain);
   wallet.mined = false;
