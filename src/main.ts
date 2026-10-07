@@ -49,7 +49,7 @@ if (app) void boot(app);
 
 function esc(value: string): string { return value.replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] as string); }
 function shortHash(value: string): string { return `${value.slice(0, 10)}…${value.slice(-8)}`; }
-function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span></header>`; }
+function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a><a class="nav-link ${active === "/docs" ? "active" : ""}" href="#/docs">Docs</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span></header>`; }
 function badge(label: string, tone: "green" | "amber" | "blue" | "muted" = "muted"): string { return `<span class="badge ${tone}">${esc(label)}</span>`; }
 function proofStat(value: string, label: string): string { return `<div class="proof-stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`; }
 function machineSummary(compiled: CompiledExample): string { const machine = compiled.compiled.machine; return `<div class="summary-grid">${proofStat(String(compiled.compiled.nandCount), "NAND gates")}${proofStat(String(compiled.compiled.latchCount), "LATCH records")}${proofStat(String(machine.states.length), "states")}${proofStat(`${machine.inputs.length} / ${machine.outputs.length}`, "inputs / outputs")}</div>`; }
@@ -403,12 +403,12 @@ function bindTapeoutEvents(): void {
   on("#tapeout-release", () => { const account = state.wallet.account; const compiled = state.compiled; if (!account || !compiled || tapeoutExecutor === undefined) return; void tapeoutExecutor.releaseDroppedPending(account, compiled.payload.payloadHash).then((result) => { if (result.released) void refreshTapeoutPlan(); else if (tapeout.waiting) { tapeout.waiting.message = result.reason; updateTapeout(); } }); });
 }
 
-function footer(): string { return `<footer><span class="foot-left"><span>GateX</span>${extLink("https://github.com/AjKadri/GateX", "GitHub")}${extLink(`${EXPLORER}/address/${browserDeployment.processor}`, "Processor on X Layer")}${extLink("https://github.com/AjKadri/GateX/tree/main/docs", "Docs")}</span><span>${TAPEOUT_ENABLED ? "Verified circuit compiler · caller-owned state" : "Read-only product verification · caller-owned state"}</span></footer>`; }
+function footer(): string { return `<footer><span class="foot-left"><span>GateX</span>${extLink("https://github.com/AjKadri/GateX", "GitHub")}${extLink(`${EXPLORER}/address/${browserDeployment.processor}`, "Processor on X Layer")}${`<a href="#/docs">Docs</a>`}</span><span>${TAPEOUT_ENABLED ? "Verified circuit compiler · caller-owned state" : "Read-only product verification · caller-owned state"}</span></footer>`; }
 function render(): void {
   if (!app) return;
   const editor = document.activeElement instanceof HTMLTextAreaElement && document.activeElement.id === "source-editor" ? document.activeElement : undefined;
   const caret = editor === undefined ? undefined : { start: editor.selectionStart, end: editor.selectionEnd, scroll: editor.scrollTop };
-  const current = route(); app.innerHTML = current === "/" ? landing() : current === "/workspace" ? workspace() : current === "/circuits" ? circuitsPage() : evidence(); bindEvents();
+  const current = route(); app.innerHTML = current === "/" ? landing() : current === "/workspace" ? workspace() : current === "/circuits" ? circuitsPage() : current === "/docs" ? docs() : evidence(); bindEvents();
   if (caret !== undefined) { const next = document.querySelector<HTMLTextAreaElement>("#source-editor"); if (next !== null) { next.focus({ preventScroll: true }); next.setSelectionRange(caret.start, caret.end); next.scrollTop = caret.scroll; } }
 }
 
@@ -427,6 +427,7 @@ function bindEvents(): void {
   document.querySelector<HTMLButtonElement>("#run-live")?.addEventListener("click", () => void runLive());
   document.querySelector<HTMLButtonElement>("#circuits-retry")?.addEventListener("click", () => { circuitsUi.status = "idle"; void loadCircuits(); });
   document.querySelector<HTMLButtonElement>("#circuits-more")?.addEventListener("click", () => void loadMoreCircuits());
+  document.querySelectorAll<HTMLButtonElement>("[data-doc-target]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.docTarget ?? "")?.scrollIntoView({ behavior: "smooth", block: "start" })));
   if (TAPEOUT_ENABLED) bindTapeoutEvents();
 }
 let compileTimer = 0;
@@ -451,7 +452,7 @@ function routeEffects(): void {
   const current = route();
   if (current === "/workspace") applyHashParams();
   else if (current === "/circuits" && circuitsUi.status === "idle") void loadCircuits();
-  else if (current === "/evidence" && (pricingUi.status === "idle" || pricingUi.status === "error")) void loadPricing();
+  else if ((current === "/evidence" || current === "/docs") && (pricingUi.status === "idle" || pricingUi.status === "error")) void loadPricing();
 }
 
 function applyHashParams(): void {
@@ -515,18 +516,18 @@ const pricingUi: { status: "idle" | "loading" | "ready" | "error"; quote?: ReadO
 
 async function loadPricing(): Promise<void> {
   if (pricingUi.status === "loading") return;
-  pricingUi.status = "loading"; if (route() === "/evidence") render();
+  pricingUi.status = "loading"; if (route() === "/evidence" || route() === "/docs") render();
   try { pricingUi.quote = await readOnlyQuote(); pricingUi.status = "ready"; } catch { pricingUi.quote = undefined; pricingUi.status = "error"; }
-  if (route() === "/evidence") render();
+  if (route() === "/evidence" || route() === "/docs") render();
 }
 
-function pricingLines(): string {
+function pricingLines(errorText = "Live prices could not be read from X Layer just now. The unit price and cap above are fixed."): string {
   if (pricingUi.status === "ready" && pricingUi.quote !== undefined) {
     const agent = EXAMPLES.agent.expected;
     const [cost, room] = pricingSentences(costOfSize(pricingUi.quote, BigInt(agent.nand), BigInt(agent.latch)), EXAMPLES.agent.label, BigInt(agent.nand), BigInt(agent.latch));
     return `<div class="pricing-live"><p>${esc(cost)}</p><p>${esc(room)}</p><small class="muted">Read from ${pricingUi.quote.providers.length} providers at block ${pricingUi.quote.block.number}.</small></div>`;
   }
-  if (pricingUi.status === "error") return `<div class="pricing-live"><p class="muted">Live prices could not be read from X Layer just now. The unit price and cap above are fixed.</p></div>`;
+  if (pricingUi.status === "error") return `<div class="pricing-live"><p class="muted">${esc(errorText)}</p></div>`;
   return `<div class="pricing-live"><p class="muted" role="status">Reading X Layer…</p></div>`;
 }
 
@@ -622,6 +623,86 @@ function circuitsPage(): string {
     : ui.rows.length === 0 ? `<section class="panel"><p class="muted">No circuits have been manufactured on this processor yet.</p></section>`
     : `<div class="circuit-list-grid">${ui.rows.map(circuitCard).join("")}</div><div class="circuits-foot"><span class="muted">Showing ${ui.rows.length} of ${format(ui.top)}, newest first. Read from two providers at block ${quote?.block.number ?? "?"}.</span>${ui.cursor >= 1n ? `<button class="button secondary small-button" id="circuits-more" ${ui.loadingMore ? "disabled" : ""}>${ui.loadingMore ? "Reading X Layer…" : "Load more"}</button>` : ""}</div>${ui.moreError ? `<div class="inline-error"><strong>NOT LOADED</strong><span>${esc(ui.moreError)}</span></div>` : ""}`;
   return `${nav("/circuits")}<main class="page circuits"><section class="page-heading"><div><div class="eyebrow">CIRCUITS / READ LIVE</div><h1>Circuits on the GateX processor.</h1><p>Every circuit here was manufactured from GTX transistors. Anyone can add one.</p></div><a class="button primary" href="#/workspace">Tape out your own <span>↗</span></a></section>${stats}${body}</main>${footer()}`;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Docs page (static content; the live cost line reuses pricingLines())
+
+const GITHUB = "https://github.com/AjKadri/GateX";
+const DOC_SECTIONS: Array<[string, string]> = [["what", "What it is"], ["write", "Write a rule"], ["check", "The full check"], ["tapeout", "Tape out"], ["verify", "Verify a circuit"], ["use", "Use a circuit"], ["security", "Security"], ["questions", "Questions"]];
+const KEYWORD_ROWS: Array<[string, string, string]> = [
+  ["machine", "Names the rule and wraps everything else.", "machine AgentApproval { … }"],
+  ["states", "Declares the states.", "states IDLE, REQUESTED, APPROVED, USED;"],
+  ["initial", "The state the circuit starts in and returns to.", "initial IDLE;"],
+  ["inputs", "Declares the input signals. Each is true or false on every step.", "inputs request, approve, cancel;"],
+  ["outputs", "Declares the output signals. An output is a pulse on one step, not a stored flag.", "outputs permit;"],
+  ["terminal", "States that stay where they are until reset.", "terminal USED;"],
+  ["reset_on", "An input that sends the circuit back to the initial state and takes priority over every transition.", "reset_on cancel;"],
+  ["A -> B when … emit …;", "Moves from A to B when the condition is true. The optional emit lists outputs that pulse on that move.", "APPROVED -> USED when execute emit permit;"],
+  ["&&   ||   !", "And, or, not, inside a condition.", "approve && human_ok && !scope_bad"],
+  ["( )   true   false", "Grouping and the two constants.", "(approve || override) && human_ok"],
+  ["state == NAME", "True while the circuit is in that state.", "state == READY && execute"]
+];
+function docCode(text: string): string { return `<pre class="code-block"><code>${esc(text)}</code></pre>`; }
+function docSection(id: string, title: string, body: string): string { return `<section class="doc-section" id="doc-${id}"><h2>${esc(title)}</h2>${body}</section>`; }
+function docList(items: string[]): string { return `<ul class="doc-list">${items.map((item) => `<li>${item}</li>`).join("")}</ul>`; }
+function docs(): string {
+  const processor = extLink(`${EXPLORER}/address/${browserDeployment.processor}`, `${browserDeployment.processor} ↗`);
+  const token = extLink(`${EXPLORER}/address/${browserDeployment.token}`, `${browserDeployment.token} ↗`);
+  const limitsRow = (label: string, value: string): string => `<div><small>${esc(label)}</small><strong>${esc(value)}</strong></div>`;
+  const sections = [
+    docSection("what", "What it is", `<p>A rule is a state machine written as text: named states, named inputs, and the moves between states. GateX turns a rule into a circuit of NAND and LATCH gates and, if you choose, puts that circuit on X Layer through the TapeOut protocol. A circuit is called verified when the bytes stored on chain are the same bytes GateX compiled from your rule, and when the circuit and the rule gave the same answer for every state and input combination in a full local check.</p>`),
+    docSection("write", "Write a rule", `<p>This is the AgentApproval rule, the main example in the workspace.</p>${docCode(EXAMPLES.agent.source.trim())}
+      ${docList([
+        "<code>states</code>, <code>initial</code>, <code>inputs</code>, <code>outputs</code> declare the names the rule uses.",
+        "<code>terminal USED</code> marks a state that stays put once reached.",
+        "<code>reset_on cancel</code> sends the circuit back to <code>IDLE</code> whenever <code>cancel</code> is true.",
+        "Each line with <code>-&gt;</code> is a move: from a state, to a state, when a condition holds. <code>emit permit</code> pulses that output on that move only."
+      ])}
+      <div class="doc-table-wrap"><table class="doc-table"><thead><tr><th>Keyword</th><th>What it does</th><th>Example</th></tr></thead><tbody>${KEYWORD_ROWS.map(([keyword, what, example]) => `<tr><td data-label="Keyword"><code>${esc(keyword)}</code></td><td data-label="What it does">${esc(what)}</td><td data-label="Example"><code>${esc(example)}</code></td></tr>`).join("")}</tbody></table></div>
+      <p>Every state must be reachable from the initial state. Every state and every input combination must select exactly one move, so an uncovered or ambiguous row is an error. Comments start with <code>//</code>.</p>
+      <h3>Limits</h3>
+      <div class="doc-limits">${limitsRow("Inputs", "up to 8")}${limitsRow("States", "up to 8")}${limitsRow("Outputs", "up to 4")}${limitsRow("Gate records", "up to 512")}</div>
+      <p>The compiler enforces the first three. The record limit and a 3,584 byte limit on the circuit are GateX safety limits checked before tape-out, not limits of the protocol.</p>
+      <p>The workspace has four templates to start from: TwoPersonApproval, SpendingLimit, EscrowRelease and TimeboxedPermit. <a class="text-link" href="#/workspace">Open the workspace ↗</a></p>`),
+    docSection("check", "The full check", `<p>GateX compiles your rule to gates, then runs every state encoding with every combination of inputs. For each case it compares two independent engines: an interpreter that reads your rule directly, and a simulator that runs the compiled NAND and LATCH records. Both must give the same next state and outputs.</p>
+      <p>Tape-out is not offered unless every case matches, for the exact bytes you are about to send.</p>
+      <p>AgentApproval has 4 state encodings and 6 inputs, so 256 cases. TinyApproval has 4 state encodings and 3 inputs, so 32 cases.</p>`),
+    docSection("tapeout", "Tape out", `<p>A circuit is built from transistors, which are a token, and manufactured by the processor, which burns them. Your wallet sends up to three transactions, in this order. A step is skipped if you already hold enough transistors.</p>
+      ${docList(["Buy NAND transistors from the transistor token.", "Buy LATCH transistors from the transistor token.", "Manufacture the circuit on the processor."])}
+      <p>Before each signature, GateX rebuilds the transaction and compares it with the plan, simulates it from your address on two RPC providers, and reads prices and balances again. If anything has changed, or a simulation fails, it sends nothing and tells you why. A step is never offered twice, including after a page reload while a transaction is pending.</p>
+      <p>Use OKX Wallet, set to X Layer (chain 196).</p>
+      <h3>What it costs now</h3>
+      ${pricingLines("Live prices could not be read from X Layer just now.")}
+      <p class="muted">Gas is paid on top. Overpaying a mint is not refunded, which is why each transaction is built from numbers read a moment earlier.</p>`),
+    docSection("verify", "Verify a circuit", `<p>GateX reads the circuit back from X Layer through two providers and compares the bytes stored on chain with the bytes compiled in your browser. Identical bytes mean identical behaviour.</p>
+      <p>After a tape-out you can copy a verification link. Anyone who opens it gets your rule and a read-only check against your circuit. The Circuits page lists every circuit on the processor and marks the ones that match a rule your browser knows. <a class="text-link" href="#/circuits">See the circuits ↗</a></p>`),
+    docSection("use", "Use a circuit", `<p>An app or agent evaluates a circuit with a read-only call to the processor, <code>step(uint256 id, bytes state, bytes inputs)</code>. It takes the circuit id, the current state and the inputs, and returns the next state and the outputs as two <code>bytes</code> values. Nothing is written on chain and no fee is paid.</p>
+      <p>The caller stores the state between calls and passes it back in next time. State and inputs are bits packed least-significant-bit first: the state is its index in the declaration order, and input number <em>n</em> is the <em>n</em>th declared input. The processor is ${processor}.</p>
+      <p>The exact encoding and decoding is in <a class="text-link" href="${GITHUB}/blob/main/src/app/protocol.ts" target="_blank" rel="noopener">src/app/protocol.ts ↗</a> (<code>readLiveStep</code>).</p>
+      <p><strong class="doc-strong">The circuit decides. It does not remember.</strong> There is no stored workflow state and no replay protection on chain.</p>`),
+    docSection("security", "Security", `<div class="doc-two"><div class="panel doc-box"><h3>What GateX does</h3>${docList([
+        `Sends transactions only to the GateX transistor token (${token}) and the GateX processor.`,
+        "Never asks for token approvals or message signatures.",
+        "Simulates every transaction before you are asked to sign.",
+        "Never holds funds or keys. Your wallet signs.",
+        `All code is open source under the MIT license: <a class="text-link" href="${GITHUB}" target="_blank" rel="noopener">github.com/AjKadri/GateX ↗</a>.`
+      ])}</div><div class="panel doc-box"><h3>What GateX has not done</h3>${docList([
+        "It has not audited the TapeOut contracts.",
+        "It has not verified the deployed source of the TapeOut contracts.",
+        "It has no smart contracts of its own.",
+        "Circuits do not check who calls them."
+      ])}</div></div>`),
+    docSection("questions", "Questions", `${[
+      ["What does it cost?", `Transistors at the current mint price, a protocol fee on each mint, a TapeOut fee, and gas. The live figure is in Tape out above, and the workspace shows the exact total for your circuit before you sign.`],
+      ["Which wallet?", "OKX Wallet on X Layer. GateX does not accept a generic browser wallet."],
+      ["Who owns the circuit?", "The wallet that manufactured it. The owner is recorded on chain and shown on the Circuits page."],
+      ["Can I check someone else's circuit?", `Yes. Open it from the Circuits page, or use a verification link, and check a rule against it. The check is read-only.`],
+      ["What if a transaction fails, or I close the tab?", "If a simulation fails or a price moves, nothing is sent. If you reject a request in your wallet, nothing is sent. If you close the tab after sending, the pending step is remembered in this browser and resumes at waiting for confirmation when you return, instead of being offered again."]
+    ].map(([question, answer]) => `<div class="doc-qa"><h3>${esc(question as string)}</h3><p>${esc(answer as string)}</p></div>`).join("")}`)
+  ];
+  const toc = DOC_SECTIONS.map(([id, label]) => `<button type="button" class="doc-link" data-doc-target="doc-${id}">${esc(label)}</button>`).join("");
+  return `${nav("/docs")}<main class="page docs"><section class="page-heading"><div><div class="eyebrow">DOCS</div><h1>How GateX works.</h1><p>Write a rule, check it, put it on X Layer, and let anyone verify it.</p></div></section><div class="docs-layout"><aside class="docs-toc" aria-label="Sections">${toc}</aside><div class="docs-body">${sections.join("")}</div></div></main>${footer()}`;
 }
 
 async function refreshQuote(): Promise<void> { state.quoteLoading = true; state.quoteError = undefined; render(); try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } finally { state.quoteLoading = false; render(); } }

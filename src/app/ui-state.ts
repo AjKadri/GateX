@@ -2,7 +2,7 @@ import { GateXValidationError } from "../compiler/validation.js";
 
 export interface Diagnostic { code: string; message: string; location: string; }
 
-export type RoutePath = "/" | "/workspace" | "/circuits" | "/evidence";
+export type RoutePath = "/" | "/workspace" | "/circuits" | "/evidence" | "/docs";
 
 function splitHash(currentHash: string): { path: string; query: string } {
   const body = currentHash.replace(/^#/, "");
@@ -12,7 +12,7 @@ function splitHash(currentHash: string): { path: string; query: string } {
 
 export function route(currentHash = typeof window === "undefined" ? "" : window.location.hash): RoutePath {
   const { path } = splitHash(currentHash);
-  return path === "/workspace" || path === "/circuits" || path === "/evidence" ? path : "/";
+  return path === "/workspace" || path === "/circuits" || path === "/evidence" || path === "/docs" ? path : "/";
 }
 
 /** The query part of a hash route, e.g. "#/workspace?circuit=3" gives circuit=3. */
