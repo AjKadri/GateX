@@ -76,9 +76,10 @@ test("session return, SessionOpened and Stepped logs round trip", () => {
   assert.equal(stateValue(bytesOf(0x02, 0x01)), 258);
 });
 
-test("config: shipped file is not deployed and names the GateX processor; bad files are refused", () => {
-  assert.equal(RULEGATE.address, null);
-  assert.equal(isDeployed(RULEGATE), false);
+test("config: shipped file records the deployed RuleGate and names the GateX processor; bad files are refused", () => {
+  assert.equal(RULEGATE.address, "0xefa64bfc4f2f06465cfe2ff6dfa97cfbeac5732c");
+  assert.equal(isDeployed(RULEGATE), true);
+  assert.equal(isDeployed({ ...RULEGATE, address: null }), false);
   assert.equal(RULEGATE.processor, processor);
   assert.equal(loadRuleGateConfig({ chainId: 196, address: GATE.toUpperCase().replace("0X", "0x"), deployTransaction: `0x${"ab".repeat(32)}`, processor }).address, GATE);
   assert.throws(() => loadRuleGateConfig({ chainId: 1, address: null, deployTransaction: null, processor }), /chain 196/);
