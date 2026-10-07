@@ -22,6 +22,11 @@ circuit behaves identically for every state and input.
 - Read the manufactured circuit back from X Layer through two independent RPC providers and compare a live
   transition with the local result, side by side.
 - Tape out your own compiled rule on the GateX processor from your wallet, then have it verified against your compile.
+  Tape-out is only offered once the full check passes for the exact bytes you are about to send.
+- Start from one of four template rules (two-person approval, spending limit, escrow release, timeboxed permit). Templates are not on chain until you tape them out.
+- Open the Circuits page to see every circuit on the processor, newest first, read live through both providers. A circuit made from a rule this browser knows is labelled as a byte-identical match.
+- Copy a verification link after tape-out. Anyone who opens it gets your rule and a read-only check against your circuit.
+- Prices are read live from the processor: the Evidence page shows what an AgentApproval-sized circuit costs and how many more fit under the cap. The unit price and cap are in the table below.
 
 The flagship example, AgentApproval, moves through `IDLE → REQUESTED → APPROVED → USED`.
 

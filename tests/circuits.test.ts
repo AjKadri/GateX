@@ -12,6 +12,7 @@ import { MAX_IN_FLIGHT, checkAgainstCircuit, checkHeadline, countGates, distinct
 import { MAX_SHARED_SOURCE_CHARS, decodeSource, encodeSource, parseCircuitParam, verificationLink } from "../src/app/share.js";
 import { MAX_SAVED_SOURCE_CHARS, MY_CIRCUITS_KEY, readMyCircuits, rememberMyCircuit } from "../src/app/my-circuits.js";
 import { route, routeQuery } from "../src/app/ui-state.js";
+import { costOfSize, pricingSentences } from "../src/app/pricing.js";
 
 const lock = loadProtocolLock();
 const deployment = loadCanonicalDeployment();
@@ -267,4 +268,20 @@ test("remembered circuits keep their source, old entries without one still load,
   assert.equal(list.find((item) => item.tx.endsWith("3".repeat(64)))?.source, undefined);
   storage.setItem(MY_CIRCUITS_KEY, JSON.stringify([{ ...entry, source: 42 }]));
   assert.deepEqual(readMyCircuits(storage), []);
+});
+
+test("pricing for an AgentApproval-sized circuit counts two mint calls and the TapeOut fee, and room is whole circuits", () => {
+  const quote = { minted: 1_234n, cap: 1_000_000n, mintPriceWei: 1_000_000_000_000n, protocolFeeWei: 660_000_000_000_000n, tapeoutFeeWei: 1_300_000_000_000_000n };
+  const cost = costOfSize(quote, 98n, 2n);
+  // Same arithmetic as planTapeout with no transistors owned: (98 x price + fee) + (2 x price + fee).
+  assert.equal(cost.transistorsWei, (98n * quote.mintPriceWei + quote.protocolFeeWei) + (2n * quote.mintPriceWei + quote.protocolFeeWei));
+  assert.equal(cost.transistorsWei, 1_420_000_000_000_000n);
+  assert.equal(cost.room, 9_987n);
+  const [priceLine, roomLine] = pricingSentences(cost, "AgentApproval", 98n, 2n);
+  assert.equal(priceLine, "A circuit the size of AgentApproval (98 NAND + 2 LATCH) costs 0.00142 OKB in transistors plus a 0.0013 OKB TapeOut fee, before gas.");
+  assert.equal(roomLine, "1,234 of 1,000,000 transistors minted — room for about 9,987 more circuits of that size.");
+  assert.equal(costOfSize({ ...quote, minted: 1_000_000n }, 98n, 2n).room, 0n);
+  assert.equal(costOfSize({ ...quote, minted: 2_000_000n }, 98n, 2n).room, 0n, "never negative");
+  assert.equal(costOfSize({ ...quote, minted: 999_950n }, 98n, 2n).room, 0n, "a partial circuit does not count");
+  assert.equal(costOfSize(quote, 0n, 5n).transistorsWei, 5n * quote.mintPriceWei + quote.protocolFeeWei, "only one mint call when one kind is needed");
 });
