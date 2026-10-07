@@ -56,6 +56,18 @@ class NandBuilder {
     return this.emitNand(inverted, inverted, false);
   }
 
+  /**
+   * Materializes several expressions so that their results are the LAST records produced, in order.
+   * The netlist reads the final N records as the N outputs, so every output's logic is built first,
+   * then one inverter per output, then one final gate per output. For a single expression this emits
+   * exactly the same records as `materialize`.
+   */
+  materializeAll(expressions: readonly NormalizedBool[], variables: ReadonlyMap<string, number>): number[] {
+    const signals = expressions.map((expression) => this.signalFor(expression, variables));
+    const inverted = signals.map((signal) => this.emitNand(signal, signal, false));
+    return inverted.map((signal) => this.emitNand(signal, signal, false));
+  }
+
   private not(signal: number): number {
     return this.emitNand(signal, signal, true);
   }
@@ -263,16 +275,13 @@ function buildArtifact(machine: ValidatedMachine, structured: boolean): NetlistA
     nextSignals.push(builder.signalFor(expression, variables));
   }
 
-  const outputSignals: number[] = [];
-  for (const output of machine.outputs) {
-    const expression = structured
-      ? buildStructuredOutputExpression(machine, output.name)
-      : dnfForRows(buildOutputRows(machine, output.name), [
-        ...machine.inputs.map((input) => `input:${input.name}`),
-        ...Array.from({ length: machine.stateBits }, (_, index) => `stateBit:${index}`)
-      ]);
-    outputSignals.push(builder.materialize(expression, variables));
-  }
+  const outputExpressions = machine.outputs.map((output) => structured
+    ? buildStructuredOutputExpression(machine, output.name)
+    : dnfForRows(buildOutputRows(machine, output.name), [
+      ...machine.inputs.map((input) => `input:${input.name}`),
+      ...Array.from({ length: machine.stateBits }, (_, index) => `stateBit:${index}`)
+    ]));
+  builder.materializeAll(outputExpressions, variables);
 
   return {
     version: 1,

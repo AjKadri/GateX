@@ -48,6 +48,7 @@ The optional `transition` keyword supports the compact transition spelling used 
 - Outputs are pulses computed from the old state, current inputs, and selected transition. They are not persistent flags and do not depend on the returned next state.
 - Invalid encoded state bits recover to the initial state with cleared outputs.
 - State and input bit packing is deterministic and least-significant-bit first.
+- A rule may declare up to four outputs. The compiler emits the output gates last, in declaration order, which is how the netlist reads them.
 
 ## Example
 

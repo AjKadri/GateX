@@ -37,6 +37,8 @@ export const EXAMPLES: Record<ExampleKey, ExampleDefinition> = {
 
 export interface CompiledExample {
   definition: ExampleDefinition;
+  /** The exact source text that was compiled. */
+  source: string;
   compiled: CompiledMachine;
   payload: Awaited<ReturnType<typeof extractTapeOutPayload>>;
   sourceDigest: string;
@@ -52,7 +54,7 @@ export async function compileExample(key: ExampleKey, source = EXAMPLES[key].sou
   const sourceDigest = await artifactHash(new TextEncoder().encode(source));
   const deterministic = compiled.hash === repeat.hash && bytesLabel(compiled.bytes) === bytesLabel(repeat.bytes);
   const artifactMatch = compiled.nandCount === definition.expected.nand && compiled.latchCount === definition.expected.latch && compiled.artifact.records.length === definition.expected.records && compiled.bytes.length === definition.expected.localBytes && compiled.hash === definition.expected.localSha && payload.payload.length === definition.expected.payloadBytes && payload.payloadHash === definition.expected.payloadSha;
-  return { definition, compiled, payload, sourceDigest, deterministic, artifactMatch };
+  return { definition, source, compiled, payload, sourceDigest, deterministic, artifactMatch };
 }
 
 export function localStep(compiled: CompiledMachine, stateIndex: number, inputMask: number): AstStepResult {
