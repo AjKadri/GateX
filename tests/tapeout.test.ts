@@ -865,3 +865,19 @@ test("the planner never targets any address other than the deployment token and 
   for (const step of plan.steps) assert.ok(allowed.has(step.transaction.request.to.toLowerCase()));
   for (const step of plan.steps) assert.equal(step.transaction.request.from?.toLowerCase(), ACCOUNT);
 });
+
+test("remembered circuits survive blocked storage, ignore junk, and never list a transaction twice", async () => {
+  const { MY_CIRCUITS_KEY, readMyCircuits, rememberMyCircuit } = await import("../src/app/my-circuits.js");
+  const entry = { id: "3", name: "AgentApproval", payloadSha256: "ab".repeat(32), owner: ACCOUNT, tx: `0x${"cd".repeat(32)}`, date: "2026-10-07T00:00:00.000Z" };
+  const storage = new MemoryStorage();
+  assert.deepEqual(readMyCircuits(storage), []);
+  rememberMyCircuit(entry, storage);
+  rememberMyCircuit(entry, storage);
+  assert.equal(readMyCircuits(storage).length, 1);
+  storage.setItem(MY_CIRCUITS_KEY, JSON.stringify([entry, { id: 1 }, "junk"]));
+  assert.equal(readMyCircuits(storage).length, 1);
+  storage.setItem(MY_CIRCUITS_KEY, "not json");
+  assert.deepEqual(readMyCircuits(storage), []);
+  assert.deepEqual(readMyCircuits(new BrokenStorage()), []);
+  assert.doesNotThrow(() => rememberMyCircuit(entry, new BrokenStorage()));
+});
