@@ -2,9 +2,22 @@ import { GateXValidationError } from "../compiler/validation.js";
 
 export interface Diagnostic { code: string; message: string; location: string; }
 
-export function route(currentHash = typeof window === "undefined" ? "" : window.location.hash): "/" | "/workspace" | "/evidence" {
-  const path = currentHash.replace(/^#/, "") || "/";
-  return path === "/workspace" || path === "/evidence" ? path : "/";
+export type RoutePath = "/" | "/workspace" | "/circuits" | "/evidence";
+
+function splitHash(currentHash: string): { path: string; query: string } {
+  const body = currentHash.replace(/^#/, "");
+  const mark = body.indexOf("?");
+  return mark === -1 ? { path: body || "/", query: "" } : { path: body.slice(0, mark) || "/", query: body.slice(mark + 1) };
+}
+
+export function route(currentHash = typeof window === "undefined" ? "" : window.location.hash): RoutePath {
+  const { path } = splitHash(currentHash);
+  return path === "/workspace" || path === "/circuits" || path === "/evidence" ? path : "/";
+}
+
+/** The query part of a hash route, e.g. "#/workspace?circuit=3" gives circuit=3. */
+export function routeQuery(currentHash = typeof window === "undefined" ? "" : window.location.hash): URLSearchParams {
+  return new URLSearchParams(splitHash(currentHash).query);
 }
 
 export function diagnosticFromError(error: unknown, source: string): Diagnostic[] {

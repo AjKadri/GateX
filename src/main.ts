@@ -1,8 +1,8 @@
 import "./style.css";
 import { compileMachine } from "./compiler/compiler.js";
-import { diagnosticFromError, route, type Diagnostic } from "./app/ui-state.js";
+import { diagnosticFromError, route, routeQuery, type Diagnostic } from "./app/ui-state.js";
 import { AGENT_APPROVAL_SOURCE } from "./examples/agentApproval.js";
-import { browserDeployment, browserLock, readBoundCircuit, readLiveStep, readOnlyQuote, weiToOkb, type LiveStepResult, type ReadOnlyQuote } from "./app/protocol.js";
+import { browserClients, browserDeployment, browserLock, readBoundCircuit, readLiveStep, readOnlyQuote, weiToOkb, type LiveStepResult, type ReadOnlyQuote } from "./app/protocol.js";
 import { EXAMPLES, compileExample, inputBytes, localStep, stateName, type CompiledExample, type ExampleKey } from "./app/model.js";
 import { readSessions, sessionKey, upsertSession, type BrowserSession } from "./app/session.js";
 import { assessGasInclusiveSufficiency, liveVerificationStatus, verifyArtifactBinding, type ArtifactBindingResult, type CircuitBindingReadback, type VerificationStatus } from "./app/binding.js";
@@ -12,6 +12,9 @@ import { TapeoutExecutor, safetyLimitViolation, switchToXLayer, type PendingReco
 import { browserTapeoutDeps } from "./app/tapeout-deps.js";
 import { readMyCircuits, rememberMyCircuit } from "./app/my-circuits.js";
 import { TEMPLATES } from "./examples/templates.js";
+import { checkAgainstCircuit, checkHeadline, distinctOwners, matchKnownRule, readCircuit, readCircuitCount, readCircuitsPage, type CircuitRecord, type CircuitsDeps, type KnownRule } from "./app/circuits.js";
+import { MAX_SHARED_SOURCE_CHARS, decodeSource, parseCircuitParam, verificationLink } from "./app/share.js";
+import { extractTapeOutPayload } from "./protocol/wire.js";
 import { describeMismatch, runExhaustiveCheck, tapeoutGate, type ExhaustiveUi } from "./app/exhaustive.js";
 import deploymentDocument from "../deployments/xlayer-mainnet.json" with { type: "json" };
 
@@ -23,7 +26,7 @@ const app = typeof document === "undefined" ? undefined : document.querySelector
 interface UiState {
   key: ExampleKey; source: string; compiled?: CompiledExample; diagnostics: Diagnostic[]; compiling: boolean;
   selectedState: number; inputs: Record<string, boolean>; live?: LiveStepResult; liveError?: string; liveStatus: VerificationStatus; liveLoading: boolean; readback?: CircuitBindingReadback; readbackError?: string; readbackLoading: boolean; binding?: ArtifactBindingResult;
-  quote?: ReadOnlyQuote; quoteError?: string; quoteLoading: boolean; restored?: BrowserSession; exhaustive?: ExhaustiveUi; templateKey?: string;
+  quote?: ReadOnlyQuote; quoteError?: string; quoteLoading: boolean; restored?: BrowserSession; exhaustive?: ExhaustiveUi; templateKey?: string; sharedSource?: boolean; shareNotice?: string; appliedQuery?: string; circuitCheck?: CircuitCheckUi;
   wallet: WalletState;
 }
 
@@ -38,13 +41,14 @@ function extLink(href: string, text: string, cls = ""): string { return `<a ${cl
 function txLink(hash: string, text = `${shortHash(hash)} ↗`, cls = ""): string { return extLink(`${EXPLORER}/tx/${hash}`, text, cls); }
 function addressLink(address: string, cls = ""): string { return extLink(`${EXPLORER}/address/${address}`, `${address} ↗`, cls); }
 const WALLET_CHANGED_NOTICE = "Wallet/account/network changed. Readiness was invalidated.";
+interface CircuitCheckUi { id: string; status: "loading" | "ready" | "error"; record?: CircuitRecord; error?: string }
 const state: UiState = { key: "agent", source: AGENT_APPROVAL_SOURCE.trim(), diagnostics: [], compiling: true, selectedState: 0, inputs: {}, liveStatus: "PENDING", liveLoading: false, readbackLoading: false, quoteLoading: false, wallet: { status: "unavailable" } };
 
 if (app) void boot(app);
 
 function esc(value: string): string { return value.replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] as string); }
 function shortHash(value: string): string { return `${value.slice(0, 10)}…${value.slice(-8)}`; }
-function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span></header>`; }
+function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span></header>`; }
 function badge(label: string, tone: "green" | "amber" | "blue" | "muted" = "muted"): string { return `<span class="badge ${tone}">${esc(label)}</span>`; }
 function proofStat(value: string, label: string): string { return `<div class="proof-stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`; }
 function machineSummary(compiled: CompiledExample): string { const machine = compiled.compiled.machine; return `<div class="summary-grid">${proofStat(String(compiled.compiled.nandCount), "NAND gates")}${proofStat(String(compiled.compiled.latchCount), "LATCH records")}${proofStat(String(machine.states.length), "states")}${proofStat(`${machine.inputs.length} / ${machine.outputs.length}`, "inputs / outputs")}</div>`; }
@@ -142,7 +146,7 @@ function playground(): string { const compiled = state.compiled; if (compiled ==
   const liveBadge = live ? badge(live.mismatches.length === 0 ? "MATCH" : "MISMATCH", live.mismatches.length === 0 ? "green" : "amber") : state.readbackLoading ? badge("READING", "muted") : state.liveError ? badge(state.liveStatus, "amber") : ready ? badge("READY", "blue") : readbackNotRun ? badge("NOT RUN", "muted") : badge(state.liveStatus, "amber");
   const liveIdle = state.readbackLoading ? `<strong class="idle">Reading circuit…</strong><div>Reading the manufactured circuit from X Layer.</div><code>Reading from two providers</code>` : state.liveError ? `<strong>${state.liveStatus}</strong><div>${esc(state.liveError)}</div><code>${state.readback ? esc(state.readback.detail ?? "Fresh readback recorded") : "No live result recorded"}</code>` : ready ? `<strong>Ready</strong><div>${readBlock ? `Circuit read at block ${readBlock}.` : "Circuit read from X Layer."} Run step 2 to compare.</div><code>${esc(state.readback?.detail ?? "Fresh readback recorded")}</code>` : readbackNotRun ? `<strong class="idle">Not run yet</strong><div>${artifactEligible() ? "Use the two buttons above." : "Reset to the example to compare against X Layer."}</div><code>No live result recorded</code>` : `<strong>${state.liveStatus}</strong><div>A fresh circuit readback is required.</div><code>${state.readback ? esc(state.readback.detail ?? "Fresh readback recorded") : "No live result recorded"}</code>`;
   return `<section class="panel playground"><div class="panel-label">LIVE TRANSITION PLAYGROUND <span>${badge("READ-ONLY", "blue")}</span></div><div class="play-head"><div><h3>Compare one transition</h3><p class="muted">Read the manufactured circuit from X Layer, then run one transition there and locally and compare the results.</p></div><div class="quote-actions"><button class="button ${ready ? "secondary" : "primary"} small-button" id="refresh-readback" ${state.readbackLoading || !artifactEligible() ? "disabled" : ""}>${state.readbackLoading ? "Reading circuit…" : "1. Read circuit from X Layer"}</button><button class="button ${ready ? "primary" : "secondary"} small-button" id="run-live" ${state.liveLoading || !ready ? "disabled" : ""}>${state.liveLoading ? "Reading…" : "2. Compare live transition"}</button></div></div><div class="play-controls"><label>Current state<select id="state-select">${machine.states.map((item, index) => `<option value="${index}" ${index === state.selectedState ? "selected" : ""}>${esc(item.name)} (${index})</option>`).join("")}</select></label><div><span class="control-label">Inputs</span><div class="toggles">${inputControls}</div></div></div><div class="comparison-grid"><div class="result-card local"><div class="result-label">LOCAL SIMULATION ${badge("AST INTERPRETER", "muted")}</div><strong>${esc(stateName(compiled.compiled, local.nextState))}</strong><div>output: ${local.outputs.map((value, index) => `${esc(machine.outputs[index]?.name ?? "output")}=${value ? "1" : "0"}`).join(" · ")}</div><code>next ${formatBytes(local.nextStateBytes)} · out ${formatBytes(local.outputBytes)}</code></div><div class="result-card live"><div class="result-label">LIVE X LAYER ${liveBadge}</div>${live ? `<strong>${esc(formatStateBytes(compiled.compiled, live.nextState))}</strong><div>output: ${esc(formatBytes(live.outputs))}</div><code>block ${live.block.number} · ${esc(shortHash(live.block.hash))}</code>${live.mismatches.length > 0 ? `<div class="inline-error">${live.mismatches.map(esc).join(" ")}</div>` : ""}` : liveIdle}</div></div><div class="provider-line">${live ? `Providers: ${live.providers.map(esc).join(" · ")} · common block ${live.block.number}` : state.readback ? "Circuit read from two providers. No live step yet." : "No current-session live evidence recorded"}</div></section>`; }
-function workspace(): string { const compiled = state.compiled; const selected = state.templateKey !== undefined ? "" : state.key === "agent" ? "AgentApproval" : "TinyApproval"; const templateRow = `<div class="template-row"><span class="template-label">Start from a template:</span>${TEMPLATES.map((template) => `<button class="template-button ${state.templateKey === template.key ? "active" : ""}" data-template="${esc(template.key)}" title="${esc(template.blurb)}">${esc(template.name)}</button>`).join("")}${state.templateKey !== undefined ? `<small class="template-note">${esc(TEMPLATES.find((template) => template.key === state.templateKey)?.blurb ?? "")}. Not on chain${TAPEOUT_ENABLED ? ": tape it out below to put it there" : ""}.</small>` : ""}</div>`; const restored = state.restored ? `<p class="local-history"><strong>LOCAL</strong> Restored history for circuit ${esc(state.restored.circuitId)}. It is not fresh live evidence.</p>` : ""; return `${nav("/workspace")}<main class="page workspace"><section class="page-heading"><div><div class="eyebrow">WORKSPACE</div><h1>Compile. Inspect. Compare.</h1><p>Edit the rule, compile it, and compare the result with the circuit on X Layer.</p></div></section><div class="example-tabs"><button class="tab ${selected === "AgentApproval" ? "active" : ""}" data-example="agent">AgentApproval <small>circuit 2</small></button><button class="tab ${selected === "TinyApproval" ? "active" : ""}" data-example="tiny">TinyApproval <small>circuit 1</small></button></div>${templateRow}<section class="workspace-grid"><div class="workspace-main"><section class="panel editor-panel"><div class="panel-label">DSL SOURCE <span>${badge(compiled ? "EDITABLE" : "DIAGNOSTICS", compiled ? "blue" : "amber")}</span></div><textarea id="source-editor" spellcheck="false" aria-label="GateX DSL source">${esc(state.source)}</textarea><div class="editor-foot"><span>Generic GateX language · reset priority · transition-pulse outputs</span><button class="button secondary small-button" id="reset-source">${state.templateKey !== undefined ? "Reset to template" : "Reset to example"}</button></div></section>${compilePanel()}${TAPEOUT_ENABLED ? `<div class="tapeout-region" id="tapeout-region">${tapeoutRegionHtml()}</div>` : ""}${playground()}</div><aside class="workspace-side">${verificationPanel()}<section class="panel"><div class="panel-label">STATE MACHINE</div>${compiled ? stateDiagram(compiled.compiled) : `<p class="muted">State diagram waits for valid source.</p>`}</section>${quotePanel()}<section class="panel disclosure"><div class="panel-label">SESSION STORAGE</div><p>State is stored by this browser. TapeOut computes transitions; it does not store this workflow.</p>${restored}<p class="muted">Restored histories are labeled LOCAL, never fresh live evidence. Changing the source clears the circuit check.</p></section></aside></section></main>${footer()}`; }
+function workspace(): string { const compiled = state.compiled; const selected = state.templateKey !== undefined || state.sharedSource === true ? "" : state.key === "agent" ? "AgentApproval" : "TinyApproval"; const templateRow = `<div class="template-row"><span class="template-label">Start from a template:</span>${TEMPLATES.map((template) => `<button class="template-button ${state.templateKey === template.key ? "active" : ""}" data-template="${esc(template.key)}" title="${esc(template.blurb)}">${esc(template.name)}</button>`).join("")}${state.templateKey !== undefined ? `<small class="template-note">${esc(TEMPLATES.find((template) => template.key === state.templateKey)?.blurb ?? "")}. Not on chain${TAPEOUT_ENABLED ? ": tape it out below to put it there" : ""}.</small>` : ""}</div>`; const restored = state.restored ? `<p class="local-history"><strong>LOCAL</strong> Restored history for circuit ${esc(state.restored.circuitId)}. It is not fresh live evidence.</p>` : ""; return `${nav("/workspace")}<main class="page workspace"><section class="page-heading"><div><div class="eyebrow">WORKSPACE</div><h1>Compile. Inspect. Compare.</h1><p>Edit the rule, compile it, and compare the result with the circuit on X Layer.</p></div></section><div class="example-tabs"><button class="tab ${selected === "AgentApproval" ? "active" : ""}" data-example="agent">AgentApproval <small>circuit 2</small></button><button class="tab ${selected === "TinyApproval" ? "active" : ""}" data-example="tiny">TinyApproval <small>circuit 1</small></button></div>${templateRow}${state.shareNotice ? `<p class="share-notice">${esc(state.shareNotice)}</p>` : ""}${circuitBanner()}<section class="workspace-grid"><div class="workspace-main"><section class="panel editor-panel"><div class="panel-label">DSL SOURCE <span>${badge(compiled ? "EDITABLE" : "DIAGNOSTICS", compiled ? "blue" : "amber")}</span></div><textarea id="source-editor" spellcheck="false" aria-label="GateX DSL source">${esc(state.source)}</textarea><div class="editor-foot"><span>Generic GateX language · reset priority · transition-pulse outputs</span><button class="button secondary small-button" id="reset-source">${state.templateKey !== undefined ? "Reset to template" : "Reset to example"}</button></div></section>${compilePanel()}${TAPEOUT_ENABLED ? `<div class="tapeout-region" id="tapeout-region">${tapeoutRegionHtml()}</div>` : ""}${playground()}</div><aside class="workspace-side">${verificationPanel()}<section class="panel"><div class="panel-label">STATE MACHINE</div>${compiled ? stateDiagram(compiled.compiled) : `<p class="muted">State diagram waits for valid source.</p>`}</section>${quotePanel()}<section class="panel disclosure"><div class="panel-label">SESSION STORAGE</div><p>State is stored by this browser. TapeOut computes transitions; it does not store this workflow.</p>${restored}<p class="muted">Restored histories are labeled LOCAL, never fresh live evidence. Changing the source clears the circuit check.</p></section></aside></section></main>${footer()}`; }
 
 function artifactEvidence(counts: string, bytes: string, localSha: string, payloadSha: string, cases: string): string { return `<div class="artifact-list"><div><span>${esc(counts)}</span><strong>${esc(cases)}</strong></div><div><span>${esc(bytes)}</span><small>dimensions recorded in readback</small></div><div><small>local SHA-256</small><code>${esc(localSha)}</code></div><div><small>TapeOut payload SHA-256</small><code>${esc(payloadSha)}</code></div></div>`; }
 function evidence(): string { const current = state.readback && state.binding?.liveReady ? `<section class="panel history-panel"><div class="panel-label">CURRENT SESSION FRESH READBACK <span>${badge("LIVE X LAYER", "blue")}</span></div><p class="muted">Circuit ${esc(state.readback.circuitId)} was read from both providers in this browser session and matched the manufactured circuit.</p><div class="history-grid"><div><small>Payload</small><code>${esc(shortHash(state.readback.payloadSha256))}</code></div><div><small>Dimensions</small><code>(${state.readback.nIn}, ${state.readback.nOut}, ${state.readback.nState}, ${state.readback.gateCount})</code></div><div><small>Owner</small><code>${esc(state.readback.owner)}</code></div><div><small>Processor</small><code>${esc(state.readback.processor)}</code></div></div></section>` : `${state.readbackLoading ? `<section class="panel history-panel"><div class="panel-label">CURRENT SESSION FRESH READBACK <span>${badge("READING", "muted")}</span></div><p class="muted">Reading the circuit from X Layer…</p></section>` : state.readback === undefined && state.readbackError === undefined ? `<section class="panel history-panel"><div class="panel-label">CURRENT SESSION FRESH READBACK <span>${badge("NOT RUN", "muted")}</span></div><p class="muted">No live check has been run in this browser session yet. <a class="text-link" href="#/workspace">Run one in the workspace ↗</a></p></section>` : `<section class="panel history-panel"><div class="panel-label">CURRENT SESSION FRESH READBACK <span>${badge("UNAVAILABLE", "amber")}</span></div><p class="muted">Recorded manufacture evidence remains historical. This session could not read the circuit from X Layer.</p></section>`}`; return `${nav("/evidence")}<main class="page evidence"><section class="page-heading"><div><div class="eyebrow">EVIDENCE / READ-ONLY RECORD</div><h1>What has been proven.</h1><p>What was manufactured on X Layer, what was checked, and where to verify it yourself.</p></div>${badge("VERIFIED", "green")}</section><section class="evidence-hero panel dark-panel"><div><div class="panel-label">GATEX ON X LAYER</div><h2>Two circuits, manufactured and verified.</h2><div class="deploy-lines"><div><small>Processor</small><code>${addressLink(browserDeployment.processor)}</code></div><div><small>Token</small><code>${addressLink(browserDeployment.token)}</code></div><div><small>Deployment wallet</small><code>${addressLink(browserDeployment.creator)}</code></div></div><p class="muted">Chain ${browserDeployment.chainId} · registry index ${browserDeployment.registryIndex}</p></div><div class="evidence-count">${proofStat("512", "historical comparisons")}${proofStat("0", "mismatches")}</div></section><section class="panel terms-panel"><div class="panel-label">TRANSISTOR TERMS</div><div class="proof-grid">${proofStat(browserDeployment.metadata.symbol, "TOKEN")}${proofStat(browserDeployment.metadata.cap.toLocaleString("en-US"), "SUPPLY CAP")}${proofStat(`${weiToOkb(browserDeployment.metadata.priceWei)} OKB`, "UNIT PRICE")}<div class="proof-stat"><strong class="stat-link">${txLink(browserDeployment.creationTransaction)}</strong><span>SET AT CREATION</span></div></div><p class="muted terms-note">Supply cap and unit price were fixed when the processor was created on X Layer.</p></section><div class="evidence-grid"><article class="panel evidence-card"><div class="panel-label">TINYAPPROVAL <span>${badge("HISTORICAL EVIDENCE", "muted")}</span></div><h2>circuit 1</h2><p class="muted">LOCKED → READY → USED</p><p class="card-link">${txLink(CIRCUIT_RECORDS[0]?.manufactureTransaction ?? "", "View manufacture tx ↗", "text-link")}</p>${artifactEvidence("89 NAND · 2 LATCH · 91 records", "643 bytes local · 631 bytes TapeOut", "adee32d4133073926d312a711643d16ac7d849c7e662c2bce8f6131c35fd0334", "7ec1ed9fe2e0c5f92a45b2ad49fe3da969c109f01522d8306fe127aba76cabac", "32 / 32 cases")}</article><article class="panel evidence-card featured"><div class="panel-label">AGENTAPPROVAL <span>${badge("HISTORICAL EVIDENCE", "muted")}</span></div><h2>circuit 2</h2><p class="muted">IDLE → REQUESTED → APPROVED → USED</p><p class="card-link">${txLink(CIRCUIT_RECORDS[1]?.manufactureTransaction ?? "", "View manufacture tx ↗", "text-link")}</p>${artifactEvidence("98 NAND · 2 LATCH · 100 records", "706 bytes local · 694 bytes TapeOut", "d68c9881fbe8bf0fbf7f86cfa92ad2889389e07e09bb0e7f0068f23eded50003", "7e4b5f83032beaf32ce2e7c067f1ee24d08feea1e2db8c64ef7c4d7de231dc45", "256 / 256 cases matched")}</article></div>${current}<section class="panel history-panel"><div class="panel-label">HISTORICAL MANUFACTURE RECORD</div>${CIRCUIT_RECORDS.map((record) => `<div class="record-title">circuit ${record.id} · ${record.name}</div><div class="history-grid"><div><small>Manufacture tx</small>${txLink(record.manufactureTransaction)}</div><div><small>Block</small><code>${record.block}</code></div><div><small>Dimensions</small><code>(${record.dimensions.join(", ")})</code></div><div><small>Provider check</small><code>${record.providerCount} providers · ${record.providerCases} cases${record.providerBlock ? ` · block ${record.providerBlock}` : ""}</code></div></div>`).join("")}<p class="limitation">Note: GateX verified behaviour for every case it checked. It did not verify the deployed TapeOut contract source, and it does not provide immutability, stored workflow state, custody or replay protection.</p></section><section class="callout"><div class="callout-icon">◎</div><div><strong>Evidence labels are scoped.</strong><p>Historical manufacture records are labeled HISTORICAL EVIDENCE. LIVE X LAYER is reserved for a fresh current-session readback and live step.</p></div></section></main>${footer()}`; }
@@ -157,7 +161,7 @@ interface TapeoutUi {
   note?: string;
   completed: Array<{ label: string; hash: string }>;
   waiting?: { hash: string; label: string; timedOut: boolean; message?: string };
-  done?: { circuitId: string; hash: string; owner: string; payloadSha256: string; verification?: VerificationResult; verifying: boolean };
+  done?: { circuitId: string; hash: string; owner: string; payloadSha256: string; source?: string; verification?: VerificationResult; verifying: boolean };
   switching: boolean;
   switchError?: string;
 }
@@ -222,7 +226,7 @@ function tapeoutDoneView(): string {
   if (verification.verified) {
     const live = verification.live;
     const liveLine = live === undefined ? "" : `<div class="live-compare"><small>One live transition, initial state with all inputs 0, block ${live.blockNumber}</small><div><span>Local: <code>${esc(stateName(compiled.compiled, Number.parseInt(live.local.nextStateHex.slice(2), 16)))} · out ${esc(live.local.outputsHex)}</code></span><span>Chain: <code>${esc(stateName(compiled.compiled, Number.parseInt(live.chain.nextStateHex.slice(2), 16)))} · out ${esc(live.chain.outputsHex)}</code></span><span class="match">${live.match ? "match" : "differs"}</span></div></div>`;
-    return `<div class="result-box ok"><strong>Circuit #${esc(done.circuitId)} is on X Layer</strong><p>The bytes on chain match your compile (SHA-256 ${esc(shortHash(done.payloadSha256))}).</p>${links}${liveLine}<small class="muted">Byte-hash equality is the proof. The live transition is a sanity check of the evaluation path.</small><div class="tapeout-actions"><button class="button secondary small-button" id="tapeout-again">Manufacture another copy</button></div></div>`;
+    return `<div class="result-box ok"><strong>Circuit #${esc(done.circuitId)} is on X Layer</strong><p>The bytes on chain match your compile (SHA-256 ${esc(shortHash(done.payloadSha256))}).</p>${links}${liveLine}<small class="muted">Byte-hash equality is the proof. The live transition is a sanity check of the evaluation path.</small><div class="tapeout-actions">${done.source !== undefined ? `<button class="button primary small-button" data-copy-link="done">Copy verification link</button>` : ""}<button class="button secondary small-button" id="tapeout-again">Manufacture another copy</button></div></div>`;
   }
   const failed = verification.outcome === "mismatch";
   return `<div class="result-box warn"><strong>${failed ? `Circuit #${esc(done.circuitId)} was manufactured, but the check failed` : "Manufactured, verification pending"}</strong><p>${esc(verification.detail)}</p>${links}<small class="muted">${failed ? "GateX does not claim this circuit matches your compile." : "Nothing is claimed as verified until the readback completes."}</small><div class="tapeout-actions"><button class="button secondary small-button" id="tapeout-verify">Verify again</button><button class="button secondary small-button" id="tapeout-again">Manufacture another copy</button></div></div>`;
@@ -254,7 +258,7 @@ function tapeoutPanel(): string {
 function myCircuitsPanel(): string {
   const list = readMyCircuits().slice(0, 5);
   if (list.length === 0) return "";
-  return `<section class="panel my-circuits"><div class="panel-label">YOUR CIRCUITS</div><div class="circuit-list">${list.map((circuit) => `<div class="circuit-row"><span><strong>#${esc(circuit.id)} ${esc(circuit.name)}</strong><small>${esc(circuit.date.slice(0, 10))} · ${esc(shortHash(circuit.payloadSha256))} · ${esc(abbreviatedAccount(circuit.owner))}</small></span>${txLink(circuit.tx, "tx ↗", "text-link")}</div>`).join("")}</div></section>`;
+  return `<section class="panel my-circuits"><div class="panel-label">YOUR CIRCUITS</div><div class="circuit-list">${list.map((circuit) => `<div class="circuit-row"><span><strong>#${esc(circuit.id)} ${esc(circuit.name)}</strong><small>${esc(circuit.date.slice(0, 10))} · ${esc(shortHash(circuit.payloadSha256))} · ${esc(abbreviatedAccount(circuit.owner))}</small></span><span class="circuit-actions">${txLink(circuit.tx, "tx ↗", "text-link")}${circuit.source !== undefined ? `<button class="button secondary small-button" data-copy-link="${esc(circuit.tx)}">Copy verification link</button>` : ""}</span></div>`).join("")}</div></section>`;
 }
 
 function tapeoutRegionHtml(): string { const panel = tapeoutPanel(); return panel === "" ? "" : `${panel}${myCircuitsPanel()}`; }
@@ -314,8 +318,9 @@ async function completeTapeout(circuitId: string, hash: string, token: number): 
   const compiled = state.compiled; const account = state.wallet.account;
   if (compiled === undefined || account === undefined) return;
   const sha = compiled.payload.payloadHash;
-  rememberMyCircuit({ id: circuitId, name: compiled.compiled.machine.name, payloadSha256: sha, owner: account, tx: hash, date: new Date().toISOString() });
-  tapeout.status = "done"; tapeout.plan = undefined; tapeout.waiting = undefined; tapeout.done = { circuitId, hash, owner: account, payloadSha256: sha, verifying: true };
+  const source = compiled.source.length <= MAX_SHARED_SOURCE_CHARS ? compiled.source : undefined;
+  rememberMyCircuit({ id: circuitId, name: compiled.compiled.machine.name, payloadSha256: sha, owner: account, tx: hash, date: new Date().toISOString(), ...(source === undefined ? {} : { source }) });
+  tapeout.status = "done"; tapeout.plan = undefined; tapeout.waiting = undefined; tapeout.done = { circuitId, hash, owner: account, payloadSha256: sha, ...(source === undefined ? {} : { source }), verifying: true };
   updateTapeout();
   await verifyDone(token);
 }
@@ -361,8 +366,31 @@ function onTapeoutWalletChange(): void {
   else { tapeoutToken += 1; tapeout.status = "idle"; tapeout.plan = undefined; tapeout.done = undefined; tapeout.waiting = undefined; tapeout.completed = []; updateTapeout(); }
 }
 
+async function copyText(text: string): Promise<boolean> {
+  try { if (typeof navigator !== "undefined" && navigator.clipboard !== undefined) { await navigator.clipboard.writeText(text); return true; } } catch { /* fall through to the older method */ }
+  try {
+    const area = document.createElement("textarea"); area.value = text; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0";
+    document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); return copied;
+  } catch { return false; }
+}
+
+/** A link that opens the workspace with this rule loaded and checked against the circuit. The source travels in the link, base64url encoded. */
+async function copyVerificationLink(button: HTMLButtonElement): Promise<void> {
+  const key = button.dataset.copyLink;
+  const entry = key === "done" ? undefined : readMyCircuits().find((candidate) => candidate.tx === key);
+  const target = key === "done" ? (tapeout.done === undefined ? undefined : { id: tapeout.done.circuitId, source: tapeout.done.source }) : entry === undefined ? undefined : { id: entry.id, source: entry.source };
+  if (target === undefined || target.source === undefined) return;
+  const link = verificationLink(`${window.location.origin}${window.location.pathname}${window.location.search}`, target.id, target.source);
+  const original = button.textContent ?? "Copy verification link";
+  const copied = await copyText(link);
+  button.textContent = copied ? "Link copied" : "Copy failed: select the link below";
+  if (!copied && button.parentElement !== null && button.parentElement.querySelector(".link-fallback") === null) { const input = document.createElement("input"); input.className = "link-fallback"; input.readOnly = true; input.value = link; input.setAttribute("aria-label", "Verification link"); button.parentElement.appendChild(input); input.select(); }
+  window.setTimeout(() => { if (button.isConnected && copied) button.textContent = original; }, 2000);
+}
+
 function bindTapeoutEvents(): void {
   const on = (selector: string, handler: () => void): void => { document.querySelector<HTMLButtonElement>(selector)?.addEventListener("click", handler); };
+  document.querySelectorAll<HTMLButtonElement>("[data-copy-link]").forEach((button) => button.addEventListener("click", () => void copyVerificationLink(button)));
   on("#tapeout-connect", () => void connectWallet());
   on("#tapeout-switch", () => void switchNetwork());
   on("#tapeout-next", () => void runTapeoutStep());
@@ -379,16 +407,16 @@ function render(): void {
   if (!app) return;
   const editor = document.activeElement instanceof HTMLTextAreaElement && document.activeElement.id === "source-editor" ? document.activeElement : undefined;
   const caret = editor === undefined ? undefined : { start: editor.selectionStart, end: editor.selectionEnd, scroll: editor.scrollTop };
-  app.innerHTML = route() === "/" ? landing() : route() === "/workspace" ? workspace() : evidence(); bindEvents();
+  const current = route(); app.innerHTML = current === "/" ? landing() : current === "/workspace" ? workspace() : current === "/circuits" ? circuitsPage() : evidence(); bindEvents();
   if (caret !== undefined) { const next = document.querySelector<HTMLTextAreaElement>("#source-editor"); if (next !== null) { next.focus({ preventScroll: true }); next.setSelectionRange(caret.start, caret.end); next.scrollTop = caret.scroll; } }
 }
 
 function bindEvents(): void {
-  document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach((button) => button.addEventListener("click", () => { const key = button.dataset.example as ExampleKey; state.key = key; state.templateKey = undefined; state.source = EXAMPLES[key].source; state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.readback = undefined; state.binding = undefined; if (TAPEOUT_ENABLED) resetTapeout(); void compileCurrent(); }));
+  document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach((button) => button.addEventListener("click", () => { const key = button.dataset.example as ExampleKey; state.key = key; state.templateKey = undefined; state.sharedSource = false; state.source = EXAMPLES[key].source; state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.readback = undefined; state.binding = undefined; if (TAPEOUT_ENABLED) resetTapeout(); void compileCurrent(); }));
   const editor = document.querySelector<HTMLTextAreaElement>("#source-editor");
   editor?.addEventListener("input", () => { state.source = editor.value; if (TAPEOUT_ENABLED) resetTapeout(); state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.liveError = undefined; state.liveStatus = "PENDING"; state.readback = undefined; state.binding = undefined; state.diagnostics = []; if (TAPEOUT_ENABLED) updateTapeout(); window.clearTimeout(compileTimer); compileTimer = window.setTimeout(() => void compileCurrent(), 350); });
   document.querySelectorAll<HTMLButtonElement>("[data-template]").forEach((button) => button.addEventListener("click", () => { const template = TEMPLATES.find((candidate) => candidate.key === button.dataset.template); if (template === undefined) return; loadTemplate(template.key); }));
-  document.querySelector<HTMLButtonElement>("#reset-source")?.addEventListener("click", () => { state.source = state.templateKey !== undefined ? TEMPLATES.find((template) => template.key === state.templateKey)?.source ?? EXAMPLES[state.key].source : EXAMPLES[state.key].source; state.quote = undefined; state.quoteError = undefined; if (TAPEOUT_ENABLED) resetTapeout(); void compileCurrent(); });
+  document.querySelector<HTMLButtonElement>("#reset-source")?.addEventListener("click", () => { state.sharedSource = false; state.source = state.templateKey !== undefined ? TEMPLATES.find((template) => template.key === state.templateKey)?.source ?? EXAMPLES[state.key].source : EXAMPLES[state.key].source; state.quote = undefined; state.quoteError = undefined; if (TAPEOUT_ENABLED) resetTapeout(); void compileCurrent(); });
   document.querySelector<HTMLButtonElement>("#refresh-quote")?.addEventListener("click", () => void refreshQuote());
   document.querySelector<HTMLButtonElement>("#refresh-readback")?.addEventListener("click", () => void refreshReadback());
   document.querySelector<HTMLButtonElement>("#connect-wallet")?.addEventListener("click", () => void connectWallet());
@@ -396,17 +424,182 @@ function bindEvents(): void {
   document.querySelector<HTMLSelectElement>("#state-select")?.addEventListener("change", (event) => { state.selectedState = Number((event.target as HTMLSelectElement).value); state.live = undefined; state.liveError = undefined; render(); });
   document.querySelectorAll<HTMLInputElement>("[data-input]").forEach((input) => input.addEventListener("change", () => { const name = input.dataset.input; if (name) state.inputs[name] = input.checked; state.live = undefined; state.liveError = undefined; render(); }));
   document.querySelector<HTMLButtonElement>("#run-live")?.addEventListener("click", () => void runLive());
+  document.querySelector<HTMLButtonElement>("#circuits-retry")?.addEventListener("click", () => { circuitsUi.status = "idle"; void loadCircuits(); });
+  document.querySelector<HTMLButtonElement>("#circuits-more")?.addEventListener("click", () => void loadMoreCircuits());
   if (TAPEOUT_ENABLED) bindTapeoutEvents();
 }
 let compileTimer = 0;
-/** Loads a template into the editor through the same path as typing: new source, everything derived from the old compile cleared, then a normal compile. */
-function loadTemplate(key: string): void {
-  const template = TEMPLATES.find((candidate) => candidate.key === key);
-  if (template === undefined) return;
-  state.templateKey = template.key; state.source = template.source; state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.liveError = undefined; state.liveStatus = "PENDING"; state.readback = undefined; state.binding = undefined; state.diagnostics = [];
+/** Loads a source into the editor through the same path as typing: new source, everything derived from the old compile cleared, then a normal compile. */
+function loadSourceText(source: string, options: { template?: string; shared?: boolean } = {}): void {
+  const example = (Object.keys(EXAMPLES) as ExampleKey[]).find((key) => EXAMPLES[key].source.trim() === source.trim());
+  const template = options.template ?? TEMPLATES.find((candidate) => candidate.source.trim() === source.trim())?.key;
+  if (example !== undefined) { state.key = example; state.templateKey = undefined; state.sharedSource = false; } else { state.templateKey = template; state.sharedSource = options.shared === true && template === undefined; }
+  state.source = source; state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.liveError = undefined; state.liveStatus = "PENDING"; state.readback = undefined; state.binding = undefined; state.diagnostics = [];
   if (TAPEOUT_ENABLED) resetTapeout();
   void compileCurrent();
 }
+function loadTemplate(key: string): void {
+  const template = TEMPLATES.find((candidate) => candidate.key === key);
+  if (template !== undefined) loadSourceText(template.source, { template: template.key });
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Routes that read from the hash: #/workspace?circuit=N&src=..., and the Circuits page.
+
+function routeEffects(): void {
+  const current = route();
+  if (current === "/workspace") applyHashParams();
+  else if (current === "/circuits" && circuitsUi.status === "idle") void loadCircuits();
+}
+
+function applyHashParams(): void {
+  const raw = routeQuery().toString();
+  if (raw === (state.appliedQuery ?? "")) return;
+  state.appliedQuery = raw;
+  const params = routeQuery();
+  const circuit = parseCircuitParam(params.get("circuit"));
+  const src = params.get("src");
+  state.shareNotice = undefined;
+  if (src !== null) {
+    const decoded = decodeSource(src);
+    if (decoded.ok) { state.shareNotice = "Loaded the rule from a shared link."; loadSourceText(decoded.source, { shared: true }); }
+    else state.shareNotice = `The rule in that link could not be read (${decoded.reason}, limit ${MAX_SHARED_SOURCE_CHARS} characters), so it was ignored.`;
+  }
+  if (circuit === undefined) { state.circuitCheck = undefined; render(); return; }
+  void loadCircuitCheck(circuit);
+}
+
+function circuitsDeps(block: { tag: string }): CircuitsDeps { return { lock: browserLock, processor: browserDeployment.processor, clients: browserClients, blockTag: block.tag }; }
+
+async function loadCircuitCheck(id: string): Promise<void> {
+  const check: CircuitCheckUi = { id, status: "loading" };
+  state.circuitCheck = check; render();
+  try {
+    const quote = await readOnlyQuote();
+    const record = await readCircuit(circuitsDeps(quote.block), BigInt(id));
+    if (state.circuitCheck !== check) return;
+    if (record === undefined) { check.status = "error"; check.error = `Circuit #${id} does not exist on the GateX processor.`; } else { check.status = "ready"; check.record = record; }
+  } catch {
+    if (state.circuitCheck !== check) return;
+    check.status = "error"; check.error = `Could not read circuit #${id} from X Layer right now.`;
+  }
+  if (route() === "/workspace") render();
+}
+
+function circuitBanner(): string {
+  const check = state.circuitCheck;
+  if (check === undefined) return "";
+  const head = `<strong>Checking this rule against circuit #${esc(check.id)}</strong>`;
+  let tone = "neutral"; let body = "";
+  if (check.status === "loading") body = "Reading the circuit from X Layer through two providers…";
+  else if (check.status === "error") body = esc(check.error ?? "The circuit could not be read.");
+  else if (check.record !== undefined) {
+    const record = check.record; const compiled = state.compiled;
+    if (!record.confirmed) body = `The providers did not agree about this circuit, so no match is claimed. ${esc(record.note ?? "")}`;
+    else if (compiled === undefined) body = state.compiling ? "Compiling the rule…" : "Waiting for a valid rule to compile.";
+    else {
+      const result = checkAgainstCircuit(compiled.payload.payloadHash, record.payloadSha256, { compiled: compiled.payload.dimensions, onChain: record.dimensions });
+      tone = result.matches ? "match" : "neutral";
+      body = `<span class="banner-result">${esc(checkHeadline(result, check.id))}</span> <span class="banner-meta">Owner ${extLink(`${EXPLORER}/address/${record.owner}`, `${abbreviatedAccount(record.owner)} ↗`)} · ${extLink(`${EXPLORER}/address/${browserDeployment.processor}`, "Processor on X Layer ↗")}</span>`;
+    }
+  }
+  return `<div class="circuit-banner ${tone}" role="status">${head}<span>${body}</span></div>`;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Circuits page
+
+interface CircuitsUi { status: "idle" | "loading" | "ready" | "error"; error?: string; quote?: ReadOnlyQuote; top: bigint; cursor: bigint; rows: CircuitRecord[]; loadingMore: boolean; moreError?: string; known: KnownRule[]; knownReady: boolean }
+const circuitsUi: CircuitsUi = { status: "idle", top: 0n, cursor: 0n, rows: [], loadingMore: false, known: [], knownReady: false };
+let circuitsToken = 0;
+const knownCache = new Map<string, KnownRule | null>();
+
+async function compileKnown(source: string): Promise<KnownRule | null> {
+  const cached = knownCache.get(source);
+  if (cached !== undefined) return cached;
+  let rule: KnownRule | null = null;
+  try {
+    const compiled = await compileMachine(source);
+    const extracted = await extractTapeOutPayload(browserLock, compiled.bytes);
+    rule = { name: compiled.machine.name, source, payloadSha256: extracted.payloadHash.toLowerCase().replace(/^0x/, ""), dimensions: extracted.dimensions };
+  } catch { rule = null; }
+  knownCache.set(source, rule);
+  return rule;
+}
+
+/** Every source this browser knows: the two examples, the templates and the sources saved with circuits taped out here. */
+async function ensureKnownRules(): Promise<void> {
+  const sources = [...Object.values(EXAMPLES).map((example) => example.source), ...TEMPLATES.map((template) => template.source), ...readMyCircuits().flatMap((entry) => entry.source === undefined ? [] : [entry.source])];
+  const unique = [...new Set(sources)];
+  const compiled = await Promise.all(unique.map((source) => compileKnown(source)));
+  circuitsUi.known = compiled.filter((rule): rule is KnownRule => rule !== null);
+  circuitsUi.knownReady = true;
+  if (route() === "/circuits") render();
+}
+
+async function loadCircuits(): Promise<void> {
+  if (circuitsUi.status === "loading") return;
+  circuitsToken += 1; const token = circuitsToken;
+  Object.assign(circuitsUi, { status: "loading", error: undefined, rows: [], top: 0n, cursor: 0n, moreError: undefined, loadingMore: false });
+  if (route() === "/circuits") render();
+  void ensureKnownRules();
+  try {
+    const quote = await readOnlyQuote();
+    const deps = circuitsDeps(quote.block);
+    const count = await readCircuitCount(deps);
+    const page = await readCircuitsPage(deps, count.top);
+    if (token !== circuitsToken) return;
+    Object.assign(circuitsUi, { status: "ready", quote, top: count.top, cursor: page.nextCursor, rows: page.rows });
+  } catch (error) {
+    if (token !== circuitsToken) return;
+    circuitsUi.status = "error"; circuitsUi.error = error instanceof Error ? error.message : String(error);
+  }
+  if (route() === "/circuits") render();
+}
+
+async function loadMoreCircuits(): Promise<void> {
+  const quote = circuitsUi.quote;
+  if (quote === undefined || circuitsUi.loadingMore || circuitsUi.cursor < 1n) return;
+  const token = circuitsToken;
+  circuitsUi.loadingMore = true; circuitsUi.moreError = undefined; if (route() === "/circuits") render();
+  try {
+    const page = await readCircuitsPage(circuitsDeps(quote.block), circuitsUi.cursor);
+    if (token !== circuitsToken) return;
+    circuitsUi.rows = [...circuitsUi.rows, ...page.rows]; circuitsUi.cursor = page.nextCursor;
+  } catch (error) {
+    if (token !== circuitsToken) return;
+    circuitsUi.moreError = error instanceof Error ? error.message : String(error);
+  }
+  circuitsUi.loadingMore = false;
+  if (route() === "/circuits") render();
+}
+
+function circuitCard(row: CircuitRecord): string {
+  const head = `<div class="circuit-card-head"><strong>#${esc(row.id)}</strong>${row.confirmed ? badge("TWO PROVIDERS AGREE", "muted") : badge("UNCONFIRMED", "amber")}</div>`;
+  if (row.unreadable) return `<article class="panel circuit-card unconfirmed">${head}<p class="muted">${esc(row.note ?? "This circuit could not be read.")}</p></article>`;
+  const dims = row.dimensions;
+  const gates = row.nand !== undefined && row.latch !== undefined ? `${row.nand} NAND · ${row.latch} LATCH` : `${dims.gateCount} records`;
+  const known = matchKnownRule(row, circuitsUi.known);
+  const matchLine = !row.confirmed ? `<div class="match-line none">No match is claimed while the providers disagree.</div>`
+    : known !== undefined ? `<div class="match-line ok"><span class="status-icon passed">✓</span><span>Matches ${esc(known.name)} — bytes identical</span><a class="text-link" href="${esc(verificationLink("", row.id, known.source))}">Open rule</a></div>`
+    : circuitsUi.knownReady ? `<div class="match-line none"><span>Rule not known to this browser</span><a class="text-link" href="#/workspace?circuit=${esc(row.id)}">Check a rule against it</a></div>`
+    : `<div class="match-line none"><span>Checking known rules…</span></div>`;
+  return `<article class="panel circuit-card ${row.confirmed ? "" : "unconfirmed"}">${head}${row.note ? `<p class="circuit-note">${esc(row.note)}</p>` : ""}<div class="circuit-facts"><div><small>Owner</small>${extLink(`${EXPLORER}/address/${row.owner}`, `${abbreviatedAccount(row.owner)} ↗`, "text-link")}</div><div><small>Gates</small><code>${esc(gates)}</code></div><div><small>Dimensions</small><code>(${dims.nIn}, ${dims.nOut}, ${dims.nState}, ${dims.gateCount})</code></div><div><small>Payload SHA-256</small><code>${esc(shortHash(row.payloadSha256))}</code></div></div>${matchLine}</article>`;
+}
+
+function circuitsPage(): string {
+  const ui = circuitsUi;
+  const quote = ui.quote;
+  const format = (value: bigint | number): string => value.toLocaleString("en-US");
+  const stats = ui.status === "ready" && quote !== undefined ? `<div class="circuit-stats">${proofStat(format(ui.top), "circuits")}${proofStat(format(distinctOwners(ui.rows)), ui.rows.length < Number(ui.top) ? `owners in the newest ${ui.rows.length}` : "distinct owners")}${proofStat(`${format(quote.minted)} of ${format(quote.cap)}`, "transistors minted")}</div>` : "";
+  const skeleton = `<div class="circuit-list-grid" aria-hidden="true">${[0, 1, 2].map(() => `<div class="panel circuit-card skeleton"><span></span><span></span><span></span></div>`).join("")}</div>`;
+  const body = ui.status === "idle" || ui.status === "loading" ? `<p class="muted reading" role="status">Reading X Layer…</p>${skeleton}`
+    : ui.status === "error" ? `<section class="panel error-panel"><div class="inline-error"><strong>UNAVAILABLE</strong><span>Could not read the circuit list from X Layer. Nothing is shown rather than a partial list.</span></div><small class="muted">${esc(ui.error ?? "")}</small><div class="tapeout-actions"><button class="button primary small-button" id="circuits-retry">Retry</button></div></section>`
+    : ui.rows.length === 0 ? `<section class="panel"><p class="muted">No circuits have been manufactured on this processor yet.</p></section>`
+    : `<div class="circuit-list-grid">${ui.rows.map(circuitCard).join("")}</div><div class="circuits-foot"><span class="muted">Showing ${ui.rows.length} of ${format(ui.top)}, newest first. Read from two providers at block ${quote?.block.number ?? "?"}.</span>${ui.cursor >= 1n ? `<button class="button secondary small-button" id="circuits-more" ${ui.loadingMore ? "disabled" : ""}>${ui.loadingMore ? "Reading X Layer…" : "Load more"}</button>` : ""}</div>${ui.moreError ? `<div class="inline-error"><strong>NOT LOADED</strong><span>${esc(ui.moreError)}</span></div>` : ""}`;
+  return `${nav("/circuits")}<main class="page circuits"><section class="page-heading"><div><div class="eyebrow">CIRCUITS / READ LIVE</div><h1>Circuits on the GateX processor.</h1><p>Every circuit here was manufactured from GTX transistors. Anyone can add one.</p></div><a class="button primary" href="#/workspace">Tape out your own <span>↗</span></a></section>${stats}${body}</main>${footer()}`;
+}
+
 async function refreshQuote(): Promise<void> { state.quoteLoading = true; state.quoteError = undefined; render(); try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } finally { state.quoteLoading = false; render(); } }
 async function connectWallet(): Promise<void> { state.wallet = await requestOkxAccounts(state.wallet); if (state.wallet.status === "ready") { try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } } render(); if (TAPEOUT_ENABLED && state.wallet.status === "ready") void refreshTapeoutPlan(); }
 async function refreshReadback(): Promise<void> { const compiled = state.compiled; if (!artifactEligible()) return; state.readbackLoading = true; state.readbackError = undefined; render(); try { state.readback = await readBoundCircuit(compiled?.definition.circuitId ?? "", compiled?.payload.payloadHash ?? ""); state.binding = bindingForCurrent(state.readback); if (!state.binding.liveReady) { state.readbackError = state.binding.detail; state.liveStatus = state.binding.status; } else state.liveStatus = "PENDING"; state.live = undefined; state.liveError = undefined; } catch (error) { state.readback = undefined; state.readbackError = error instanceof Error ? error.message : String(error); state.binding = bindingForCurrent(); state.liveStatus = error instanceof Error && "status" in error ? (error as { status: VerificationStatus }).status : "UNAVAILABLE"; } finally { state.readbackLoading = false; render(); } }
@@ -416,7 +609,7 @@ async function boot(root: HTMLElement): Promise<void> {
   installEip6963Discovery();
   state.wallet = await readWallet(discoverOkxProvider());
   bindProviderEvents(state.wallet, (next) => { state.wallet = next; state.quote = undefined; state.quoteError = WALLET_CHANGED_NOTICE; render(); onTapeoutWalletChange(); });
-  window.addEventListener("hashchange", () => { render(); });
+  window.addEventListener("hashchange", () => { render(); routeEffects(); });
   render();
   const watchdog = window.setTimeout(() => {
     if (state.compiling) {
@@ -431,6 +624,7 @@ async function boot(root: HTMLElement): Promise<void> {
   state.compiling = false;
   render();
   if (TAPEOUT_ENABLED && state.compiled !== undefined) scheduleTapeoutPlan(0);
+  routeEffects();
 }
 
 export { compileMachine, readSessions, sessionKey };
