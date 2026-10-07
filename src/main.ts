@@ -3,7 +3,7 @@ import { compileMachine } from "./compiler/compiler.js";
 import { diagnosticFromError, route, routeQuery, type Diagnostic } from "./app/ui-state.js";
 import { AGENT_APPROVAL_SOURCE } from "./examples/agentApproval.js";
 import { browserClients, browserDeployment, browserLock, readBoundCircuit, readLiveStep, readOnlyQuote, weiToOkb, type LiveStepResult, type ReadOnlyQuote } from "./app/protocol.js";
-import { EXAMPLES, compileExample, inputBytes, localStep, stateName, type CompiledExample, type ExampleKey } from "./app/model.js";
+import { EXAMPLES, compileExample, inputBytes, inputMaskFromRecord, localStep, outputNames, bytesLabel, stateName, type CompiledExample, type ExampleKey } from "./app/model.js";
 import { readSessions, sessionKey, upsertSession, type BrowserSession } from "./app/session.js";
 import { assessGasInclusiveSufficiency, liveVerificationStatus, verifyArtifactBinding, type ArtifactBindingResult, type CircuitBindingReadback, type VerificationStatus } from "./app/binding.js";
 import { abbreviatedAccount, bindProviderEvents, discoverOkxProvider, installEip6963Discovery, readWallet, requestOkxAccounts, type WalletState } from "./app/wallet.js";
@@ -15,6 +15,9 @@ import { TEMPLATES } from "./examples/templates.js";
 import { checkAgainstCircuit, checkHeadline, distinctOwners, matchKnownRule, readCircuit, readCircuitCount, readCircuitsPage, type CircuitRecord, type CircuitsDeps, type KnownRule } from "./app/circuits.js";
 import { MAX_SHARED_SOURCE_CHARS, decodeSource, parseCircuitParam, verificationLink } from "./app/share.js";
 import { extractTapeOutPayload } from "./protocol/wire.js";
+import { byteLength, encodeInputMask } from "./compiler/encoding.js";
+import { RuleGateClient, isDeployed, stateValue, RULEGATE, type OpenResult, type RuleGateFailure, type SessionRecord, type SessionView, type StepResult } from "./app/rulegate.js";
+import { browserRuleGateDeps } from "./app/rulegate-deps.js";
 import { costOfSize, pricingSentences } from "./app/pricing.js";
 import { describeMismatch, runExhaustiveCheck, tapeoutGate, type ExhaustiveUi } from "./app/exhaustive.js";
 import deploymentDocument from "../deployments/xlayer-mainnet.json" with { type: "json" };
@@ -29,6 +32,8 @@ interface UiState {
   selectedState: number; inputs: Record<string, boolean>; live?: LiveStepResult; liveError?: string; liveStatus: VerificationStatus; liveLoading: boolean; readback?: CircuitBindingReadback; readbackError?: string; readbackLoading: boolean; binding?: ArtifactBindingResult;
   quote?: ReadOnlyQuote; quoteError?: string; quoteLoading: boolean; restored?: BrowserSession; exhaustive?: ExhaustiveUi; templateKey?: string; sharedSource?: boolean; shareNotice?: string; appliedQuery?: string; circuitCheck?: CircuitCheckUi;
   wallet: WalletState;
+  walletMenuOpen?: boolean;
+  walletConnecting?: boolean;
 }
 
 // Manufacture transactions and dimensions come from deployments/xlayer-mainnet.json (the same file src/protocol/deployment.ts loads).
@@ -49,7 +54,18 @@ if (app) void boot(app);
 
 function esc(value: string): string { return value.replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] as string); }
 function shortHash(value: string): string { return `${value.slice(0, 10)}…${value.slice(-8)}`; }
-function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a><a class="nav-link ${active === "/docs" ? "active" : ""}" href="#/docs">Docs</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span></header>`; }
+function walletControl(): string {
+  const w = state.wallet;
+  if (w.status === "unavailable") return `<div class="wallet-control"><button class="button secondary wallet-btn" type="button" disabled title="OKX Wallet was not detected in this browser.">No<span class="wallet-long"> OKX</span> Wallet</button></div>`;
+  if (state.walletConnecting === true) return `<div class="wallet-control"><button class="button secondary wallet-btn" type="button" disabled>Connecting…</button></div>`;
+  if (w.account === undefined || (w.status !== "ready" && w.status !== "wrong-network")) return `<div class="wallet-control"><button class="button secondary wallet-btn wallet-connect" id="header-connect" type="button">Connect<span class="wallet-long"> wallet</span></button></div>`;
+  const ok = w.status === "ready"; const full = w.account; const short = abbreviatedAccount(full); const open = state.walletMenuOpen === true;
+  const menu = open ? `<div class="wallet-menu" role="menu">${ok ? "" : `<button class="wallet-item" id="header-switch" type="button" role="menuitem">Switch to X Layer</button>`}<code class="wallet-addr">${esc(full)}</code><a class="wallet-item" role="menuitem" href="https://www.oklink.com/xlayer/address/${esc(full)}" target="_blank" rel="noopener">View on explorer ↗</a><button class="wallet-item" id="header-disconnect" type="button" role="menuitem">Disconnect</button></div>` : "";
+  return `<div class="wallet-control"><button class="button secondary wallet-btn wallet-account" id="header-wallet" type="button" aria-expanded="${open}" aria-haspopup="menu" aria-label="Wallet ${esc(full)}${ok ? "" : ", wrong network"}"><span class="wallet-dot ${ok ? "ok" : "warn"}"></span><span class="wallet-long">${esc(short)}</span><span class="wallet-short">${esc(full.slice(-4))}</span></button>${menu}</div>`;
+}
+function disconnectWallet(): void { state.walletMenuOpen = false; state.wallet = { ...state.wallet, status: "disconnected", account: undefined, error: undefined }; state.quote = undefined; if (TAPEOUT_ENABLED) onTapeoutWalletChange(); render(); }
+
+function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/sessions" ? "active" : ""}" href="#/sessions">Sessions</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a><a class="nav-link ${active === "/docs" ? "active" : ""}" href="#/docs">Docs</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span>${walletControl()}</header>`; }
 function badge(label: string, tone: "green" | "amber" | "blue" | "muted" = "muted"): string { return `<span class="badge ${tone}">${esc(label)}</span>`; }
 function proofStat(value: string, label: string): string { return `<div class="proof-stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`; }
 function machineSummary(compiled: CompiledExample): string { const machine = compiled.compiled.machine; return `<div class="summary-grid">${proofStat(String(compiled.compiled.nandCount), "NAND gates")}${proofStat(String(compiled.compiled.latchCount), "LATCH records")}${proofStat(String(machine.states.length), "states")}${proofStat(`${machine.inputs.length} / ${machine.outputs.length}`, "inputs / outputs")}</div>`; }
@@ -408,11 +424,15 @@ function render(): void {
   if (!app) return;
   const editor = document.activeElement instanceof HTMLTextAreaElement && document.activeElement.id === "source-editor" ? document.activeElement : undefined;
   const caret = editor === undefined ? undefined : { start: editor.selectionStart, end: editor.selectionEnd, scroll: editor.scrollTop };
-  const current = route(); app.innerHTML = current === "/" ? landing() : current === "/workspace" ? workspace() : current === "/circuits" ? circuitsPage() : current === "/docs" ? docs() : evidence(); bindEvents();
+  const current = route(); app.innerHTML = current === "/" ? landing() : current === "/workspace" ? workspace() : current === "/circuits" ? circuitsPage() : current === "/sessions" ? sessionsPage() : current === "/docs" ? docs() : evidence(); bindEvents();
   if (caret !== undefined) { const next = document.querySelector<HTMLTextAreaElement>("#source-editor"); if (next !== null) { next.focus({ preventScroll: true }); next.setSelectionRange(caret.start, caret.end); next.scrollTop = caret.scroll; } }
 }
 
 function bindEvents(): void {
+  document.querySelector<HTMLButtonElement>("#header-connect")?.addEventListener("click", () => void (route() === "/sessions" ? connectSessionsWallet() : connectWallet()));
+  document.querySelector<HTMLButtonElement>("#header-wallet")?.addEventListener("click", (event) => { event.stopPropagation(); state.walletMenuOpen = state.walletMenuOpen !== true; render(); if (state.walletMenuOpen === true) document.querySelector<HTMLElement>(".wallet-menu .wallet-item")?.focus(); });
+  document.querySelector<HTMLButtonElement>("#header-disconnect")?.addEventListener("click", disconnectWallet);
+  document.querySelector<HTMLButtonElement>("#header-switch")?.addEventListener("click", () => { state.walletMenuOpen = false; void (route() === "/sessions" ? switchSessionsNetwork() : switchNetwork()); });
   document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach((button) => button.addEventListener("click", () => { const key = button.dataset.example as ExampleKey; state.key = key; state.templateKey = undefined; state.sharedSource = false; state.source = EXAMPLES[key].source; state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.readback = undefined; state.binding = undefined; if (TAPEOUT_ENABLED) resetTapeout(); void compileCurrent(); }));
   const editor = document.querySelector<HTMLTextAreaElement>("#source-editor");
   editor?.addEventListener("input", () => { state.source = editor.value; if (TAPEOUT_ENABLED) resetTapeout(); state.compiled = undefined; state.restored = undefined; state.quote = undefined; state.quoteError = undefined; state.live = undefined; state.liveError = undefined; state.liveStatus = "PENDING"; state.readback = undefined; state.binding = undefined; state.diagnostics = []; if (TAPEOUT_ENABLED) updateTapeout(); window.clearTimeout(compileTimer); compileTimer = window.setTimeout(() => void compileCurrent(), 350); });
@@ -421,14 +441,29 @@ function bindEvents(): void {
   document.querySelector<HTMLButtonElement>("#refresh-quote")?.addEventListener("click", () => void refreshQuote());
   document.querySelector<HTMLButtonElement>("#refresh-readback")?.addEventListener("click", () => void refreshReadback());
   document.querySelector<HTMLButtonElement>("#connect-wallet")?.addEventListener("click", () => void connectWallet());
-  document.querySelector<HTMLButtonElement>("#disconnect-wallet")?.addEventListener("click", () => { state.wallet = { ...state.wallet, status: "disconnected", account: undefined, error: undefined }; state.quote = undefined; if (TAPEOUT_ENABLED) onTapeoutWalletChange(); render(); });
+  document.querySelector<HTMLButtonElement>("#disconnect-wallet")?.addEventListener("click", disconnectWallet);
   document.querySelector<HTMLSelectElement>("#state-select")?.addEventListener("change", (event) => { state.selectedState = Number((event.target as HTMLSelectElement).value); state.live = undefined; state.liveError = undefined; render(); });
   document.querySelectorAll<HTMLInputElement>("[data-input]").forEach((input) => input.addEventListener("change", () => { const name = input.dataset.input; if (name) state.inputs[name] = input.checked; state.live = undefined; state.liveError = undefined; render(); }));
   document.querySelector<HTMLButtonElement>("#run-live")?.addEventListener("click", () => void runLive());
   document.querySelector<HTMLButtonElement>("#circuits-retry")?.addEventListener("click", () => { circuitsUi.status = "idle"; void loadCircuits(); });
   document.querySelector<HTMLButtonElement>("#circuits-more")?.addEventListener("click", () => void loadMoreCircuits());
+  bindSessionsEvents();
   document.querySelectorAll<HTMLButtonElement>("[data-doc-target]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.docTarget ?? "")?.scrollIntoView({ behavior: "smooth", block: "start" })));
   if (TAPEOUT_ENABLED) bindTapeoutEvents();
+}
+function bindSessionsEvents(): void {
+  if (route() !== "/sessions") return;
+  const click = (selector: string, run: () => void): void => document.querySelector<HTMLButtonElement>(selector)?.addEventListener("click", run);
+  click("#sessions-connect", () => void connectSessionsWallet());
+  click("#sessions-switch", () => void switchSessionsNetwork());
+  click("#sessions-open", () => void runOpenSession());
+  click("#sessions-step", () => void runStepSession());
+  click("#sessions-deploy", () => void runDeployRuleGate());
+  click("#sessions-retry", () => { sessionsUi.recent.status = "idle"; void loadRecentSessions(); });
+  click("#sessions-discard", () => { const account = state.wallet.account; if (account !== undefined && ruleGate?.discardInterruptedSigning(account) === true) { sessionsUi.action = { status: "idle" }; render(); } });
+  document.querySelectorAll<HTMLInputElement>("[data-pick]").forEach((input) => input.addEventListener("change", () => { sessionsUi.pick = input.dataset.pick; render(); }));
+  document.querySelectorAll<HTMLInputElement>("[data-session-input]").forEach((input) => input.addEventListener("change", () => { const name = input.dataset.sessionInput; if (name) sessionsUi.inputs[name] = input.checked; void refreshPreview(); }));
+  document.querySelectorAll<HTMLButtonElement>("[data-sessions-copy]").forEach((button) => button.addEventListener("click", () => void copyText(button.dataset.sessionsCopy ?? "").then((copied) => { button.textContent = copied ? "Copied" : "Copy failed"; })));
 }
 let compileTimer = 0;
 /** Loads a source into the editor through the same path as typing: new source, everything derived from the old compile cleared, then a normal compile. */
@@ -452,6 +487,7 @@ function routeEffects(): void {
   const current = route();
   if (current === "/workspace") applyHashParams();
   else if (current === "/circuits" && circuitsUi.status === "idle") void loadCircuits();
+  else if (current === "/sessions") loadSessionsPage();
   else if ((current === "/evidence" || current === "/docs") && (pricingUi.status === "idle" || pricingUi.status === "error")) void loadPricing();
 }
 
@@ -547,6 +583,7 @@ async function compileKnown(source: string): Promise<KnownRule | null> {
     const compiled = await compileMachine(source);
     const extracted = await extractTapeOutPayload(browserLock, compiled.bytes);
     rule = { name: compiled.machine.name, source, payloadSha256: extracted.payloadHash.toLowerCase().replace(/^0x/, ""), dimensions: extracted.dimensions };
+    knownMachines.set(rule.payloadSha256, compiled);
   } catch { rule = null; }
   knownCache.set(source, rule);
   return rule;
@@ -559,14 +596,14 @@ async function ensureKnownRules(): Promise<void> {
   const compiled = await Promise.all(unique.map((source) => compileKnown(source)));
   circuitsUi.known = compiled.filter((rule): rule is KnownRule => rule !== null);
   circuitsUi.knownReady = true;
-  if (route() === "/circuits") render();
+  if (route() === "/circuits" || route() === "/sessions") render();
 }
 
 async function loadCircuits(): Promise<void> {
   if (circuitsUi.status === "loading") return;
   circuitsToken += 1; const token = circuitsToken;
   Object.assign(circuitsUi, { status: "loading", error: undefined, rows: [], top: 0n, cursor: 0n, moreError: undefined, loadingMore: false });
-  if (route() === "/circuits") render();
+  if (route() === "/circuits" || route() === "/sessions") render();
   void ensureKnownRules();
   try {
     const quote = await readOnlyQuote();
@@ -579,7 +616,7 @@ async function loadCircuits(): Promise<void> {
     if (token !== circuitsToken) return;
     circuitsUi.status = "error"; circuitsUi.error = error instanceof Error ? error.message : String(error);
   }
-  if (route() === "/circuits") render();
+  if (route() === "/circuits" || route() === "/sessions") render();
 }
 
 async function loadMoreCircuits(): Promise<void> {
@@ -609,7 +646,7 @@ function circuitCard(row: CircuitRecord): string {
     : known !== undefined ? `<div class="match-line ok"><span class="status-icon passed">✓</span><span>Matches ${esc(known.name)} — bytes identical</span><a class="text-link" href="${esc(verificationLink("", row.id, known.source))}">Open rule</a></div>`
     : circuitsUi.knownReady ? `<div class="match-line none"><span>Rule not known to this browser</span><a class="text-link" href="#/workspace?circuit=${esc(row.id)}">Check a rule against it</a></div>`
     : `<div class="match-line none"><span>Checking known rules…</span></div>`;
-  return `<article class="panel circuit-card ${row.confirmed ? "" : "unconfirmed"}">${head}${row.note ? `<p class="circuit-note">${esc(row.note)}</p>` : ""}<div class="circuit-facts"><div><small>Owner</small>${extLink(`${EXPLORER}/address/${row.owner}`, `${abbreviatedAccount(row.owner)} ↗`, "text-link")}</div><div><small>Gates</small><code>${esc(gates)}</code></div><div><small>Dimensions</small><code>(${dims.nIn}, ${dims.nOut}, ${dims.nState}, ${dims.gateCount})</code></div><div><small>Payload SHA-256</small><code>${esc(shortHash(row.payloadSha256))}</code></div></div>${matchLine}</article>`;
+  return `<article class="panel circuit-card ${row.confirmed ? "" : "unconfirmed"}">${head}${row.note ? `<p class="circuit-note">${esc(row.note)}</p>` : ""}<div class="circuit-facts"><div><small>Owner</small>${extLink(`${EXPLORER}/address/${row.owner}`, `${abbreviatedAccount(row.owner)} ↗`, "text-link")}</div><div><small>Gates</small><code>${esc(gates)}</code></div><div><small>Dimensions</small><code>(${dims.nIn}, ${dims.nOut}, ${dims.nState}, ${dims.gateCount})</code></div><div><small>Payload SHA-256</small><code>${esc(shortHash(row.payloadSha256))}</code></div></div>${matchLine}${isDeployed() ? `<a class="text-link open-session-link" href="#/sessions?circuit=${esc(row.id)}">Open a session ↗</a>` : ""}</article>`;
 }
 
 function circuitsPage(): string {
@@ -627,6 +664,315 @@ function circuitsPage(): string {
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Docs page (static content; the live cost line reuses pricingLines())
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Sessions page (RuleGate)
+
+interface HistoryEntry { step: number; inputs: string[]; stateName: string; outputs: string[]; hash: string }
+interface PreviewUi { key: string; status: "loading" | "ready" | "error"; newState?: Uint8Array; outputs?: Uint8Array; error?: string }
+interface SessionsUi {
+  recent: { status: "idle" | "loading" | "ready" | "error"; rows: SessionRecord[]; count: bigint; block?: number; error?: string };
+  view: { id?: bigint; status: "none" | "loading" | "ready" | "missing" | "error"; record?: SessionView; error?: string };
+  preview?: PreviewUi;
+  pick?: string;
+  inputs: Record<string, boolean>;
+  action: { status: "idle" | "checking" | "confirm" | "waiting" | "error"; message?: string; hash?: string; code?: string };
+  history: Map<string, HistoryEntry[]>;
+  banner?: { sessionId: string; step: number; names: string[]; hash: string };
+  minBlock: number;
+  appliedQuery?: string;
+  deploy: { status: "idle" | "checking" | "confirm" | "waiting" | "done" | "error"; message?: string; hash?: string; address?: string };
+}
+const sessionsUi: SessionsUi = { recent: { status: "idle", rows: [], count: 0n }, view: { status: "none" }, inputs: {}, action: { status: "idle" }, history: new Map(), minBlock: 0, deploy: { status: "idle" } };
+const ruleGate = app ? new RuleGateClient(browserRuleGateDeps()) : undefined;
+const knownMachines = new Map<string, CompiledMachine>();
+const circuitRecords = new Map<string, CircuitRecord | undefined>();
+let sessionsToken = 0;
+const rerenderSessions = (): void => { if (route() === "/sessions") render(); };
+
+interface RuleOf { known: KnownRule; compiled: CompiledMachine }
+function ruleOfRecord(record: CircuitRecord | undefined): RuleOf | undefined {
+  if (record === undefined) return undefined;
+  const known = matchKnownRule(record, circuitsUi.known);
+  const compiled = known === undefined ? undefined : knownMachines.get(known.payloadSha256);
+  return known === undefined || compiled === undefined ? undefined : { known, compiled };
+}
+function ruleOfCircuit(id: string): RuleOf | undefined { return ruleOfRecord(circuitRecords.get(id) ?? circuitsUi.rows.find((row) => row.id === id)); }
+/** Why a circuit cannot be opened as a session from this browser, or undefined when it can. */
+function openBlocker(row: CircuitRecord): string | undefined {
+  if (!row.confirmed || row.unreadable) return "Not confirmed by both providers";
+  const rule = ruleOfRecord(row);
+  if (rule === undefined) return "Rule not known to this browser";
+  const machine = rule.compiled.machine;
+  if (machine.states[0]?.name !== machine.initialState) return "Starts in a state RuleGate cannot represent";
+  return undefined;
+}
+function ownerIs(record: SessionRecord | undefined): boolean { return record !== undefined && state.wallet.status === "ready" && state.wallet.account?.toLowerCase() === record.owner; }
+function inputMaskNow(compiled: CompiledMachine): number { return inputMaskFromRecord(compiled, sessionsUi.inputs); }
+function setOutputNames(compiled: CompiledMachine, bytes: Uint8Array): string[] { return outputNames(compiled).filter((_, index) => ((bytes[Math.floor(index / 8)] ?? 0) >> (index % 8)) & 1); }
+function setInputNames(compiled: CompiledMachine, mask: number): string[] { return compiled.machine.inputs.map((input) => input.name).filter((_, index) => (mask >> index) & 1); }
+const hexBytesOf = (bytes: Uint8Array): string => bytesLabel(bytes);
+
+async function ensureCircuitRecords(ids: Array<bigint | string>): Promise<void> {
+  if (ruleGate === undefined) return;
+  const missing = [...new Set(ids.map(String))].filter((id) => !circuitRecords.has(id) && !circuitsUi.rows.some((row) => row.id === id));
+  if (missing.length === 0) return;
+  try {
+    const block = await ruleGate.commonBlock();
+    const deps = circuitsDeps(block);
+    const found = await Promise.all(missing.map((id) => readCircuit(deps, BigInt(id))));
+    missing.forEach((id, index) => circuitRecords.set(id, found[index]));
+  } catch { /* the name stays unknown; the session itself is still shown */ }
+  rerenderSessions();
+}
+
+async function loadRecentSessions(): Promise<void> {
+  if (ruleGate === undefined || !isDeployed() || sessionsUi.recent.status === "loading") return;
+  sessionsUi.recent.status = "loading"; rerenderSessions();
+  try {
+    const list = await ruleGate.listSessions({ newest: 20 });
+    sessionsUi.recent = { status: "ready", rows: list.rows, count: list.count, block: list.block };
+    void ensureCircuitRecords(list.rows.map((row) => row.circuitId));
+  } catch (error) { sessionsUi.recent = { status: "error", rows: [], count: 0n, error: error instanceof Error ? error.message : String(error) }; }
+  rerenderSessions();
+}
+
+async function loadSession(id: bigint, minBlock = 0): Promise<void> {
+  if (ruleGate === undefined) return;
+  sessionsToken += 1; const token = sessionsToken;
+  if (sessionsUi.view.id !== id) { sessionsUi.banner = undefined; sessionsUi.action = { status: "idle" }; sessionsUi.preview = undefined; }
+  sessionsUi.view = { id, status: "loading", record: sessionsUi.view.id === id ? sessionsUi.view.record : undefined }; rerenderSessions();
+  try {
+    const record = await ruleGate.readSession(id, { minBlock });
+    if (token !== sessionsToken) return;
+    sessionsUi.view = record === undefined ? { id, status: "missing" } : { id, status: "ready", record };
+    if (record !== undefined) { await ensureCircuitRecords([record.circuitId]); if (token === sessionsToken) void refreshPreview(); }
+  } catch (error) {
+    if (token !== sessionsToken) return;
+    sessionsUi.view = { id, status: "error", error: error instanceof Error ? error.message : String(error) };
+  }
+  rerenderSessions();
+}
+
+async function refreshPreview(): Promise<void> {
+  const record = sessionsUi.view.record;
+  if (ruleGate === undefined || record === undefined) return;
+  const rule = ruleOfCircuit(record.circuitId.toString());
+  if (rule === undefined) { sessionsUi.preview = undefined; rerenderSessions(); return; }
+  const mask = inputMaskNow(rule.compiled);
+  const key = `${record.id}:${record.steps}:${mask}`;
+  sessionsUi.preview = { key, status: "loading" }; rerenderSessions();
+  try {
+    const result = await ruleGate.previewStep(record.id, encodeInputMask(mask, rule.compiled.machine.inputs.length), { minBlock: sessionsUi.minBlock });
+    if (sessionsUi.preview?.key === key) sessionsUi.preview = { key, status: "ready", newState: result.newState, outputs: result.outputs };
+  } catch (error) { if (sessionsUi.preview?.key === key) sessionsUi.preview = { key, status: "error", error: error instanceof Error ? error.message : String(error) }; }
+  rerenderSessions();
+}
+
+/** Applies ?id= and ?circuit= once per change of the query. */
+function applySessionsParams(): void {
+  const raw = routeQuery().toString();
+  if (raw === (sessionsUi.appliedQuery ?? "")) return;
+  sessionsUi.appliedQuery = raw;
+  const params = routeQuery();
+  const circuit = parseCircuitParam(params.get("circuit"));
+  if (circuit !== undefined) sessionsUi.pick = circuit;
+  const idText = params.get("id");
+  if (idText !== null && /^[1-9][0-9]{0,15}$/.test(idText)) void loadSession(BigInt(idText));
+  else { sessionsUi.view = { status: "none" }; sessionsUi.preview = undefined; sessionsUi.banner = undefined; sessionsUi.action = { status: "idle" }; }
+  rerenderSessions();
+}
+
+function loadSessionsPage(): void {
+  if (circuitsUi.status === "idle" && isDeployed()) void loadCircuits();
+  if (!isDeployed()) return;
+  applySessionsParams();
+  if (sessionsUi.recent.status === "idle") void loadRecentSessions();
+  void followPendingSession();
+}
+
+let resumedFor = "";
+async function followPendingSession(): Promise<void> {
+  const account = state.wallet.account;
+  if (ruleGate === undefined || account === undefined || resumedFor === account.toLowerCase()) return;
+  const record = ruleGate.pending(account);
+  if (record === undefined || record.phase !== "submitted" || record.kind === "deploy") return;
+  resumedFor = account.toLowerCase();
+  sessionsUi.action = { status: "waiting", message: "A transaction sent earlier is waiting for confirmation.", hash: record.hash }; rerenderSessions();
+  const result = await ruleGate.resume(account);
+  if (result === undefined) return;
+  await afterWrite(result);
+}
+
+async function afterWrite(result: OpenResult | StepResult | RuleGateFailure): Promise<void> {
+  if (!result.ok) { sessionsUi.action = { status: "error", message: result.reason, code: result.code, hash: result.hash }; rerenderSessions(); return; }
+  sessionsUi.action = { status: "idle" };
+  sessionsUi.minBlock = Number(result.blockNumber);
+  if ("step" in result) {
+    const idKey = result.sessionId.toString();
+    const rule = ruleOfCircuit(sessionsUi.view.record?.circuitId.toString() ?? "");
+    const names = rule === undefined ? [] : setOutputNames(rule.compiled, result.outputs);
+    const entry: HistoryEntry = { step: result.step, inputs: rule === undefined ? [hexBytesOf(result.inputs)] : setInputNames(rule.compiled, stateValue(result.inputs)), stateName: rule === undefined ? hexBytesOf(result.newState) : stateName(rule.compiled, stateValue(result.newState)), outputs: names, hash: result.hash };
+    sessionsUi.history.set(idKey, [...(sessionsUi.history.get(idKey) ?? []), entry]);
+    if (result.outputs.some((byte) => byte !== 0)) sessionsUi.banner = { sessionId: idKey, step: result.step, names: names.length > 0 ? names : [hexBytesOf(result.outputs)], hash: result.hash };
+    const current = sessionsUi.view.record;
+    if (current !== undefined && current.id === result.sessionId) sessionsUi.view = { id: current.id, status: "ready", record: { ...current, steps: result.step, state: result.newState, lastOutputs: result.outputs } };
+    rerenderSessions();
+    sessionsUi.recent.status = "idle"; void loadRecentSessions();
+    await loadSession(result.sessionId, Number(result.blockNumber));
+  } else {
+    sessionsUi.recent.status = "idle";
+    window.location.hash = `#/sessions?id=${result.sessionId}`;
+    void loadRecentSessions();
+  }
+}
+
+function sessionWriteBusy(): boolean { return sessionsUi.action.status === "checking" || sessionsUi.action.status === "confirm" || sessionsUi.action.status === "waiting"; }
+function onSessionPhase(phase: "checking" | "confirm" | "waiting", hash?: string): void { sessionsUi.action = { status: phase, hash }; rerenderSessions(); }
+
+async function runOpenSession(): Promise<void> {
+  const provider = state.wallet.provider; const account = state.wallet.account;
+  const row = circuitsUi.rows.find((candidate) => candidate.id === sessionsUi.pick);
+  const rule = row === undefined ? undefined : ruleOfRecord(row);
+  if (ruleGate === undefined || provider === undefined || account === undefined || state.wallet.status !== "ready" || row === undefined || rule === undefined || openBlocker(row) !== undefined || sessionWriteBusy()) return;
+  sessionsUi.action = { status: "checking" }; rerenderSessions();
+  await afterWrite(await ruleGate.openSession(provider, account, BigInt(row.id), byteLength(rule.compiled.machine.stateBits), onSessionPhase));
+}
+
+async function runStepSession(): Promise<void> {
+  const provider = state.wallet.provider; const account = state.wallet.account; const record = sessionsUi.view.record;
+  const rule = record === undefined ? undefined : ruleOfCircuit(record.circuitId.toString());
+  if (ruleGate === undefined || provider === undefined || account === undefined || record === undefined || rule === undefined || !ownerIs(record) || sessionWriteBusy() || !stepAgreement(record, rule.compiled).agree) return;
+  sessionsUi.action = { status: "checking" }; rerenderSessions();
+  await afterWrite(await ruleGate.stepSession(provider, account, record.id, encodeInputMask(inputMaskNow(rule.compiled), rule.compiled.machine.inputs.length), onSessionPhase));
+}
+
+async function connectSessionsWallet(): Promise<void> { state.walletConnecting = true; render(); try { state.wallet = await requestOkxAccounts(state.wallet); } finally { state.walletConnecting = false; } render(); void followPendingSession(); }
+async function switchSessionsNetwork(): Promise<void> { const provider = state.wallet.provider; if (provider === undefined) return; await switchToXLayer(provider); state.wallet = await readWallet(state.wallet); render(); }
+
+async function runDeployRuleGate(): Promise<void> {
+  const provider = state.wallet.provider; const account = state.wallet.account;
+  if (!import.meta.env.DEV || ruleGate === undefined || provider === undefined || account === undefined || state.wallet.status !== "ready" || ["checking", "confirm", "waiting"].includes(sessionsUi.deploy.status)) return;
+  const set = (next: SessionsUi["deploy"]): void => { sessionsUi.deploy = next; rerenderSessions(); };
+  set({ status: "checking" });
+  const sent = await ruleGate.deployRuleGate(provider, account, (phase, hash) => set({ status: phase, hash: hash ?? sessionsUi.deploy.hash }));
+  if (!sent.ok) { set({ status: "error", message: sent.reason }); return; }
+  set({ status: "waiting", hash: sent.hash });
+  const done = await ruleGate.awaitDeployment(sent.hash);
+  set(done.ok ? { status: "done", hash: done.hash, address: done.address } : { status: "error", message: done.reason, hash: done.hash });
+}
+
+function stepAgreement(record: SessionRecord, compiled: CompiledMachine): { agree: boolean; line: string; tone: "ok" | "warn" | "wait" } {
+  const preview = sessionsUi.preview;
+  const mask = inputMaskNow(compiled);
+  const index = stateValue(record.state);
+  if (index >= compiled.machine.states.length) return { agree: false, tone: "warn", line: "The stored state is not a state of this rule." };
+  if (preview === undefined || preview.status === "loading" || preview.key !== `${record.id}:${record.steps}:${mask}`) return { agree: false, tone: "wait", line: "Asking the contract what this step would do…" };
+  if (preview.status === "error" || preview.newState === undefined || preview.outputs === undefined) return { agree: false, tone: "warn", line: `The contract could not preview this step: ${preview.error ?? "unknown error"}` };
+  let local: ReturnType<typeof localStep>;
+  try { local = localStep(compiled, index, mask); } catch (error) { return { agree: false, tone: "warn", line: `The local interpreter could not run this step: ${error instanceof Error ? error.message : String(error)}` }; }
+  const sameState = hexBytesOf(local.nextStateBytes) === hexBytesOf(preview.newState);
+  const sameOutputs = hexBytesOf(local.outputBytes) === hexBytesOf(preview.outputs);
+  const from = stateName(compiled, index);
+  const chainTo = stateName(compiled, stateValue(preview.newState));
+  const chainOut = setOutputNames(compiled, preview.outputs);
+  if (!sameState || !sameOutputs) return { agree: false, tone: "warn", line: `Local and chain disagree. Local: ${from} → ${stateName(compiled, local.nextState)}${setOutputNames(compiled, local.outputBytes).length > 0 ? ` emitting ${setOutputNames(compiled, local.outputBytes).join(", ")}` : ""}. Chain: ${from} → ${chainTo}${chainOut.length > 0 ? ` emitting ${chainOut.join(", ")}` : ""}. Stepping is disabled.` };
+  return { agree: true, tone: "ok", line: `${from} → ${chainTo}${chainOut.length > 0 ? `, emits ${chainOut.join(", ")}` : ", no output"}. The local interpreter and the contract agree.` };
+}
+
+function sessionsWalletBlock(): string {
+  const wallet = state.wallet;
+  if (wallet.status === "unavailable") return `<div class="wallet-row"><button class="button secondary small-button" disabled>Connect OKX Wallet</button><small class="muted">OKX Wallet not detected in this browser.</small></div>`;
+  if (wallet.status === "ready") return `<div class="wallet-row"><span class="muted">${esc(wallet.name ?? "OKX Wallet")} · <code>${esc(abbreviatedAccount(wallet.account))}</code> · X Layer / 196</span></div>`;
+  if (wallet.status === "wrong-network") return `<div class="wallet-row"><button class="button secondary small-button" id="sessions-switch">Switch to X Layer</button><small class="muted">Wallet is on network ${esc(wallet.chainId ?? "unknown")}.</small></div>`;
+  return `<div class="wallet-row"><button class="button secondary small-button" id="sessions-connect">Connect OKX Wallet</button>${wallet.error ? `<small class="muted">${esc(wallet.error)}</small>` : ""}</div>`;
+}
+
+function copyBlock(label: string, text: string): string {
+  return `<pre class="code-block"><code>${esc(text)}</code></pre><button class="button secondary small-button" data-sessions-copy="${esc(text)}">${esc(label)}</button>`;
+}
+
+function deployTool(): string {
+  if (!import.meta.env.DEV) return "";
+  const d = sessionsUi.deploy;
+  const busy = d.status === "checking" || d.status === "confirm" || d.status === "waiting";
+  const status = d.status === "checking" ? "Simulating on both providers…" : d.status === "confirm" ? "Confirm in your wallet." : d.status === "waiting" ? "Waiting for the deployment to confirm on both providers…" : d.status === "error" ? d.message ?? "Failed." : "";
+  const result = d.status === "done" && d.address !== undefined && d.hash !== undefined ? `<div class="result-box ok"><strong>RuleGate deployed</strong><p>Send these two values to be saved in deployments/rulegate.json</p>${copyBlock("Copy both values", `address: ${d.address}\ndeployTransaction: ${d.hash}`)}<div class="result-lines"><span>Contract ${addressLink(d.address)}</span><span>Transaction ${txLink(d.hash)}</span></div></div>` : "";
+  return `<section class="panel dev-tool"><div class="panel-label">OWNER TOOL <span>${badge("DEV BUILD ONLY", "amber")}</span></div><h3>Deploy RuleGate</h3><p class="muted">Deploys contracts/RuleGate.sol against the GateX processor from your wallet. This tool is not part of production builds.</p>${sessionsWalletBlock()}<div class="tapeout-actions"><button class="button primary small-button" id="sessions-deploy" ${state.wallet.status === "ready" && !busy && d.status !== "done" ? "" : "disabled"}>Deploy RuleGate</button></div>${status ? `<p class="${d.status === "error" ? "inline-error" : "muted"}" role="status">${esc(status)}</p>` : ""}${d.status === "error" && state.wallet.account !== undefined && ruleGate?.pending(state.wallet.account as string)?.phase === "signing" ? `<div class="tapeout-actions"><button class="button secondary small-button" id="sessions-discard">I checked my wallet: nothing was sent. Try again</button></div>` : ""}${d.hash && d.status !== "done" ? `<p class="muted">Transaction ${txLink(d.hash)}</p>` : ""}${result}</section>`;
+}
+
+function openPanel(): string {
+  const rows = circuitsUi.rows;
+  const list = circuitsUi.status === "idle" || circuitsUi.status === "loading" ? `<p class="muted reading" role="status">Reading circuits…</p>`
+    : circuitsUi.status === "error" ? `<div class="inline-error"><strong>UNAVAILABLE</strong><span>Could not read the circuit list: ${esc(circuitsUi.error ?? "")}</span></div>`
+    : `<div class="pick-list" role="radiogroup" aria-label="Circuit">${rows.map((row) => {
+      const reason = circuitsUi.knownReady ? openBlocker(row) : "Checking known rules…";
+      const rule = ruleOfRecord(row);
+      return `<label class="pick ${reason === undefined ? "" : "disabled"} ${sessionsUi.pick === row.id ? "chosen" : ""}"><input type="radio" name="circuit" value="${esc(row.id)}" data-pick="${esc(row.id)}" ${reason === undefined ? "" : "disabled"} ${sessionsUi.pick === row.id ? "checked" : ""}><span><strong>#${esc(row.id)}${rule === undefined ? "" : ` · ${esc(rule.known.name)}`}</strong>${reason === undefined ? "" : `<small>${esc(reason)}</small>`}</span></label>`;
+    }).join("")}</div>`;
+  const pickedRow = rows.find((row) => row.id === sessionsUi.pick);
+  const picked = pickedRow === undefined || openBlocker(pickedRow) !== undefined ? undefined : ruleOfRecord(pickedRow);
+  const detail = picked === undefined ? `<p class="muted">Pick a circuit to see its rule.</p>` : `<div class="picked-rule"><h3>${esc(picked.known.name)}</h3>${stateDiagram(picked.compiled)}</div>`;
+  const ready = state.wallet.status === "ready";
+  const action = sessionsUi.action;
+  const note = action.status === "checking" ? "Simulating on both providers…" : action.status === "confirm" ? "Confirm in your wallet." : action.status === "waiting" ? "Waiting for confirmation on both providers…" : "";
+  const openError = action.status === "error" && sessionsUi.view.status !== "ready" ? `<div class="inline-error"><strong>${/nothing was sent|not sent|will not be sent/i.test(action.message ?? "") ? "NOT SENT" : "CHECK"}</strong><span>${esc(action.message ?? "")}</span></div>` : "";
+  return `<section class="panel open-panel"><div class="panel-label">OPEN A SESSION</div>${list}${detail}${sessionsWalletBlock()}<div class="tapeout-actions"><button class="button primary" id="sessions-open" ${picked !== undefined && ready && !sessionWriteBusy() ? "" : "disabled"}>Open session</button></div>${note ? `<p class="muted" role="status">${esc(note)}</p>` : ""}${openError}<small class="safety-note">Opening a session starts the rule in its first state. It costs gas only.</small></section>`;
+}
+
+function sessionLink(id: bigint | string): string { return `#/sessions?id=${esc(String(id))}`; }
+
+function sessionPanel(): string {
+  const view = sessionsUi.view;
+  if (view.status === "none") return `<section class="panel session-panel"><div class="panel-label">SESSION</div><p class="muted">Open a session on the left, or choose one from the recent sessions below.</p></section>`;
+  const title = `Session #${esc(String(view.id))}`;
+  if (view.status === "loading" && view.record === undefined) return `<section class="panel session-panel"><div class="panel-label">${title}</div><p class="muted reading" role="status">Reading X Layer…</p></section>`;
+  if (view.status === "missing") return `<section class="panel session-panel"><div class="panel-label">${title}</div><p>There is no such session.</p></section>`;
+  if (view.status === "error") return `<section class="panel session-panel"><div class="panel-label">${title}</div><div class="inline-error"><strong>UNAVAILABLE</strong><span>${esc(view.error ?? "")}</span></div></section>`;
+  const record = view.record as SessionView;
+  const rule = ruleOfCircuit(record.circuitId.toString());
+  const index = stateValue(record.state);
+  const current = rule === undefined ? hexBytesOf(record.state) : stateName(rule.compiled, index);
+  const lastOutputs = rule === undefined ? (record.lastOutputs.length === 0 ? "none yet" : hexBytesOf(record.lastOutputs)) : record.steps === 0 ? "none yet" : setOutputNames(rule.compiled, record.lastOutputs).join(", ") || "none";
+  const facts = `<div class="kv-grid session-facts"><div><small>Rule</small><strong>${rule === undefined ? "Rule not known to this browser" : esc(rule.known.name)}</strong></div><div><small>Circuit</small><strong>#${esc(record.circuitId.toString())}</strong></div><div><small>Owner</small>${extLink(`${EXPLORER}/address/${record.owner}`, `${abbreviatedAccount(record.owner)} ↗`, "text-link")}</div><div><small>Steps</small><strong>${record.steps}</strong></div></div>`;
+  const history = sessionsUi.history.get(record.id.toString()) ?? [];
+  const banner = sessionsUi.banner !== undefined && sessionsUi.banner.sessionId === record.id.toString() ? `<div class="result-box ok permit-banner" role="status"><strong>${esc(sessionsUi.banner.names.join(", "))} emitted on chain in step ${sessionsUi.banner.step}</strong><p>The circuit produced this output and RuleGate recorded it on X Layer. ${txLink(sessionsUi.banner.hash, "View the transaction ↗")}</p></div>` : "";
+  let controls = "";
+  if (rule === undefined) controls = `<p class="muted">This browser does not know the rule of circuit #${esc(record.circuitId.toString())}, so it cannot compute or preview steps. The stored state is shown as raw bytes.</p>`;
+  else if (!ownerIs(record)) {
+    controls = `<p class="readonly-note"><strong>Only the wallet that opened this session can advance it.</strong> This page is read-only for you.</p>${state.wallet.status === "ready" ? "" : sessionsWalletBlock()}`;
+  } else {
+    const compiled = rule.compiled;
+    const agreement = stepAgreement(record, compiled);
+    const action = sessionsUi.action;
+    const busy = sessionWriteBusy();
+    const inputsHtml = compiled.machine.inputs.map((input) => `<label class="input-toggle"><input type="checkbox" data-session-input="${esc(input.name)}" ${sessionsUi.inputs[input.name] ? "checked" : ""} ${busy ? "disabled" : ""}><span>${esc(input.name)}</span></label>`).join("");
+    const terminal = compiled.machine.states[index]?.terminal === true ? `<p class="muted">This rule is finished: it is in a terminal state. ${compiled.machine.resetInput ? `The reset input <code>${esc(compiled.machine.resetInput)}</code> still decides what happens.` : ""}</p>` : "";
+    const status = action.status === "checking" ? "Simulating on both providers…" : action.status === "confirm" ? "Confirm in your wallet." : action.status === "waiting" ? "Waiting for confirmation on both providers…" : "";
+    const err = action.status === "error" ? `<div class="inline-error"><strong>${/nothing was sent|not sent|will not be sent/i.test(action.message ?? "") ? "NOT SENT" : "CHECK"}</strong><span>${esc(action.message ?? "")}</span></div>${action.code === "pending" && state.wallet.account !== undefined && ruleGate?.pending(state.wallet.account as string)?.phase === "signing" ? `<button class="button secondary small-button" id="sessions-discard">I checked my wallet: nothing was sent. Try again</button>` : ""}` : "";
+    controls = `${terminal}<div class="input-toggles" role="group" aria-label="Inputs for this step">${inputsHtml}</div><p class="what-happens ${agreement.tone}" role="status"><strong>What will happen</strong> ${esc(agreement.line)}</p><div class="tapeout-actions"><button class="button primary" id="sessions-step" ${agreement.agree && !busy ? "" : "disabled"}>Step on X Layer</button></div>${status ? `<p class="muted" role="status">${esc(status)}${action.hash ? ` ${txLink(action.hash)}` : ""}</p>` : ""}${err}`;
+  }
+  const historyHtml = history.length === 0 ? "" : `<h3>Steps taken here</h3><div class="history-list">${history.map((entry) => `<div class="history-row"><strong>Step ${entry.step}</strong><span>inputs: ${entry.inputs.length === 0 ? "none" : esc(entry.inputs.join(", "))}</span><span>→ ${esc(entry.stateName)}</span><span>${entry.outputs.length === 0 ? "no output" : `emitted ${esc(entry.outputs.join(", "))}`}</span>${txLink(entry.hash)}</div>`).join("")}</div>`;
+  return `<section class="panel session-panel"><div class="panel-label">${title} <span>${view.status === "loading" ? badge("REFRESHING", "muted") : badge(`BLOCK ${record.block}`, "muted")}</span></div>${banner}<div class="current-state"><small>Current state</small><strong>${esc(current)}</strong><span class="muted">Last outputs: ${esc(lastOutputs)}</span></div>${facts}${controls}${historyHtml}</section>`;
+}
+
+function recentPanel(): string {
+  const recent = sessionsUi.recent;
+  const body = recent.status === "idle" || recent.status === "loading" ? `<p class="muted reading" role="status">Reading X Layer…</p>`
+    : recent.status === "error" ? `<div class="inline-error"><strong>UNAVAILABLE</strong><span>${esc(recent.error ?? "")}</span></div><div class="tapeout-actions"><button class="button secondary small-button" id="sessions-retry">Retry</button></div>`
+    : recent.rows.length === 0 ? `<p class="muted">No sessions have been opened yet.</p>`
+    : `<div class="session-rows"><div class="session-row head"><span>Session</span><span>Circuit</span><span>Owner</span><span>Steps</span><span>State</span></div>${recent.rows.map((row) => {
+      const rule = ruleOfCircuit(row.circuitId.toString());
+      return `<div class="session-row"><a class="text-link" href="${sessionLink(row.id)}">#${esc(row.id.toString())}</a><span>#${esc(row.circuitId.toString())}${rule === undefined ? "" : ` · ${esc(rule.known.name)}`}</span>${extLink(`${EXPLORER}/address/${row.owner}`, `${abbreviatedAccount(row.owner)} ↗`, "text-link")}<span>${row.steps}</span><span>${esc(rule === undefined ? hexBytesOf(row.state) : stateName(rule.compiled, stateValue(row.state)))}</span></div>`;
+    }).join("")}</div><p class="muted foot-note">Newest ${recent.rows.length} of ${recent.count.toString()}, read from two providers at block ${recent.block ?? "?"}.</p>`;
+  return `<section class="panel recent-panel"><div class="panel-label">RECENT SESSIONS</div>${body}</section>`;
+}
+
+function sessionsPage(): string {
+  const heading = `<section class="page-heading"><div><div class="eyebrow">SESSIONS / RULEGATE</div><h1>Rules that remember.</h1><p>A circuit decides each move. RuleGate stores the result on X Layer, so a rule can only advance the way its circuit allows.</p></div></section>`;
+  if (!isDeployed()) return `${nav("/sessions")}<main class="page sessions">${heading}<section class="panel neutral-panel"><div class="panel-label">RULEGATE</div><h3>RuleGate is not deployed yet.</h3><p class="muted">Sessions need the RuleGate contract on X Layer. Until it is deployed there is nothing to open or read here.</p></section>${deployTool()}</main>${footer()}`;
+  return `${nav("/sessions")}<main class="page sessions">${heading}<div class="sessions-layout">${openPanel()}${sessionPanel()}</div>${recentPanel()}</main>${footer()}`;
+}
 
 const GITHUB = "https://github.com/AjKadri/GateX";
 const DOC_SECTIONS: Array<[string, string]> = [["what", "What it is"], ["write", "Write a rule"], ["check", "The full check"], ["tapeout", "Tape out"], ["verify", "Verify a circuit"], ["use", "Use a circuit"], ["security", "Security"], ["questions", "Questions"]];
@@ -680,7 +1026,17 @@ function docs(): string {
     docSection("use", "Use a circuit", `<p>An app or agent evaluates a circuit with a read-only call to the processor, <code>step(uint256 id, bytes state, bytes inputs)</code>. It takes the circuit id, the current state and the inputs, and returns the next state and the outputs as two <code>bytes</code> values. Nothing is written on chain and no fee is paid.</p>
       <p>The caller stores the state between calls and passes it back in next time. State and inputs are bits packed least-significant-bit first: the state is its index in the declaration order, and input number <em>n</em> is the <em>n</em>th declared input. The processor is ${processor}.</p>
       <p>The exact encoding and decoding is in <a class="text-link" href="${GITHUB}/blob/main/src/app/protocol.ts" target="_blank" rel="noopener">src/app/protocol.ts ↗</a> (<code>readLiveStep</code>).</p>
-      <p><strong class="doc-strong">The circuit decides. It does not remember.</strong> There is no stored workflow state and no replay protection on chain.</p>`),
+      <p><strong class="doc-strong">The circuit decides. It does not remember.</strong> The processor stores no workflow state and has no replay protection. RuleGate, below, adds both.</p>
+      <h3>Rules that remember (RuleGate)</h3>
+      <p>RuleGate is a small contract that keeps the state of a rule on chain. Anyone can open a session on a circuit of the processor; it starts in the rule's first declared state. Each step sends the inputs, the processor's circuit computes the next state and outputs, and RuleGate stores the result, so a rule can only advance the way its circuit allows. It stores, per session: the opener, the circuit, the step count, the current state and the outputs of the last step.</p>
+      ${docList([
+        "Only the wallet that opened a session can advance it. Anyone can read it.",
+        "RuleGate holds no funds, has no admin and cannot be upgraded.",
+        "It has not been audited, and it trusts the processor's <code>step</code> as it is.",
+        `Source: <a class="text-link" href="${GITHUB}/blob/main/contracts/RuleGate.sol" target="_blank" rel="noopener">contracts/RuleGate.sol ↗</a>. Details: <a class="text-link" href="${GITHUB}/blob/main/docs/rulegate.md" target="_blank" rel="noopener">docs/rulegate.md ↗</a>.`,
+        RULEGATE.address === null ? "" : `RuleGate on X Layer: ${extLink(`${EXPLORER}/address/${RULEGATE.address}`, `${RULEGATE.address} ↗`)}.`
+      ].filter((item) => item !== ""))}
+      <p><a class="text-link" href="#/sessions">Open the sessions page ↗</a></p>`),
     docSection("security", "Security", `<div class="doc-two"><div class="panel doc-box"><h3>What GateX does</h3>${docList([
         `Sends transactions only to the GateX transistor token (${token}) and the GateX processor.`,
         "Never asks for token approvals or message signatures.",
@@ -690,7 +1046,7 @@ function docs(): string {
       ])}</div><div class="panel doc-box"><h3>What GateX has not done</h3>${docList([
         "It has not audited the TapeOut contracts.",
         "It has not verified the deployed source of the TapeOut contracts.",
-        "It has no smart contracts of its own.",
+        "Its only contract is RuleGate, which holds no funds, has no admin and cannot be upgraded. It has not been audited.",
         "It has not been audited by a third party.",
         "Circuits do not check who calls them."
       ])}</div></div>`),
@@ -707,7 +1063,7 @@ function docs(): string {
 }
 
 async function refreshQuote(): Promise<void> { state.quoteLoading = true; state.quoteError = undefined; render(); try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } finally { state.quoteLoading = false; render(); } }
-async function connectWallet(): Promise<void> { state.wallet = await requestOkxAccounts(state.wallet); if (state.wallet.status === "ready") { try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } } render(); if (TAPEOUT_ENABLED && state.wallet.status === "ready") void refreshTapeoutPlan(); }
+async function connectWallet(): Promise<void> { state.walletConnecting = true; render(); try { state.wallet = await requestOkxAccounts(state.wallet); } finally { state.walletConnecting = false; } if (state.wallet.status === "ready") { try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } } render(); if (TAPEOUT_ENABLED && state.wallet.status === "ready") void refreshTapeoutPlan(); }
 async function refreshReadback(): Promise<void> { const compiled = state.compiled; if (!artifactEligible()) return; state.readbackLoading = true; state.readbackError = undefined; render(); try { state.readback = await readBoundCircuit(compiled?.definition.circuitId ?? "", compiled?.payload.payloadHash ?? ""); state.binding = bindingForCurrent(state.readback); if (!state.binding.liveReady) { state.readbackError = state.binding.detail; state.liveStatus = state.binding.status; } else state.liveStatus = "PENDING"; state.live = undefined; state.liveError = undefined; } catch (error) { state.readback = undefined; state.readbackError = error instanceof Error ? error.message : String(error); state.binding = bindingForCurrent(); state.liveStatus = error instanceof Error && "status" in error ? (error as { status: VerificationStatus }).status : "UNAVAILABLE"; } finally { state.readbackLoading = false; render(); } }
 async function runLive(): Promise<void> { if (state.compiled === undefined || state.binding?.liveReady !== true || state.readback === undefined) return; state.liveLoading = true; state.liveError = undefined; render(); try { const machine = state.compiled.compiled.machine; const mask = machine.inputs.reduce((result, input, index) => result | (state.inputs[input.name] ? 1 << index : 0), 0); state.live = await readLiveStep(state.compiled.definition.circuitId, new Uint8Array([state.selectedState]), inputBytes(state.compiled.compiled, state.inputs)); const local = localStep(state.compiled.compiled, state.selectedState, mask); const localState = formatStateBytes(state.compiled.compiled, local.nextStateBytes); const liveState = formatStateBytes(state.compiled.compiled, state.live.nextState); const localOutput = formatBytes(local.outputBytes); const liveOutput = formatBytes(state.live.outputs); if (localState !== liveState || localOutput !== liveOutput) state.live.mismatches.push(`AST/local mismatch: local ${localState}/${localOutput}, live ${liveState}/${liveOutput}`); state.liveStatus = state.live.mismatches.length === 0 ? "PASSED" : "FAILED"; if (state.liveStatus === "PASSED") { const session: BrowserSession = { artifactDigest: state.compiled.compiled.hash, chainId: browserLock.chainId, processor: browserDeployment.processor, circuitId: state.compiled.definition.circuitId, sourceDigest: state.compiled.sourceDigest, activeState: liveState, history: [{ state: stateName(state.compiled.compiled, state.selectedState), inputs: { ...state.inputs }, localNext: localState, localOutput, origin: "LIVE X LAYER", recordedAt: new Date().toISOString() }] }; upsertSession(session); state.restored = session; } } catch (error) { state.live = undefined; state.liveStatus = error instanceof Error && "status" in error ? (error as { status: VerificationStatus }).status : "UNAVAILABLE"; state.liveError = error instanceof Error ? error.message : String(error); } finally { state.liveLoading = false; render(); } }
 async function boot(root: HTMLElement): Promise<void> {
@@ -715,7 +1071,9 @@ async function boot(root: HTMLElement): Promise<void> {
   installEip6963Discovery();
   state.wallet = await readWallet(discoverOkxProvider());
   bindProviderEvents(state.wallet, (next) => { state.wallet = next; state.quote = undefined; state.quoteError = WALLET_CHANGED_NOTICE; render(); onTapeoutWalletChange(); });
-  window.addEventListener("hashchange", () => { render(); routeEffects(); });
+  document.addEventListener("click", (event) => { if (state.walletMenuOpen === true && !(event.target as Element).closest(".wallet-control")) { state.walletMenuOpen = false; render(); } });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && state.walletMenuOpen === true) { state.walletMenuOpen = false; render(); document.querySelector<HTMLElement>("#header-wallet")?.focus(); } });
+  window.addEventListener("hashchange", () => { state.walletMenuOpen = false; render(); routeEffects(); });
   render();
   const watchdog = window.setTimeout(() => {
     if (state.compiling) {
