@@ -10,6 +10,7 @@ test("Gate F route contract is limited to overview, workspace and evidence", () 
   assert.equal(route(""), "/");
   assert.equal(route("#/workspace"), "/workspace");
   assert.equal(route("#/evidence"), "/evidence");
+  assert.equal(route("#/docs"), "/docs");
   assert.equal(route("#/wallet"), "/");
 });
 
