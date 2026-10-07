@@ -1051,6 +1051,7 @@ function docs(): string {
         "Never asks for token approvals or message signatures.",
         "Simulates every transaction before you are asked to sign.",
         "Never holds funds or keys. Your wallet signs.",
+        `RuleGate's source is verified on the X Layer explorer: <a class="text-link" href="https://www.oklink.com/xlayer/address/0xefa64bfc4f2f06465cfe2ff6dfa97cfbeac5732c" target="_blank" rel="noopener">view the contract ↗</a>.`,
         `All code is open source under the MIT license: <a class="text-link" href="${GITHUB}" target="_blank" rel="noopener">github.com/AjKadri/GateX ↗</a>.`
       ])}</div><div class="panel doc-box"><h3>What GateX has not done</h3>${docList([
         "It has not audited the TapeOut contracts.",

@@ -35,6 +35,7 @@ RuleGate, the GateX contract, makes those circuits decide something on chain. It
 
 - Contract: [`0xefa64bfc4f2f06465cfe2ff6dfa97cfbeac5732c`](https://www.oklink.com/xlayer/address/0xefa64bfc4f2f06465cfe2ff6dfa97cfbeac5732c)
 - Deployment tx: [`0x473171ae7ec0556f5be8741457161926c15a9ab576fa339738bff8df5ca9c749`](https://www.oklink.com/xlayer/tx/0x473171ae7ec0556f5be8741457161926c15a9ab576fa339738bff8df5ca9c749)
+- Source verified on the X Layer explorer: the published source matches the deployed bytecode.
 - Source: [`contracts/RuleGate.sol`](../contracts/RuleGate.sol). Compiler and settings: [`contracts/RuleGate.json`](../contracts/RuleGate.json).
 - First session: session 1 on circuit 2 ran IDLE, REQUESTED, APPROVED, USED in three transactions and emitted `permit` in step 3.
 
