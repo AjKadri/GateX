@@ -113,6 +113,7 @@ class FakeChain {
   txs = new Map<string, Tx>();
   nonce = 5n;
   balanceWei = 10n ** 18n;
+  decorateLogs = false;
   counter = 0;
   gate = GATE;
   deployedProcessor = processor;
@@ -207,7 +208,9 @@ class FakeChain {
         const blockHash = this.hashOf(tx.block + (this.receiptBlockSkew.has(provider) ? 7 : 0), provider);
         const blockNumber = `0x${tx.block.toString(16)}`;
         if (method === "eth_getTransactionByHash") return { hash: tx.hash, from: tx.request.from, to: tx.request.to ?? null, input: tx.request.data, value: tx.request.value, blockHash, blockNumber };
-        return { status: !tx.ok || this.failedReceipt.has(provider) ? "0x0" : "0x1", blockHash, blockNumber, logs: tx.logs, ...(tx.contract === undefined ? {} : { contractAddress: tx.contract }) };
+        // Real providers decorate logs differently (extra fields, checksum casing); only address, topics and data are meaningful.
+        const logs = this.decorateLogs && provider === providers[1] ? (tx.logs as Array<Record<string, unknown>>).map((log, index) => ({ ...log, address: String(log.address).toUpperCase().replace("0X", "0x"), logIndex: `0x${index.toString(16)}`, blockTimestamp: "0x1", removed: false })) : tx.logs;
+        return { status: !tx.ok || this.failedReceipt.has(provider) ? "0x0" : "0x1", blockHash, blockNumber, logs, ...(tx.contract === undefined ? {} : { contractAddress: tx.contract }) };
       }
       default: throw new Error(`Unexpected RPC method ${method}`);
     }
@@ -296,6 +299,14 @@ test("reads: minBlock waits for the providers to catch up, then gives up with a 
 // writes
 
 const exactKeys = (tx: Record<string, string>): string => Object.keys(tx).sort().join(",");
+
+test("providers that decorate event logs differently still confirm the same transaction", async () => {
+  const { chain, client, wallet } = setup();
+  chain.decorateLogs = true;
+  const result = await client.openSession(wallet, ACCOUNT, 2n, 1);
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.sessionId, 1n);
+});
 
 test("refuses in plain words when the wallet cannot pay the gas, and sends nothing", async () => {
   const { chain, client, wallet } = setup();

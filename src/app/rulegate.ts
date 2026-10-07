@@ -552,11 +552,11 @@ export class RuleGateClient {
       const matches = tx !== null && typeof tx === "object" && sameAddress(tx.from, record.account) && lower(String(tx.input ?? tx.data ?? "")) === lower(record.data) && /^0x0*$/.test(String(tx.value ?? "0x0")) && (record.to === undefined ? tx.to === null || tx.to === undefined : sameAddress(tx.to, record.to));
       if (!matches) return { state: "error", reason: "The transaction on chain is not the one GateX sent. Nothing further was done." };
     }
-    const summary = mined.map((entry) => ({ blockHash: lower(String(entry.receipt.blockHash)), blockNumber: String(entry.receipt.blockNumber), logs: JSON.stringify(entry.receipt.logs ?? []), contract: lower(String(entry.receipt.contractAddress ?? "")) }));
+    const summary = mined.map((entry) => ({ blockHash: lower(String(entry.receipt.blockHash)), blockNumber: String(entry.receipt.blockNumber), logs: JSON.stringify((Array.isArray(entry.receipt.logs) ? entry.receipt.logs as Array<Record<string, unknown>> : []).map((log) => ({ address: lower(String(log.address ?? "")), topics: (Array.isArray(log.topics) ? log.topics : []).map((topic) => lower(String(topic))), data: lower(String(log.data ?? "0x")) }))), contract: lower(String(entry.receipt.contractAddress ?? "")) }));
     const first = summary[0];
     if (first === undefined) return { state: "waiting", why: "Waiting for receipts." };
     if (summary.some((entry) => entry.blockHash !== first.blockHash || BigInt(entry.blockNumber) !== BigInt(first.blockNumber))) return { state: "error", reason: "The two providers report different blocks for this transaction. GateX will not continue until they agree." };
-    if (summary.some((entry) => entry.logs !== first.logs || entry.contract !== first.contract)) return { state: "error", reason: "The two providers report different receipts for this transaction." };
+    if (summary.some((entry) => entry.logs !== first.logs || entry.contract !== first.contract)) return { state: "error", reason: "The transaction was mined, but the two providers report different event logs for it. GateX will not continue until they agree." };
     const receipt = (mined[0] as (typeof mined)[number]).receipt;
     return { state: "ok", blockNumber: BigInt(first.blockNumber), logs: Array.isArray(receipt.logs) ? receipt.logs as RpcLog[] : [], ...(first.contract === "" ? {} : { contractAddress: first.contract }) };
   }
