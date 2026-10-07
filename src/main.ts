@@ -691,6 +691,7 @@ function docs(): string {
         "It has not audited the TapeOut contracts.",
         "It has not verified the deployed source of the TapeOut contracts.",
         "It has no smart contracts of its own.",
+        "It has not been audited by a third party.",
         "Circuits do not check who calls them."
       ])}</div></div>`),
     docSection("questions", "Questions", `${[
@@ -698,7 +699,7 @@ function docs(): string {
       ["Which wallet?", "OKX Wallet on X Layer. GateX does not accept a generic browser wallet."],
       ["Who owns the circuit?", "The wallet that manufactured it. The owner is recorded on chain and shown on the Circuits page."],
       ["Can I check someone else's circuit?", `Yes. Open it from the Circuits page, or use a verification link, and check a rule against it. The check is read-only.`],
-      ["What if a transaction fails, or I close the tab?", "If a simulation fails or a price moves, nothing is sent. If you reject a request in your wallet, nothing is sent. If you close the tab after sending, the pending step is remembered in this browser and resumes at waiting for confirmation when you return, instead of being offered again."]
+      ["What if a transaction fails, or I leave the page?", "If a simulation fails or a price moves, nothing is sent. If you reject a request in your wallet, nothing is sent. If you reload the page after sending, the pending step is remembered and resumes at waiting for confirmation instead of being offered again. If you close the tab, check your wallet activity and the Circuits page before starting over. A new plan is built from your real balances, so transistors you already bought are not bought twice."]
     ].map(([question, answer]) => `<div class="doc-qa"><h3>${esc(question as string)}</h3><p>${esc(answer as string)}</p></div>`).join("")}`)
   ];
   const toc = DOC_SECTIONS.map(([id, label]) => `<button type="button" class="doc-link" data-doc-target="doc-${id}">${esc(label)}</button>`).join("");
