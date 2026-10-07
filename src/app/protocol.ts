@@ -40,6 +40,10 @@ export interface ReadOnlyQuote {
   nandBalance?: bigint;
   latchBalance?: bigint;
   agreement: boolean;
+  /** Agreement on everything except eth_gasPrice, which is not pinned to a block and may differ between providers for a moment. */
+  stateAgreement?: boolean;
+  /** Highest gas price reported by any provider; used for cost estimates only. */
+  maxGasPriceWei?: bigint;
 }
 
 export class BrowserReadbackError extends Error {
@@ -161,7 +165,10 @@ export async function readOnlyQuote(account?: string): Promise<ReadOnlyQuote> {
   if (first === undefined) throw new Error("No locked provider values returned");
   const stable = (value: typeof first) => [value.chainId, value.minted.toString(), value.cap.toString(), value.mintPriceWei.toString(), value.protocolFeeWei.toString(), value.tapeoutFeeWei.toString(), value.gasPriceWei.toString(), value.nandBalance?.toString() ?? "", value.latchBalance?.toString() ?? "", value.nativeBalanceWei?.toString() ?? "", value.nonce?.toString() ?? ""].join("|");
   const agreement = values.every((value) => stable(value) === stable(first));
-  return { block, providers: browserLock.snapshot.providers, chainIds: values.map((value) => value.chainId), ...first, agreement };
+  const stateOnly = (value: typeof first) => stable({ ...value, gasPriceWei: 0n });
+  const stateAgreement = values.every((value) => stateOnly(value) === stateOnly(first));
+  const maxGasPriceWei = values.reduce((max, value) => value.gasPriceWei > max ? value.gasPriceWei : max, 0n);
+  return { block, providers: browserLock.snapshot.providers, chainIds: values.map((value) => value.chainId), ...first, agreement, stateAgreement, maxGasPriceWei };
 }
 
 export async function readLiveStep(circuitId: string, state: Uint8Array, inputs: Uint8Array): Promise<LiveStepResult> {

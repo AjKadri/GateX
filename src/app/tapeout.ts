@@ -313,7 +313,7 @@ function lockedTokenIds(lock: ProtocolLock): { nand: bigint; latch: bigint } | u
 
 function describeQuoteProblem(deps: TapeoutDeps, quote: ReadOnlyQuote, account: string): Refusal | undefined {
   if (quote.chainIds.length < 2 || quote.chainIds.some((chainId) => chainId !== deps.lock.chainId)) return refuse("chain", `The data providers did not both report X Layer (chain ${deps.lock.chainId}), so nothing can be manufactured.`);
-  if (!quote.agreement) return refuse("providers-disagree", "The two data providers disagree about the current prices or your balances. Refresh in a moment; nothing was sent.");
+  if (!(quote.stateAgreement ?? quote.agreement)) return refuse("providers-disagree", "The two data providers disagree about the current prices or your balances. Refresh in a moment; nothing was sent.");
   if (quote.account === undefined || !sameAddress(quote.account, account)) return refuse("quote-incomplete", "The quote was not read for your connected account. Refresh and try again.");
   if (quote.nandBalance === undefined || quote.latchBalance === undefined || quote.nativeBalanceWei === undefined) return refuse("quote-incomplete", "Your balances could not be read from X Layer. Refresh and try again.");
   return undefined;
@@ -376,7 +376,7 @@ export async function planTapeout(input: PlanInput, deps: TapeoutDeps): Promise<
     if (estimate.gas > ceiling) return refuse("gas-ceiling", `${step.label} needs ${estimate.gas} gas, above the safety ceiling of ${ceiling}.`);
     steps.push({ ...step, gasEstimate: estimate.gas } as PlanStep);
   }
-  const estGasWei = steps.reduce((total, step) => total + step.gasEstimate * quote.gasPriceWei, 0n);
+  const estGasWei = steps.reduce((total, step) => total + step.gasEstimate * (quote.maxGasPriceWei ?? quote.gasPriceWei), 0n);
   const totalWei = valueWei + estGasWei;
   if (nativeBalance < totalWei) return refuse("balance", `Your wallet holds ${weiToOkb(nativeBalance)} OKB but this needs about ${weiToOkb(totalWei)} OKB including gas.`);
 

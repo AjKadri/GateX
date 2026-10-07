@@ -310,6 +310,19 @@ test("refuses when the two providers disagree", async () => {
   assert.match(result.reason, /disagree/);
 });
 
+test("a gas price difference alone between providers does not block the plan, and the higher price is used for the estimate", async () => {
+  const h = await harness();
+  const base = h.deps.quote;
+  const baseline = await readyPlan(h);
+  const quoted = await base(baseline.account);
+  const higher = quoted.gasPriceWei * 2n;
+  const tolerant = await harness(() => undefined, { quote: async (account: string) => ({ ...(await base(account)), agreement: false, stateAgreement: true, maxGasPriceWei: higher }) });
+  const plan = await readyPlan(tolerant);
+  assert.equal(plan.totals.estGasWei, baseline.totals.estGasWei * 2n);
+  const strict = await harness(() => undefined, { quote: async (account: string) => ({ ...(await base(account)), agreement: false, stateAgreement: false }) });
+  assert.equal((await refusal(strict)).code, "providers-disagree");
+});
+
 test("refuses when a provider is not on chain 196", async () => {
   const result = await refusal(await harness((chain) => { chain.chainIds.set(providers[1] as string, 1); }));
   assert.equal(result.code, "chain");
