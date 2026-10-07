@@ -72,8 +72,23 @@ machine TimeboxedPermit {
 }
 `;
 
+export const VAULT_RELEASE_SOURCE = `
+machine VaultRelease {
+  states LOCKED, REQUESTED, UNLOCKED, PAID;
+  initial LOCKED;
+  inputs request, delay_passed, guardian_ok, withdraw, paused, cancel;
+  outputs release;
+  terminal PAID;
+  reset_on cancel;
+
+  LOCKED -> REQUESTED when request && !paused;
+  REQUESTED -> UNLOCKED when delay_passed && guardian_ok && !paused;
+  UNLOCKED -> PAID when withdraw && !paused emit release;
+}
+`;
+
 export interface TemplateDefinition {
-  key: "two-person" | "spending-limit" | "escrow" | "permit";
+  key: "two-person" | "spending-limit" | "escrow" | "permit" | "vault";
   name: string;
   blurb: string;
   source: string;
@@ -83,5 +98,6 @@ export const TEMPLATES: readonly TemplateDefinition[] = [
   { key: "two-person", name: "TwoPersonApproval", blurb: "Two different approvers before it can run", source: TWO_PERSON_APPROVAL_SOURCE.trim() },
   { key: "spending-limit", name: "SpendingLimit", blurb: "Owner under the limit, owner and admin over it", source: SPENDING_LIMIT_SOURCE.trim() },
   { key: "escrow", name: "EscrowRelease", blurb: "Fund, deliver, release, or dispute and refund by the arbiter", source: ESCROW_RELEASE_SOURCE.trim() },
-  { key: "permit", name: "TimeboxedPermit", blurb: "Use a permit once, or it expires", source: TIMEBOXED_PERMIT_SOURCE.trim() }
+  { key: "permit", name: "TimeboxedPermit", blurb: "Use a permit once, or it expires", source: TIMEBOXED_PERMIT_SOURCE.trim() },
+  { key: "vault", name: "VaultRelease", blurb: "A vault pays out only after a request, a delay and a guardian, and never while paused", source: VAULT_RELEASE_SOURCE.trim() }
 ];

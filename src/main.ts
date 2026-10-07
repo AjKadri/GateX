@@ -975,7 +975,7 @@ function sessionsPage(): string {
 }
 
 const GITHUB = "https://github.com/AjKadri/GateX";
-const DOC_SECTIONS: Array<[string, string]> = [["what", "What it is"], ["write", "Write a rule"], ["check", "The full check"], ["tapeout", "Tape out"], ["verify", "Verify a circuit"], ["use", "Use a circuit"], ["security", "Security"], ["questions", "Questions"]];
+const DOC_SECTIONS: Array<[string, string]> = [["what", "What it is"], ["write", "Write a rule"], ["check", "The full check"], ["tapeout", "Tape out"], ["verify", "Verify a circuit"], ["use", "Use a circuit"], ["vaults", "For vault builders"], ["security", "Security"], ["questions", "Questions"]];
 const KEYWORD_ROWS: Array<[string, string, string]> = [
   ["machine", "Names the rule and wraps everything else.", "machine AgentApproval { … }"],
   ["states", "Declares the states.", "states IDLE, REQUESTED, APPROVED, USED;"],
@@ -1010,7 +1010,7 @@ function docs(): string {
       <h3>Limits</h3>
       <div class="doc-limits">${limitsRow("Inputs", "up to 8")}${limitsRow("States", "up to 8")}${limitsRow("Outputs", "up to 4")}${limitsRow("Gate records", "up to 512")}</div>
       <p>The compiler enforces the first three. The record limit and a 3,584 byte limit on the circuit are GateX safety limits checked before tape-out, not limits of the protocol.</p>
-      <p>The workspace has four templates to start from: TwoPersonApproval, SpendingLimit, EscrowRelease and TimeboxedPermit. <a class="text-link" href="#/workspace">Open the workspace ↗</a></p>`),
+      <p>The workspace has five templates to start from: TwoPersonApproval, SpendingLimit, EscrowRelease, TimeboxedPermit and VaultRelease. <a class="text-link" href="#/workspace">Open the workspace ↗</a></p>`),
     docSection("check", "The full check", `<p>GateX compiles your rule to gates, then runs every state encoding with every combination of inputs. For each case it compares two independent engines: an interpreter that reads your rule directly, and a simulator that runs the compiled NAND and LATCH records. Both must give the same next state and outputs.</p>
       <p>Tape-out is not offered unless every case matches, for the exact bytes you are about to send.</p>
       <p>AgentApproval has 4 state encodings and 6 inputs, so 256 cases. TinyApproval has 4 state encodings and 3 inputs, so 32 cases.</p>`),
@@ -1037,6 +1037,15 @@ function docs(): string {
         RULEGATE.address === null ? "" : `RuleGate on X Layer: ${extLink(`${EXPLORER}/address/${RULEGATE.address}`, `${RULEGATE.address} ↗`)}.`
       ].filter((item) => item !== ""))}
       <p><a class="text-link" href="#/sessions">Open the sessions page ↗</a></p>`),
+    docSection("vaults", "For vault builders", `<p>A vault can keep its release rule in a circuit instead of in contract code. The rule is then readable, checked for every case before it goes on chain, and replaceable by taping out a new circuit from GTX transistors.</p>
+      <p>The VaultRelease template in the workspace is a starting point: a payout needs a request, a delay that has passed and a guardian, and nothing moves while the vault is paused.</p>
+      ${docList([
+        "Write the rule and tape it out. Each input is a fact the vault contract already knows: whether the delay has passed, whether the guardian approved, whether the vault is paused.",
+        "Let the vault contract open a RuleGate session on that circuit. The opener is the only caller that can advance a session, so only the vault can move its own rule.",
+        "On each action the vault calls <code>step</code> with the current input bits and pays out only when the returned outputs include <code>release</code>.",
+        "A vault that prefers to store the state itself can call the processor's <code>step</code> directly, as described in Use a circuit."
+      ])}
+      <p>GateX does not ship a vault contract. RuleGate and the circuits are the pieces a vault would build on. <a class="text-link" href="#/workspace">Open the workspace</a> and pick VaultRelease to try the rule, or <a class="text-link" href="#/sessions">run it as a session</a> once it is on chain.</p>`),
     docSection("security", "Security", `<div class="doc-two"><div class="panel doc-box"><h3>What GateX does</h3>${docList([
         `Sends transactions only to the GateX transistor token (${token}) and the GateX processor.`,
         "Never asks for token approvals or message signatures.",

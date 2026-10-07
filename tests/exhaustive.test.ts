@@ -80,9 +80,9 @@ test("tape-out gate: open only when the check for the current bytes passed every
   assert.equal(errored.open === false && errored.kind, "failed");
 });
 
-test("all four templates compile within the language limits and pass the full check", async () => {
+test("all five templates compile within the language limits and pass the full check", async () => {
   const { TEMPLATES } = await import("../src/examples/templates.js");
-  assert.equal(TEMPLATES.length, 4);
+  assert.equal(TEMPLATES.length, 5);
   for (const template of TEMPLATES) {
     const compiled = await compileMachine(template.source);
     assert.equal(compiled.machine.name, template.name);

@@ -5,7 +5,7 @@ Live workspace: https://gatex.ajkadri.dev
 A visit takes about three minutes. Step 4 needs an OKX wallet on X Layer; everything else is read-only.
 
 1. Start on Overview. GateX turns human-readable application state machines into verified TapeOut NAND/LATCH circuits on X Layer.
-2. Open Workspace and pick the AgentApproval example or one of the four templates. The compile result shows the gate counts and hashes, and the verification chain shows the full check: every state and input case matches the source (256 of 256 for AgentApproval).
+2. Open Workspace and pick the AgentApproval example or one of the five templates. The compile result shows the gate counts and hashes, and the verification chain shows the full check: every state and input case matches the source (256 of 256 for AgentApproval).
 3. For the example, click **1. Read circuit from X Layer** and **2. Compare live transition** to compare real circuit 2 with the local result.
 4. Edit the rule if you like; the check runs again for the new bytes, and a rule that does not match its own circuit cannot be taped out. Connect the wallet and tape out. There are up to three confirmations: buy NAND transistors, buy LATCH transistors, manufacture the circuit. GateX never holds funds and shows the exact cost first.
 5. The verified card shows that the bytes on chain match your compile. Click **Copy verification link**.
