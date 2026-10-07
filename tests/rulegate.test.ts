@@ -111,6 +111,7 @@ class FakeChain {
   circuits = new Set<bigint>([1n, 2n]);
   txs = new Map<string, Tx>();
   nonce = 5n;
+  balanceWei = 10n ** 18n;
   counter = 0;
   gate = GATE;
   deployedProcessor = processor;
@@ -190,6 +191,8 @@ class FakeChain {
       case "eth_blockNumber": return `0x${(this.head + (provider === providers[1] ? 1 : 0)).toString(16)}`;
       case "eth_getBlockByNumber": return { hash: this.hashOf(Number(BigInt(params[0] as string)), provider) };
       case "eth_getTransactionCount": return `0x${this.nonce.toString(16)}`;
+      case "eth_getBalance": return `0x${this.balanceWei.toString(16)}`;
+      case "eth_gasPrice": return "0x3b9aca00";
       case "eth_call": case "eth_estimateGas": {
         if (method === "eth_estimateGas" && this.estimateRevertOn.has(provider)) throw nodeError(provider, method, "gas required exceeds allowance");
         if (this.revertOn.has(provider) && method === "eth_call") throw nodeError(provider, method, "execution reverted");
@@ -293,6 +296,16 @@ test("reads: minBlock waits for the providers to catch up, then gives up with a 
 
 const exactKeys = (tx: Record<string, string>): string => Object.keys(tx).sort().join(",");
 
+test("refuses in plain words when the wallet cannot pay the gas, and sends nothing", async () => {
+  const { chain, client, wallet } = setup();
+  chain.balanceWei = 1000n;
+  const result = await client.openSession(wallet, ACCOUNT, 2n, 1);
+  assert.equal(result.ok, false);
+  if (result.ok) return;
+  assert.match(result.reason, /needs about .* OKB for gas/);
+  assert.equal(wallet.sent.length, 0);
+});
+
 test("open: exact transaction fields, dual simulation, event decoded from the receipt", async () => {
   const { chain, client, wallet, storage } = setup();
   const phases: string[] = [];
@@ -301,8 +314,8 @@ test("open: exact transaction fields, dual simulation, event decoded from the re
   if (!result.ok) return;
   assert.equal(result.sessionId, 1n); assert.equal(result.circuitId, 2n);
   assert.equal(wallet.sent.length, 1);
-  assert.deepEqual(wallet.sent[0], { from: ACCOUNT, to: GATE, data: encodeOpen(2n, 1), value: "0x0" });
-  assert.equal(exactKeys(wallet.sent[0] as Record<string, string>), "data,from,to,value");
+  assert.deepEqual(wallet.sent[0], { from: ACCOUNT, to: GATE, data: encodeOpen(2n, 1), value: "0x0", gas: "0x1e848" });
+  assert.equal(exactKeys(wallet.sent[0] as Record<string, string>), "data,from,gas,to,value");
   for (const provider of providers) for (const method of ["eth_call", "eth_estimateGas"]) assert.ok(chain.log.some((entry) => entry.provider === provider && entry.method === method && (entry.params[0] as { from: string }).from === ACCOUNT), `${method} on ${provider}`);
   assert.deepEqual(phases.slice(0, 3), ["checking", "confirm", "waiting"]);
   assert.equal((storage as MemoryStorage).values.size, 0, "pending cleared after confirmation");
@@ -314,7 +327,7 @@ test("step: exact fields, result decoded from the Stepped event, permit output r
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.step, 1); assert.deepEqual([...result.newState], [3]); assert.deepEqual([...result.outputs], [1]); assert.deepEqual([...result.inputs], [4]);
-  assert.deepEqual(wallet.sent[0], { from: ACCOUNT, to: GATE, data: encodeStep(1n, bytesOf(4)), value: "0x0" });
+  assert.deepEqual(wallet.sent[0], { from: ACCOUNT, to: GATE, data: encodeStep(1n, bytesOf(4)), value: "0x0", gas: "0x1e848" });
   const again = await client.stepSession(wallet, ACCOUNT, 1n, bytesOf(1));
   assert.equal(again.ok && again.step, 2, "a second send is allowed once the first is confirmed");
 });
@@ -468,7 +481,7 @@ test("deployment: creation transaction has no `to`, is estimated on both provide
   assert.equal(sent.ok, true);
   if (!sent.ok) return;
   assert.equal(wallet.sent.length, 1);
-  assert.deepEqual(wallet.sent[0], { from: ACCOUNT, data, value: "0x0" });
+  assert.deepEqual(wallet.sent[0], { from: ACCOUNT, data, value: "0x0", gas: "0x1e848" });
   assert.equal("to" in (wallet.sent[0] as object), false);
   for (const provider of providers) assert.ok(chain.log.some((entry) => entry.provider === provider && entry.method === "eth_estimateGas" && (entry.params[0] as { to?: string }).to === undefined));
   assert.equal((await client.deployRuleGate(wallet, ACCOUNT)).ok === false, true, "a second deployment is blocked while the first is pending");

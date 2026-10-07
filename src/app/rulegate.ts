@@ -53,6 +53,12 @@ function hexOf(bytes: Uint8Array): string { return Array.from(bytes, (byte) => b
 function topicOf(signature: string): string { return `0x${hexOf(keccak_256(encoder.encode(signature)))}`; }
 function selectorOf(signature: string): string { return topicOf(signature).slice(0, 10); }
 
+function formatOkb(wei: bigint): string {
+  const whole = wei / 10n ** 18n;
+  const fraction = (wei % 10n ** 18n).toString().padStart(18, "0").slice(0, 6);
+  return `${whole}.${fraction}`;
+}
+
 export class RuleGateAbiError extends Error {
   constructor(message: string) { super(message); this.name = "RuleGateAbiError"; }
 }
@@ -476,10 +482,20 @@ export class RuleGateClient {
         const returnValue = kind === "deploy" ? "0x" : hexResult(await client.request("eth_call", [call, "latest"]), "eth_call result");
         const gas = hexQuantity(await client.request("eth_estimateGas", [call, "latest"]), "gas estimate");
         const nonce = hexQuantity(await client.request("eth_getTransactionCount", [account, "latest"]), "nonce");
-        return { returnValue, gas, nonce };
+        const balance = hexQuantity(await client.request("eth_getBalance", [account, "latest"]), "balance");
+        const gasPrice = hexQuantity(await client.request("eth_gasPrice", []), "gas price");
+        return { returnValue, gas, nonce, balance, gasPrice };
       });
       if (!simulated.ok) return fail("simulation", `This would fail on X Layer: ${simulated.reason} Nothing was sent.`);
       if (new Set(simulated.values.map((value) => value.returnValue)).size !== 1) return fail("providers-disagree", "The two data providers returned different simulation results. Nothing was sent.");
+
+      // Give the wallet an explicit gas limit (highest estimate plus 25%) so it does not have to estimate a contract call itself,
+      // and refuse early, in plain words, when the account cannot pay for it.
+      const highest = (pick: (value: { gas: bigint; balance: bigint; gasPrice: bigint }) => bigint): bigint => simulated.values.reduce((max, value) => pick(value) > max ? pick(value) : max, 0n);
+      const gasLimit = highest((value) => value.gas) * 125n / 100n;
+      const feeWei = gasLimit * highest((value) => value.gasPrice);
+      const balanceWei = simulated.values.reduce((min, value) => value.balance < min ? value.balance : min, simulated.values[0]?.balance ?? 0n);
+      if (balanceWei < feeWei) return fail("simulation", `This needs about ${formatOkb(feeWei)} OKB for gas and this wallet has ${formatOkb(balanceWei)} OKB. Add OKB on X Layer and try again. Nothing was sent.`);
 
       let chainId: unknown;
       let accounts: unknown;
@@ -497,7 +513,7 @@ export class RuleGateClient {
       onPhase?.("confirm");
       let hash: unknown;
       try {
-        hash = await provider.request({ method: "eth_sendTransaction", params: [{ from: tx.from, ...(tx.to === undefined ? {} : { to: tx.to }), data: tx.data, value: tx.value }] });
+        hash = await provider.request({ method: "eth_sendTransaction", params: [{ from: tx.from, ...(tx.to === undefined ? {} : { to: tx.to }), data: tx.data, value: tx.value, gas: `0x${gasLimit.toString(16)}` }] });
       } catch (error) {
         this.clearPending(account);
         if (isUserRejection(error)) return fail("cancelled", CANCELLED_MESSAGE);
