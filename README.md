@@ -21,6 +21,7 @@ circuit behaves identically for every state and input.
 - Check the compiled circuit against the source for every state and input combination.
 - Read the manufactured circuit back from X Layer through two independent RPC providers and compare a live
   transition with the local result, side by side.
+- Tape out your own compiled rule on the GateX processor from your wallet, then have it verified against your compile.
 
 The flagship example, AgentApproval, moves through `IDLE → REQUESTED → APPROVED → USED`.
 
@@ -62,7 +63,7 @@ npm run build
 npm run dev
 ```
 
-The browser workspace supports local compilation, deterministic artifact inspection, read-only quotes, fresh dual-provider circuit readback, and read-only live transition comparison. Wallet signing and state-changing protocol actions are outside the release product path.
+The browser workspace supports local compilation, deterministic artifact inspection, read-only quotes, fresh dual-provider circuit readback, and read-only live transition comparison. Signing happens only when you choose to tape out your own circuit from your own OKX wallet (see [`docs/tape-out.md`](docs/tape-out.md)); GateX never holds keys or funds and never asks for message signatures or approvals. The whole tape-out feature sits behind the `TAPEOUT_ENABLED` constant at the top of `src/main.ts`; set it to `false` to return to the read-only workspace.
 
 The live verification scripts read X Layer through the two providers listed in `protocol/lock.json` (`https://rpc.xlayer.tech` and `https://xlayer.drpc.org`). They need no environment variables:
 
