@@ -94,13 +94,18 @@ test("all four templates compile within the language limits and pass the full ch
   }
 });
 
-test("known compiler limitation: a rule with two outputs fails the full check, so it can never be offered for tape-out", async () => {
-  // The decoded-netlist simulator reads the last N records as the N outputs, but the compiler appends each output's logic in turn,
-  // so with two outputs the first output is read from the wrong record. The full check reports it. If the compiler is fixed,
-  // this test should be replaced by one that expects a pass.
-  const compiled = await compileMachine("machine TwoOut { states A, B; initial A; inputs go, cancel; outputs x, y; reset_on cancel; A -> B when go emit x; B -> A when go emit y; }");
-  assert.equal(compiled.machine.outputs.length, 2);
-  const result = await runExhaustiveCheck(compiled);
-  assert.ok(result.matched < result.total);
-  assert.equal(tapeoutGate({ hash: "h", status: "done", result }, "h").open, false);
+test("rules with two, three and four outputs pass the full check, and the single-output examples keep their bytes", async () => {
+  // The netlist reads the last N records as the N outputs, so the compiler builds every output's logic first and emits the
+  // N output gates last, in declaration order.
+  for (const source of [
+    "machine TwoOut { states A, B; initial A; inputs go, cancel; outputs x, y; reset_on cancel; A -> B when go emit x; B -> A when go emit y; }",
+    "machine ThreeOut { states A, B, C; initial A; inputs go, alt, cancel; outputs x, y, z; reset_on cancel; A -> B when go emit x; B -> C when go && alt emit y; C -> A when go emit z; }",
+    "machine FourOut { states A, B, C, D; initial A; inputs go, alt, cancel; outputs w, x, y, z; reset_on cancel; A -> B when go emit w; B -> C when go emit x; C -> D when alt emit y; D -> A when go && alt emit z; }"
+  ]) {
+    const compiled = await compileMachine(source);
+    const result = await runExhaustiveCheck(compiled);
+    assert.equal(result.matched, result.total, compiled.machine.name);
+    assert.deepEqual(result.mismatches, [], compiled.machine.name);
+    assert.equal(tapeoutGate({ hash: "h", status: "done", result }, "h").open, true);
+  }
 });

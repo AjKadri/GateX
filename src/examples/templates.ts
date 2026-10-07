@@ -1,7 +1,5 @@
 // Starting points for the workspace. None of these is on chain: they are ordinary sources written in the GateX language.
 // Each one stays within 8 inputs, 8 states and 4 outputs, and each is checked in tests/exhaustive.test.ts.
-// Each declares a single output: the compiler places output records in declaration order, and the full check shows that a rule
-// with two or more outputs does not currently match its own netlist (see tests/exhaustive.test.ts).
 
 export const TWO_PERSON_APPROVAL_SOURCE = `
 machine TwoPersonApproval {
@@ -46,7 +44,7 @@ machine EscrowRelease {
   states OPEN, FUNDED, DELIVERED, DISPUTED, RELEASED, REFUNDED;
   initial OPEN;
   inputs fund, deliver, buyer_ok, dispute, arbiter_refund, cancel;
-  outputs release;
+  outputs release, refund;
   terminal RELEASED, REFUNDED;
   reset_on cancel;
 
@@ -55,7 +53,7 @@ machine EscrowRelease {
   FUNDED -> DISPUTED when dispute;
   DELIVERED -> RELEASED when buyer_ok && !dispute emit release;
   DELIVERED -> DISPUTED when dispute;
-  DISPUTED -> REFUNDED when arbiter_refund;
+  DISPUTED -> REFUNDED when arbiter_refund emit refund;
 }
 `;
 
