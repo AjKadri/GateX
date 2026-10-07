@@ -26,6 +26,7 @@ circuit behaves identically for every state and input.
 - Start from one of four template rules (two-person approval, spending limit, escrow release, timeboxed permit). Templates are not on chain until you tape them out.
 - Open the Circuits page to see every circuit on the processor, newest first, read live through both providers. A circuit made from a rule this browser knows is labelled as a byte-identical match.
 - Copy a verification link after tape-out. Anyone who opens it gets your rule and a read-only check against your circuit.
+- Open the Sessions page to keep a rule's state on chain with RuleGate: a session starts in the rule's first state, and only the wallet that opened it can advance it, one circuit-checked step at a time. See [docs/rulegate.md](docs/rulegate.md).
 - Prices are read live from the processor: the Evidence page shows what an AgentApproval-sized circuit costs and how many more fit under the cap. The unit price and cap are in the table below.
 
 The flagship example, AgentApproval, moves through `IDLE → REQUESTED → APPROVED → USED`.
