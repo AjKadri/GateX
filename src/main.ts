@@ -48,6 +48,7 @@ function txLink(hash: string, text = `${shortHash(hash)} ↗`, cls = ""): string
 function addressLink(address: string, cls = ""): string { return extLink(`${EXPLORER}/address/${address}`, `${address} ↗`, cls); }
 const WALLET_CHANGED_NOTICE = "Wallet/account/network changed. Readiness was invalidated.";
 interface CircuitCheckUi { id: string; status: "loading" | "ready" | "error"; record?: CircuitRecord; error?: string }
+let walletNotice: string | undefined;
 const state: UiState = { key: "agent", source: AGENT_APPROVAL_SOURCE.trim(), diagnostics: [], compiling: true, selectedState: 0, inputs: {}, liveStatus: "PENDING", liveLoading: false, readbackLoading: false, quoteLoading: false, wallet: { status: "unavailable" } };
 
 if (app) void boot(app);
@@ -57,7 +58,7 @@ function shortHash(value: string): string { return `${value.slice(0, 10)}…${va
 function walletControl(): string {
   const w = state.wallet;
   if (w.status === "unavailable") return `<div class="wallet-control"><button class="button secondary wallet-btn" type="button" disabled title="OKX Wallet was not detected in this browser.">No<span class="wallet-long"> OKX</span> Wallet</button></div>`;
-  if (state.walletConnecting === true) return `<div class="wallet-control"><button class="button secondary wallet-btn" type="button" disabled>Connecting…</button></div>`;
+  if (state.walletConnecting === true) return `<div class="wallet-control"><button class="button secondary wallet-btn" type="button" disabled>Check your wallet…</button></div>`;
   if (w.account === undefined || (w.status !== "ready" && w.status !== "wrong-network")) return `<div class="wallet-control"><button class="button secondary wallet-btn wallet-connect" id="header-connect" type="button">Connect<span class="wallet-long"> wallet</span></button></div>`;
   const ok = w.status === "ready"; const full = w.account; const short = abbreviatedAccount(full); const open = state.walletMenuOpen === true;
   const menu = open ? `<div class="wallet-menu" role="menu">${ok ? "" : `<button class="wallet-item" id="header-switch" type="button" role="menuitem">Switch to X Layer</button>`}<code class="wallet-addr">${esc(full)}</code><a class="wallet-item" role="menuitem" href="https://www.oklink.com/xlayer/address/${esc(full)}" target="_blank" rel="noopener">View on explorer ↗</a><button class="wallet-item" id="header-disconnect" type="button" role="menuitem">Disconnect</button></div>` : "";
@@ -70,7 +71,7 @@ function rememberConnection(on: boolean): void { try { if (on) localStorage.setI
 function applyConnectionChoice(next: WalletState): WalletState { return rememberedConnection() || next.account === undefined ? next : { ...next, account: undefined, status: next.status === "unavailable" ? next.status : "disconnected", error: undefined }; }
 function disconnectWallet(): void { rememberConnection(false); void revokeOkx(state.wallet); state.walletMenuOpen = false; state.wallet = { ...state.wallet, status: "disconnected", account: undefined, error: undefined }; state.quote = undefined; if (TAPEOUT_ENABLED) onTapeoutWalletChange(); render(); }
 
-function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/sessions" ? "active" : ""}" href="#/sessions">Sessions</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a><a class="nav-link ${active === "/docs" ? "active" : ""}" href="#/docs">Docs</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span>${walletControl()}</header>`; }
+function nav(active: string): string { return `<header class="topbar"><a class="brand" href="#/"><svg class="brand-logo" viewBox="0 0 64 64" fill="none" width="26" height="26" aria-hidden="true"><path d="M48 16H16v32h32V32H37" stroke="currentColor" stroke-width="7"/><circle cx="31" cy="32" r="4.5" stroke="currentColor" stroke-width="3.5"/></svg><span class="brand-word">Gate<span class="brand-x">X</span></span></a><nav aria-label="Primary"><a class="nav-link ${active === "/" ? "active" : ""}" href="#/">Overview</a><a class="nav-link ${active === "/workspace" ? "active" : ""}" href="#/workspace">Workspace</a><a class="nav-link ${active === "/circuits" ? "active" : ""}" href="#/circuits">Circuits</a><a class="nav-link ${active === "/sessions" ? "active" : ""}" href="#/sessions">Sessions</a><a class="nav-link ${active === "/evidence" ? "active" : ""}" href="#/evidence">Evidence</a><a class="nav-link ${active === "/docs" ? "active" : ""}" href="#/docs">Docs</a></nav><span class="network-pill"><span class="live-dot"></span>X Layer / 196</span>${walletControl()}</header>${walletNoticeBar()}`; }
 function badge(label: string, tone: "green" | "amber" | "blue" | "muted" = "muted"): string { return `<span class="badge ${tone}">${esc(label)}</span>`; }
 function proofStat(value: string, label: string): string { return `<div class="proof-stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`; }
 function machineSummary(compiled: CompiledExample): string { const machine = compiled.compiled.machine; return `<div class="summary-grid">${proofStat(String(compiled.compiled.nandCount), "NAND gates")}${proofStat(String(compiled.compiled.latchCount), "LATCH records")}${proofStat(String(machine.states.length), "states")}${proofStat(`${machine.inputs.length} / ${machine.outputs.length}`, "inputs / outputs")}</div>`; }
@@ -462,6 +463,7 @@ function render(): void {
 }
 
 function bindEvents(): void {
+  document.querySelector<HTMLButtonElement>("#wallet-notice-close")?.addEventListener("click", () => { walletNotice = undefined; render(); });
   document.querySelector<HTMLButtonElement>("#header-connect")?.addEventListener("click", () => void (route() === "/sessions" ? connectSessionsWallet() : connectWallet()));
   document.querySelector<HTMLButtonElement>("#header-wallet")?.addEventListener("click", (event) => { event.stopPropagation(); state.walletMenuOpen = state.walletMenuOpen !== true; render(); if (state.walletMenuOpen === true) document.querySelector<HTMLElement>(".wallet-menu .wallet-item")?.focus(); });
   document.querySelector<HTMLButtonElement>("#header-disconnect")?.addEventListener("click", disconnectWallet);
@@ -883,7 +885,7 @@ async function runStepSession(): Promise<void> {
   await afterWrite(await ruleGate.stepSession(provider, account, record.id, encodeInputMask(inputMaskNow(rule.compiled), rule.compiled.machine.inputs.length), onSessionPhase));
 }
 
-async function connectSessionsWallet(): Promise<void> { state.walletConnecting = true; render(); try { state.wallet = await connectOkx(state.wallet); rememberConnection(state.wallet.account !== undefined); } finally { state.walletConnecting = false; } render(); void followPendingSession(); }
+async function connectSessionsWallet(): Promise<void> { await connectFlow(); render(); void followPendingSession(); }
 async function switchSessionsNetwork(): Promise<void> { const provider = state.wallet.provider; if (provider === undefined) return; await switchToXLayer(provider); state.wallet = applyConnectionChoice(await readWallet(state.wallet)); render(); }
 
 async function runDeployRuleGate(): Promise<void> {
@@ -1109,7 +1111,30 @@ function docs(): string {
 }
 
 async function refreshQuote(): Promise<void> { state.quoteLoading = true; state.quoteError = undefined; render(); try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } finally { state.quoteLoading = false; render(); } }
-async function connectWallet(): Promise<void> { state.walletConnecting = true; render(); try { state.wallet = await connectOkx(state.wallet); rememberConnection(state.wallet.account !== undefined); } finally { state.walletConnecting = false; } if (state.wallet.status === "ready") { try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } } render(); if (TAPEOUT_ENABLED && state.wallet.status === "ready") void refreshTapeoutPlan(); }
+/** Explicit connect from any button: asks the wallet, switches it to X Layer if needed, and always leaves a visible message when it cannot finish. */
+async function connectFlow(): Promise<void> {
+  walletNotice = undefined;
+  if (state.wallet.provider === undefined) { walletNotice = "OKX Wallet was not found in this browser. On a phone, open this site inside the OKX Wallet app's browser."; render(); return; }
+  state.walletConnecting = true; render();
+  try {
+    let next = await connectOkx(state.wallet);
+    if (next.status === "wrong-network") {
+      walletNotice = "Approve the switch to X Layer in your wallet.";
+      render();
+      const switched = await switchToXLayer(state.wallet.provider);
+      next = switched.ok ? await connectOkx(next) : next;
+      if (!switched.ok) walletNotice = `Your wallet is not on X Layer. ${switched.reason}`;
+    }
+    state.wallet = next;
+    rememberConnection(next.account !== undefined && next.status === "ready");
+    if (next.status === "ready") walletNotice = undefined;
+    else if (walletNotice === undefined || walletNotice.startsWith("Approve")) walletNotice = next.error ?? (next.status === "wrong-network" ? "Your wallet is not on X Layer. Switch to X Layer in the wallet and connect again." : "The wallet did not connect. Open your wallet and try again.");
+  } catch (error) {
+    walletNotice = `The wallet did not connect: ${error instanceof Error ? error.message : String(error)}`;
+  } finally { state.walletConnecting = false; }
+}
+function walletNoticeBar(): string { return walletNotice === undefined ? "" : `<div class="wallet-notice" role="status"><span>${esc(walletNotice)}</span><button type="button" class="wallet-notice-close" id="wallet-notice-close" aria-label="Dismiss">×</button></div>`; }
+async function connectWallet(): Promise<void> { await connectFlow(); if (state.wallet.status === "ready") { try { state.quote = await readOnlyQuote(state.wallet.account); } catch (error) { state.quote = undefined; state.quoteError = error instanceof Error ? error.message : String(error); } } render(); if (TAPEOUT_ENABLED && state.wallet.status === "ready") void refreshTapeoutPlan(); }
 async function refreshReadback(): Promise<void> { const compiled = state.compiled; if (!artifactEligible()) return; state.readbackLoading = true; state.readbackError = undefined; render(); try { state.readback = await readBoundCircuit(compiled?.definition.circuitId ?? "", compiled?.payload.payloadHash ?? ""); state.binding = bindingForCurrent(state.readback); if (!state.binding.liveReady) { state.readbackError = state.binding.detail; state.liveStatus = state.binding.status; } else state.liveStatus = "PENDING"; state.live = undefined; state.liveError = undefined; } catch (error) { state.readback = undefined; state.readbackError = error instanceof Error ? error.message : String(error); state.binding = bindingForCurrent(); state.liveStatus = error instanceof Error && "status" in error ? (error as { status: VerificationStatus }).status : "UNAVAILABLE"; } finally { state.readbackLoading = false; render(); } }
 async function runLive(): Promise<void> { if (state.compiled === undefined || state.binding?.liveReady !== true || state.readback === undefined) return; state.liveLoading = true; state.liveError = undefined; render(); try { const machine = state.compiled.compiled.machine; const mask = machine.inputs.reduce((result, input, index) => result | (state.inputs[input.name] ? 1 << index : 0), 0); state.live = await readLiveStep(state.compiled.definition.circuitId, new Uint8Array([state.selectedState]), inputBytes(state.compiled.compiled, state.inputs)); const local = localStep(state.compiled.compiled, state.selectedState, mask); const localState = formatStateBytes(state.compiled.compiled, local.nextStateBytes); const liveState = formatStateBytes(state.compiled.compiled, state.live.nextState); const localOutput = formatBytes(local.outputBytes); const liveOutput = formatBytes(state.live.outputs); if (localState !== liveState || localOutput !== liveOutput) state.live.mismatches.push(`AST/local mismatch: local ${localState}/${localOutput}, live ${liveState}/${liveOutput}`); state.liveStatus = state.live.mismatches.length === 0 ? "PASSED" : "FAILED"; if (state.liveStatus === "PASSED") { const session: BrowserSession = { artifactDigest: state.compiled.compiled.hash, chainId: browserLock.chainId, processor: browserDeployment.processor, circuitId: state.compiled.definition.circuitId, sourceDigest: state.compiled.sourceDigest, activeState: liveState, history: [{ state: stateName(state.compiled.compiled, state.selectedState), inputs: { ...state.inputs }, localNext: localState, localOutput, origin: "LIVE X LAYER", recordedAt: new Date().toISOString() }] }; upsertSession(session); state.restored = session; } } catch (error) { state.live = undefined; state.liveStatus = error instanceof Error && "status" in error ? (error as { status: VerificationStatus }).status : "UNAVAILABLE"; state.liveError = error instanceof Error ? error.message : String(error); } finally { state.liveLoading = false; render(); } }
 async function boot(root: HTMLElement): Promise<void> {
