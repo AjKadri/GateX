@@ -94,3 +94,24 @@ export function bindProviderEvents(providerState: WalletState, onChange: (next: 
 }
 
 export function abbreviatedAccount(account: string | undefined): string { return account ? `${account.slice(0, 6)}…${account.slice(-4)}` : "none"; }
+
+/**
+ * Explicit connection. Asks the wallet to show its account picker even when this site was approved before
+ * (wallet_requestPermissions), then reads the account. Wallets without that method fall back to eth_requestAccounts.
+ */
+export async function connectOkx(providerState: WalletState): Promise<WalletState> {
+  const provider = providerState.provider;
+  if (!provider) return providerState;
+  try {
+    await provider.request({ method: "wallet_requestPermissions", params: [{ eth_accounts: {} }] });
+  } catch (error) {
+    const code = typeof error === "object" && error !== null ? (error as { code?: unknown }).code : undefined;
+    if (code === 4001 || code === "4001") return { ...providerState, account: undefined, status: "disconnected", error: "Connection cancelled in the wallet." };
+  }
+  return requestOkxAccounts(providerState);
+}
+
+/** Asks the wallet to forget this site, where supported. Never throws. */
+export async function revokeOkx(providerState: WalletState): Promise<void> {
+  try { await providerState.provider?.request({ method: "wallet_revokePermissions", params: [{ eth_accounts: {} }] }); } catch { /* not supported: the app still forgets the connection */ }
+}
