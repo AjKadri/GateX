@@ -62,6 +62,6 @@ The Circuits page lists every circuit live from chain.
 - GateX has not been audited by a third party, and RuleGate has not been audited.
 - GateX has not audited the TapeOut contracts or verified their deployed source.
 - A circuit does not check who calls it. RuleGate limits each session to the wallet that opened it.
-- Tape-out and sessions work with OKX Wallet.
+- Tape-out and sessions currently work with OKX Wallet; support for other wallets is the next step.
 
 See [`README.md`](../README.md), [`demo.md`](demo.md), [`rulegate.md`](rulegate.md) and [`protocol-limitations.md`](protocol-limitations.md) for more.
