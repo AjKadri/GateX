@@ -113,13 +113,28 @@ function artifactEligible(): boolean { const compiled = state.compiled; return c
 function sourceCard(source: string): string { return `<pre class="code-block"><code>${esc(source)}</code></pre>`; }
 
 function pipelineRow(title: string, detail: string, next = false): string { return `<div class="status-row"><span class="status-icon ${next ? "next" : "passed"}">${next ? "→" : "✓"}</span><span><strong>${esc(title)}</strong><small>${esc(detail)}</small></span></div>`; }
+const overviewUi: { sessions?: bigint; started: boolean } = { started: false };
+/** Loaded once per page load; any failure leaves the dash in place. */
+function loadOverviewStats(): void {
+  if (overviewUi.started) return;
+  overviewUi.started = true;
+  if (circuitsUi.status === "idle") void loadCircuits();
+  if (ruleGate !== undefined && isDeployed()) void ruleGate.listSessions({ newest: 1 }).then((list) => { overviewUi.sessions = list.count; if (route() === "/") render(); }).catch(() => undefined);
+}
+function overviewStats(): string {
+  const ready = circuitsUi.status === "ready";
+  const format = (value: bigint | number): string => value.toLocaleString("en-US");
+  const owners = ready ? `${format(distinctOwners(circuitsUi.rows))}${circuitsUi.rows.length < Number(circuitsUi.top) ? "+" : ""}` : "–";
+  const cell = (href: string, value: string, label: string): string => `<a class="overview-stat" href="${href}">${proofStat(value, label)}</a>`;
+  return `<section class="overview-stats" aria-label="Live counts from X Layer">${cell("#/circuits", ready ? format(circuitsUi.top) : "–", "Circuits on X Layer")}${cell("#/circuits", owners, "Distinct owners")}${cell("#/sessions", overviewUi.sessions === undefined ? "–" : format(overviewUi.sessions), "RuleGate sessions")}${cell("#/evidence", ready && circuitsUi.quote !== undefined ? format(circuitsUi.quote.minted) : "–", "Transistors minted")}</section>`;
+}
 function landing(): string {
   const compiled = state.key === "agent" ? state.compiled : undefined;
   const expected = EXAMPLES.agent.expected;
   const machine = compiled?.compiled.machine;
   const declaredTransitions = (AGENT_APPROVAL_SOURCE.match(/^\s*\w+\s*->/gm) ?? []).length; // machine.transitions is the validator's expanded list, not the written rules
   const pipeline = `<aside class="panel pipeline"><div class="panel-label">HOW ONE RULE BECOMES A CIRCUIT</div><div class="status-list">${pipelineRow("Written", `AgentApproval: ${machine?.states.length ?? 4} states, ${declaredTransitions} transitions, ${machine?.inputs.length ?? 6} inputs`)}${pipelineRow("Compiled", `${compiled?.compiled.nandCount ?? expected.nand} NAND gates and ${compiled?.compiled.latchCount ?? expected.latch} latches, same bytes every time`)}${pipelineRow("Checked", `${expected.cases} of ${expected.cases} state and input cases match the source`)}${pipelineRow("On X Layer", `Circuit ${EXAMPLES.agent.circuitId}, read back and matched by two providers`)}${pipelineRow("Yours next", "Tape out your own rule from your wallet, then share a link anyone can verify", true)}</div></aside>`;
-  return `${nav("/")}<main class="page landing"><section class="hero"><div class="hero-text"><div class="eyebrow">VERIFIED CIRCUIT COMPILER <span>•</span> X LAYER / 196</div><h1>Readable rules,<br><span>verified circuits.</span></h1><p class="hero-copy">Write an approval workflow as a state machine. GateX compiles it to a TapeOut circuit on X Layer and proves the circuit does what the source says.</p><div class="hero-actions"><a class="button primary" href="#/workspace">Open workspace <span>↗</span></a><a class="text-link" href="#/circuits">See all circuits</a></div><div class="hero-proof"><span class="pulse-check">✓</span><span><strong>AgentApproval</strong> is the flagship proof</span><span class="divider"></span><span>${expected.cases} / ${expected.cases} cases matched</span></div></div>${pipeline}</section><section class="overview-grid"><article class="panel dark-panel flagship"><div class="panel-label">FLAGSHIP EXAMPLE <span>${badge("LIVE REFERENCE", "blue")}</span></div><h2>AgentApproval</h2><p class="muted">A small approval flow with explicit human and scope checks, compiled through the same generic GateX language path.</p>${compiled ? machineSummary(compiled) : "<div class=loading>Compiling the example…</div>"}<div class="flagship-foot"><div class="small-rule"></div><div class="state-line">${compiled ? compiled.compiled.machine.states.map((item) => `<span>${esc(item.name)}</span>`).join("<i>→</i>") : "IDLE → REQUESTED → APPROVED → USED"}</div></div></article><article class="panel source-panel"><div class="panel-label">SOURCE DSL <span>${badge("SOURCE VALID", "green")}</span></div>${sourceCard(AGENT_APPROVAL_SOURCE.trim())}<a class="text-link" href="#/workspace">Edit in workspace ↗</a></article></section><section class="callout landing-callout"><div class="callout-icon">◎</div><div><strong>Caller-owned state</strong><p>State is stored by this browser. TapeOut computes transitions; it does not store this workflow.</p></div></section></main>${footer()}`;
+  return `${nav("/")}<main class="page landing"><section class="hero"><div class="hero-text"><div class="eyebrow">VERIFIED CIRCUIT COMPILER <span>•</span> X LAYER / 196</div><h1>Readable rules,<br><span>verified circuits.</span></h1><p class="hero-copy">Write an approval workflow as a state machine. GateX compiles it to a TapeOut circuit on X Layer and proves the circuit does what the source says.</p><div class="hero-actions"><a class="button primary" href="#/workspace">Open workspace <span>↗</span></a><a class="text-link" href="#/circuits">See all circuits</a></div><div class="hero-proof"><span class="pulse-check">✓</span><span><strong>AgentApproval</strong> is the flagship proof</span><span class="divider"></span><span>${expected.cases} / ${expected.cases} cases matched</span></div></div>${pipeline}</section>${overviewStats()}<section class="overview-grid"><article class="panel dark-panel flagship"><div class="panel-label">FLAGSHIP EXAMPLE <span>${badge("LIVE REFERENCE", "blue")}</span></div><h2>AgentApproval</h2><p class="muted">A small approval flow with explicit human and scope checks, compiled through the same generic GateX language path.</p>${compiled ? machineSummary(compiled) : "<div class=loading>Compiling the example…</div>"}<div class="flagship-foot"><div class="small-rule"></div><div class="state-line">${compiled ? compiled.compiled.machine.states.map((item) => `<span>${esc(item.name)}</span>`).join("<i>→</i>") : "IDLE → REQUESTED → APPROVED → USED"}</div></div></article><article class="panel source-panel"><div class="panel-label">SOURCE DSL <span>${badge("SOURCE VALID", "green")}</span></div>${sourceCard(AGENT_APPROVAL_SOURCE.trim())}<a class="text-link" href="#/workspace">Edit in workspace ↗</a></article></section><section class="callout landing-callout"><div class="callout-icon">◎</div><div><strong>Caller-owned state</strong><p>State is stored by this browser. TapeOut computes transitions; it does not store this workflow.</p></div></section></main>${footer()}`;
 }
 
 function compilePanel(): string { const compiled = state.compiled; if (state.compiling) return `<section class="panel"><div class="loading">Compiling through the generic GateX path…</div></section>`; if (compiled === undefined) return `<section class="panel error-panel"><div class="panel-label">COMPILER DIAGNOSTICS ${badge("BLOCKED", "amber")}</div><div class="diagnostics">${state.diagnostics.map((item) => `<div class="diagnostic"><code>${esc(item.code)}</code><span>${esc(item.message)}</span><small>${esc(item.location)}</small></div>`).join("")}</div><p class="muted">Invalid source cannot be compiled into a circuit.${TAPEOUT_ENABLED ? "" : " This workspace is read-only."}</p></section>`; const expected = compiled.definition.expected; const sourceExact = state.source.trim() === compiled.definition.source.trim(); return `<section class="panel" id="ws-compile"><div class="panel-label">COMPILE RESULT <span>${badge("DETERMINISTIC", "green")}</span></div><div class="compile-head"><div><h3>${sourceExact ? `${esc(compiled.definition.label)} <span class="id-chip">circuit ${compiled.definition.circuitId}</span>` : `${esc(compiled.compiled.machine.name)} <span class="id-chip">not manufactured</span>`}</h3><p class="muted">Compiled the same way every time and checked against the source for every case.</p></div><span class="big-check">✓</span></div>${machineSummary(compiled)}${checkedLine()}<details class="tech-details"><summary>Technical details</summary><div class="kv-grid"><div><small>State encoding</small><code>${compiled.compiled.machine.stateBits} bits · LSB-first</code></div><div><small>Local container</small><code>${compiled.compiled.bytes.length} bytes · ${shortHash(compiled.compiled.hash)}</code></div><div><small>TapeOut payload</small><code>${compiled.payload.payload.length} bytes · ${shortHash(compiled.payload.payloadHash)}</code></div><div><small>Dimensions</small><code>(${compiled.payload.dimensions.nIn}, ${compiled.payload.dimensions.nOut}, ${compiled.payload.dimensions.nState}, ${compiled.payload.dimensions.gateCount})</code></div></div><div class="hash-line"><span>Local SHA-256</span><code>${esc(compiled.compiled.hash)}</code></div><div class="hash-line"><span>Payload SHA-256</span><code>${esc(compiled.payload.payloadHash)}</code></div></details><p class="compile-note">${sourceExact && compiled.artifactMatch && compiled.deterministic && compiled.compiled.bytes.length === expected.localBytes ? "Matches the circuit manufactured on X Layer." : "Not on X Layer yet. You can tape it out below."}</p></section>`; }
@@ -499,7 +514,8 @@ function loadTemplate(key: string): void {
 
 function routeEffects(): void {
   const current = route();
-  if (current === "/workspace") applyHashParams();
+  if (current === "/") loadOverviewStats();
+  else if (current === "/workspace") applyHashParams();
   else if (current === "/circuits" && circuitsUi.status === "idle") void loadCircuits();
   else if (current === "/sessions") loadSessionsPage();
   else if ((current === "/evidence" || current === "/docs") && (pricingUi.status === "idle" || pricingUi.status === "error")) void loadPricing();
@@ -617,7 +633,7 @@ async function loadCircuits(): Promise<void> {
   if (circuitsUi.status === "loading") return;
   circuitsToken += 1; const token = circuitsToken;
   Object.assign(circuitsUi, { status: "loading", error: undefined, rows: [], top: 0n, cursor: 0n, moreError: undefined, loadingMore: false });
-  if (route() === "/circuits" || route() === "/sessions") render();
+  if (route() === "/circuits" || route() === "/sessions" || route() === "/") render();
   void ensureKnownRules();
   try {
     const quote = await readOnlyQuote();
@@ -630,7 +646,7 @@ async function loadCircuits(): Promise<void> {
     if (token !== circuitsToken) return;
     circuitsUi.status = "error"; circuitsUi.error = error instanceof Error ? error.message : String(error);
   }
-  if (route() === "/circuits" || route() === "/sessions") render();
+  if (route() === "/circuits" || route() === "/sessions" || route() === "/") render();
 }
 
 async function loadMoreCircuits(): Promise<void> {
