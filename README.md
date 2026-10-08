@@ -54,9 +54,11 @@ Payload hashes and block references are in [`public/evidence/release.json`](publ
 
 ## What GateX does not do
 
-GateX checks behaviour. The workflow state lives with the caller, in the browser, and TapeOut computes each
-transition without storing it. So GateX does not provide replay protection, identity checks, custody or agent
-execution, and it is not an audit of the TapeOut contracts. Details are in
+GateX checks behaviour. The TapeOut processor computes each transition without storing it: in the workspace the
+state lives in your browser. RuleGate sessions store the state on X Layer and only the wallet that opened a session
+can advance it, so a session cannot be replayed or moved by anyone else. Beyond that, GateX does not check who
+calls a circuit, holds no custody, does not execute agents, and is not an audit of the TapeOut contracts. Neither
+GateX nor RuleGate has been audited by a third party. Details are in
 [`docs/protocol-limitations.md`](docs/protocol-limitations.md).
 
 ## Run locally

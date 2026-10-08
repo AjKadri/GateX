@@ -1,5 +1,7 @@
 # GateX production release
 
+> This records the read-only release of October 6, 2026. Browser tape-out, the Circuits and Sessions pages, and RuleGate were added afterwards; see the [README](../README.md) and [`rulegate.md`](rulegate.md).
+
 ## Release
 
 - Production URL: https://gatex.ajkadri.dev

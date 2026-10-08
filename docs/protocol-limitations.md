@@ -21,6 +21,7 @@ This page lists what GateX has and has not verified about the TapeOut protocol o
 - No authoritative persistent `beat` consumer, state storage path, reset authority, replay protection, identity authentication, custody, or asset enforcement was established for this MVP.
 - `step()` is read-only. It computes a transition and changes nothing on chain. GateX describes it as live transition computation or live circuit evaluation, not as state-changing on-chain execution.
 - Application or caller state is replayable and remains outside the protocol-owned persistence boundary.
+- RuleGate, GateX's own contract, adds stored state outside the protocol: a session keeps its state on X Layer and only the wallet that opened it can advance it. It holds no funds, has no admin, has not been audited, and trusts the processor's `step` as-is. See [`rulegate.md`](rulegate.md).
 
 ## REF and composition
 
