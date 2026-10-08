@@ -20,7 +20,7 @@ RuleGate, the GateX contract, makes those circuits decide something on chain. It
 - Deployment wallet: [`0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4`](https://www.oklink.com/xlayer/address/0x9fa5db29dfc46e9bfdde271e44364d4ba64244c4)
 - Processor creation tx: [`0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48`](https://www.oklink.com/xlayer/tx/0x3e12f5f4173c998a07bb9c2a2cc463fecf9d1e7fbf6ca03291200683c496bd48)
 - Demo: https://gatex.ajkadri.dev
-- Demo video: to be added before submission
+- Demo video and announcement: https://x.com/Web3AJ_/status/2108313290807894092
 - Repository: https://github.com/AjKadri/GateX
 
 ## Transistor terms

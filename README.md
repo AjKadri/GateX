@@ -2,7 +2,7 @@
 
 **Write an approval workflow as a readable state machine. GateX compiles it to a TapeOut circuit on X Layer and proves the circuit does what the source says.**
 
-[Live workspace](https://gatex.ajkadri.dev)
+[Live workspace](https://gatex.ajkadri.dev) · [Demo video](https://x.com/Web3AJ_/status/2108313290807894092)
 
 ## Why it exists
 
