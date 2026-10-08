@@ -490,6 +490,7 @@ function bindSessionsEvents(): void {
   click("#sessions-deploy", () => void runDeployRuleGate());
   click("#sessions-retry", () => { sessionsUi.recent.status = "idle"; void loadRecentSessions(); });
   click("#sessions-discard", () => { const account = state.wallet.account; if (account !== undefined && ruleGate?.discardInterruptedSigning(account) === true) { sessionsUi.action = { status: "idle" }; render(); } });
+  click("#try-agent", () => { sessionsUi.pick = "2"; render(); document.querySelector<HTMLElement>(".open-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
   document.querySelectorAll<HTMLInputElement>("[data-pick]").forEach((input) => input.addEventListener("change", () => { sessionsUi.pick = input.dataset.pick; render(); }));
   document.querySelectorAll<HTMLInputElement>("[data-session-input]").forEach((input) => input.addEventListener("change", () => { const name = input.dataset.sessionInput; if (name) sessionsUi.inputs[name] = input.checked; void refreshPreview(); }));
   document.querySelectorAll<HTMLButtonElement>("[data-sessions-copy]").forEach((button) => button.addEventListener("click", () => void copyText(button.dataset.sessionsCopy ?? "").then((copied) => { button.textContent = copied ? "Copied" : "Copy failed"; })));
@@ -1001,7 +1002,7 @@ function recentPanel(): string {
 function sessionsPage(): string {
   const heading = `<section class="page-heading"><div><div class="eyebrow">SESSIONS / RULEGATE</div><h1>Rules that remember.</h1><p>A circuit decides each move. RuleGate stores the result on X Layer, so a rule can only advance the way its circuit allows.</p></div></section>`;
   if (!isDeployed()) return `${nav("/sessions")}<main class="page sessions">${heading}<section class="panel neutral-panel"><div class="panel-label">RULEGATE</div><h3>RuleGate is not deployed yet.</h3><p class="muted">Sessions need the RuleGate contract on X Layer. Until it is deployed there is nothing to open or read here.</p></section>${deployTool()}</main>${footer()}`;
-  return `${nav("/sessions")}<main class="page sessions">${heading}<div class="sessions-layout">${openPanel()}${sessionPanel()}</div>${recentPanel()}</main>${footer()}`;
+  return `${nav("/sessions")}<main class="page sessions">${heading}${routeQuery().get("id") === null ? `<section class="panel first-visit"><div><strong>New here?</strong> Try it with AgentApproval: open a session on circuit #2 and step it from IDLE to USED.</div><div class="first-visit-actions"><button class="button primary small-button" id="try-agent">Try with AgentApproval</button><a class="text-link" href="#/sessions?id=1">Or watch a finished session ↗</a></div></section>` : ""}<div class="sessions-layout">${openPanel()}${sessionPanel()}</div>${recentPanel()}</main>${footer()}`;
 }
 
 const GITHUB = "https://github.com/AjKadri/GateX";
