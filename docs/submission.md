@@ -45,6 +45,9 @@ RuleGate, the GateX contract, makes those circuits decide something on chain. It
 2. AgentApproval, 98 NAND and 2 LATCH. Manufacture tx [`0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be`](https://www.oklink.com/xlayer/tx/0xf8fca87f75de3ebf9326071b0341c9307dd5d768c90558542c6013100816a8be)
 3. AgentApproval, taped out from the browser by a second wallet belonging to the author, as the live test of the tape-out flow.
 
+4. VaultRelease, taped out from the live site by the author's test wallet.
+5. VaultRelease, taped out from the live site by an outside tester (owner `0x9cdf…fecc`).
+
 The Circuits page lists every circuit live from chain.
 
 ## What a visitor can do
